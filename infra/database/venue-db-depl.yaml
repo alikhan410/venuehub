@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: venue-db-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: venue-db
+  template:
+    metadata:
+      labels:
+        app: venue-db
+    spec:
+      containers:
+        - name: venue-db
+          image: mysql:8.3.0
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: my-secret-pw
+            - name: MYSQL_DATABASE
+              value: venueservice
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: venue-db-srv
+spec:
+  selector:
+    app: venue-db
+  ports:
+    - name: venue-db
+      protocol: TCP
+      port: 3306
+      targetPort: 3306

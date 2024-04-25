@@ -1,0 +1,45 @@
+server:
+  port: 8080
+#//-------------------------------------------------------------//
+spring:
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+  datasource:
+    url: jdbc:mysql://localhost:3306/authservice
+    username: ali
+    password: "@Li4103568"
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  main:
+    banner-mode: OFF
+
+  jpa:
+    show-sql: false
+    generate-ddl: true
+    database-platform: org.hibernate.dialect.MySQLDialect
+
+    hibernate:
+      ddl-auto: update
+#//-------------------------------------------------------------//
+logging:
+  level:
+    root: warn
+    web: warn
+#//-------------------------------------------------------------//
+eureka:
+
+  instance:
+    prefer-ip-address: true
+    metadata-map:
+      zone: zone1
+
+  client:
+    register-with-eureka: true
+    region: region1
+    availability-zones:
+      region1: zone1
+    service-url:
+      zone1: http://localhost:8761/eureka/
+

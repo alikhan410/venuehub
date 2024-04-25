@@ -1,0 +1,27 @@
+server:
+  port: 8761
+#//-------------------------------------------------------------//
+logging:
+  level:
+    root: warn
+    web: warn
+#//-------------------------------------------------------------//
+eureka:
+
+
+  client:
+
+    register-with-eureka: false
+    fetch-registry: false
+    region: region1
+    serviceUrl:
+      zone1: http://discovery-server:8761/eureka/
+    availability-zones:
+      region1: zone1
+    healthcheck:
+      enabled: true
+
+  instance:
+    hostname: discovery-srv
+    metadata-map:
+      zone: zone1

@@ -1,0 +1,50 @@
+server:
+  port: 8181
+#//-------------------------------------------------------------//
+eureka:
+
+
+  instance:
+    prefer-ip-address: true
+    metadata-map:
+      zone: zone1
+
+  client:
+    fetch-registry: false
+    register-with-eureka: false
+
+#//-------------------------------------------------------------//
+logging:
+  level:
+    root: warn
+    web: warn
+#//-------------------------------------------------------------//
+spring:
+  cloud:
+    gateway:
+
+      routes:
+        - id: booking-service
+          uri: http://booking-srv.default.svc.cluster.local:6000
+          predicates:
+            - Path=/booking/{id}, /booking
+            - Method=GET,POST, DELETE
+
+        - id: auth-service
+          uri: http://auth-srv.default.svc.cluster.local:8080
+          predicates:
+            - Path=/user/login,/user/register,/vendor/register,/vendor/login,/.well-known/jwks.json,/current-user
+            - Method=GET,POST
+
+        - id: venue-service
+          uri: http://venue-srv.default.svc.cluster.local:9000
+          predicates:
+            - Path=/venue, /venue/{id}
+            - Method=GET,POST,DELETE
+
+        - id: payment-service
+          uri: http://payment-srv.default.svc.cluster.local-srv
+          predicates:
+            - Path=/create-payment-intent
+            - Method=GET,POST
+

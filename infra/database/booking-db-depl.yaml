@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: booking-db-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: booking-db
+  template:
+    metadata:
+      labels:
+        app: booking-db
+    spec:
+      containers:
+        - name: booking-db
+          image: booking-mysql:latest
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: my-secret-pw
+            - name: MYSQL_DATABASE
+              value: bookingservice
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: booking-db-srv
+spec:
+  selector:
+    app: booking-db
+  ports:
+    - name: booking-db
+      protocol: TCP
+      port: 3306
+      targetPort: 3306

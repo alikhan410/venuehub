@@ -1,0 +1,37 @@
+apiVersion: skaffold/v3alpha1
+kind: Config
+manifests:
+  rawYaml:
+    - ./infra/k8s/*
+build:
+  local: {}
+  artifacts:
+    - image: discovery-service
+      context: eureka
+      docker:
+        dockerfile: Dockerfile
+
+    # - image: booking-service
+    #   context: bookingservice/src/main/Docker
+    #   docker:
+    #     dockerfile: Dockerfile
+
+    # - image: venue-service
+    #   context: venueservice/src/main/Docker
+    #   docker:
+    #     dockerfile: Dockerfile
+
+    # - image: auth-service
+    #   context: authentication-service/src/main/Docker
+    #   docker:
+    #     dockerfile: Dockerfile
+
+    # - image: api-gateway
+    #   context: gateway/src/main/Docker
+    #   docker:
+    #     dockerfile: Dockerfile
+
+deploy:
+  docker:
+    images: [discovery-service]
+    # images: [booking-service, venue-service, auth-service, api-gateway, discovery-service]
