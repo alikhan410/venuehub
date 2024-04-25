@@ -6,8 +6,7 @@ import com.venuehub.broker.event.booking.BookingCreatedEvent;
 import com.venuehub.broker.event.booking.BookingUpdatedEvent;
 import com.venuehub.broker.producer.BookingCreatedProducer;
 import com.venuehub.broker.producer.BookingUpdatedProducer;
-import com.venuehub.commons.exception.BookingUnavailableException;
-import com.venuehub.commons.exception.NoSuchBookingException;
+import com.venuehub.commons.exception.*;
 import com.venuehub.bookingservice.mapper.Mapper;
 import com.venuehub.bookingservice.model.BookedVenue;
 import com.venuehub.bookingservice.model.Venue;
@@ -16,8 +15,6 @@ import com.venuehub.bookingservice.service.BookedVenueService;
 import com.venuehub.bookingservice.service.JobService;
 import com.venuehub.bookingservice.service.VenueService;
 
-import com.venuehub.commons.exception.NoSuchVenueException;
-import com.venuehub.commons.exception.UserUnAuthorizedException;
 import jakarta.validation.Valid;
 import org.quartz.JobDetail;
 import org.quartz.SchedulerException;
@@ -125,7 +122,7 @@ public class BookedVenueController {
         BookedVenue booking = bookedVenueService.findById(bookingId).orElseThrow(NoSuchBookingException::new);
 
         if (!booking.getUsername().equals(jwt.getSubject())) {
-            throw new UserUnAuthorizedException();
+            throw new UserForbiddenException();
         }
 
         if (booking.getStatus().equals(BookingStatus.BOOKED)){
@@ -151,7 +148,7 @@ public class BookedVenueController {
         BookedVenue booking = bookedVenueService.findById(bookingId).orElseThrow(NoSuchBookingException::new);
 
         if (!booking.getUsername().equals(jwt.getSubject())) {
-            throw new UserUnAuthorizedException();
+            throw new UserForbiddenException();
         }
 
         if (booking.getStatus().equals(BookingStatus.BOOKED)){

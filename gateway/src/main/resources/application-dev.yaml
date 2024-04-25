@@ -44,7 +44,7 @@ spring:
           uri: lb://venue-service
           predicates:
             - Path=/venue, /venue/{id}
-            - Method=GET,POST,DELETE
+            - Method=GET,POST,DELETE,PUT
 
         - id: payment-service
           uri: lb://payment-service

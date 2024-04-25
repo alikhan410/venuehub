@@ -6,7 +6,7 @@ import com.venuehub.broker.event.venue.VenueDeletedEvent;
 import com.venuehub.broker.producer.VenueCreatedProducer;
 import com.venuehub.broker.producer.VenueDeletedProducer;
 import com.venuehub.commons.exception.NoSuchVenueException;
-import com.venuehub.commons.exception.UserUnAuthorizedException;
+import com.venuehub.commons.exception.UserForbiddenException;
 import com.venuehub.venueservice.dto.VenueDto;
 import com.venuehub.venueservice.mapper.Mapper;
 import com.venuehub.venueservice.model.Venue;
@@ -51,8 +51,12 @@ public class VenueController {
     }
 
     @PostMapping("/venue")
-    @PreAuthorize("hasRole('ROLE_VENDOR')")
+//    @PreAuthorize("hasRole('ROLE_VENDOR')")
     public ResponseEntity<VenueDto> addVenue(@RequestBody VenueDto body, @AuthenticationPrincipal Jwt jwt) {
+
+        if (!jwt.getClaimAsStringList("roles").contains("VENDOR")) {
+            throw new UserForbiddenException();
+        }
 
         Venue newVenue = new Venue();
 
@@ -78,14 +82,14 @@ public class VenueController {
 
 
     @DeleteMapping("/venue/{id}")
-    @PreAuthorize("hasRole('ROLE_VENDOR')")
+//    @PreAuthorize("hasRole('ROLE_VENDOR')")
     public ResponseEntity<HttpStatus> deleteVenue(@PathVariable long id, @AuthenticationPrincipal Jwt jwt) {
 
         //checking if a venue exists
         Venue venue = venueService.findById(id).orElseThrow(NoSuchVenueException::new);
 
-        if (!jwt.getSubject().equals(jwt.getSubject())) {
-            throw new UserUnAuthorizedException();
+        if (!jwt.getSubject().equals(venue.getUsername()) || !jwt.getClaimAsStringList("roles").contains("VENDOR")) {
+            throw new UserForbiddenException();
         }
 
         venueService.deleteById(id);
@@ -110,12 +114,12 @@ public class VenueController {
     }
 
     @PutMapping("/venue/{id}")
-    @PreAuthorize("hasRole('ROLE_VENDOR')")
-    public ResponseEntity<HttpStatus> updateVenue(@PathVariable long id, VenueDto body,@AuthenticationPrincipal Jwt jwt) throws Exception {
+//    @PreAuthorize("hasRole('ROLE_VENDOR')")
+    public ResponseEntity<HttpStatus> updateVenue(@PathVariable long id,@RequestBody VenueDto body, @AuthenticationPrincipal Jwt jwt) throws Exception {
 
         Venue venue = venueService.findById(id).orElseThrow(NoSuchVenueException::new);
-        if (jwt.getSubject()!= venue.getUsername()) {
-            throw new UserUnAuthorizedException();
+        if (!jwt.getSubject().equals(venue.getUsername()) || !jwt.getClaimAsStringList("roles").contains("VENDOR")) {
+            throw new UserForbiddenException();
         }
 
         venue.setEstimate(body.estimate());
