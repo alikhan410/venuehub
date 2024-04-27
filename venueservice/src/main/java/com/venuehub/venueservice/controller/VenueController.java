@@ -1,10 +1,13 @@
 package com.venuehub.venueservice.controller;
 
 
+import com.venuehub.broker.constants.MyExchange;
 import com.venuehub.broker.event.venue.VenueCreatedEvent;
 import com.venuehub.broker.event.venue.VenueDeletedEvent;
-import com.venuehub.broker.producer.VenueCreatedProducer;
-import com.venuehub.broker.producer.VenueDeletedProducer;
+import com.venuehub.broker.event.venue.VenueUpdatedEvent;
+import com.venuehub.broker.producer.venue.VenueCreatedProducer;
+import com.venuehub.broker.producer.venue.VenueDeletedProducer;
+import com.venuehub.broker.producer.venue.VenueUpdatedProducer;
 import com.venuehub.commons.exception.NoSuchVenueException;
 import com.venuehub.commons.exception.UserForbiddenException;
 import com.venuehub.venueservice.dto.VenueDto;
@@ -17,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
@@ -35,12 +37,14 @@ public class VenueController {
     private final VenueService venueService;
     private final VenueCreatedProducer venueCreatedProducer;
     private final VenueDeletedProducer venueDeletedProducer;
+    private final VenueUpdatedProducer venueUpdatedProducer;
 
     @Autowired
-    public VenueController(VenueService venueService, VenueCreatedProducer venueCreatedProducer, VenueDeletedProducer venueDeletedProducer) {
+    public VenueController(VenueService venueService, VenueCreatedProducer venueCreatedProducer, VenueDeletedProducer venueDeletedProducer, VenueUpdatedProducer venueUpdatedProducer) {
         this.venueService = venueService;
         this.venueCreatedProducer = venueCreatedProducer;
         this.venueDeletedProducer = venueDeletedProducer;
+        this.venueUpdatedProducer = venueUpdatedProducer;
     }
 
     @GetMapping("/venue/{id}")
@@ -75,7 +79,7 @@ public class VenueController {
 
         //Sending venue created event to the broker
         VenueCreatedEvent event = new VenueCreatedEvent(newVenue.getId(), jwt.getSubject());
-        venueCreatedProducer.produce(event);
+        venueCreatedProducer.produce(event, MyExchange.BOOKING_EXCHANGE);
 
         return new ResponseEntity<>(venueDto, HttpStatus.CREATED);
     }
@@ -96,7 +100,7 @@ public class VenueController {
 
         //Sending venue deleted event to the broker
         VenueDeletedEvent event = new VenueDeletedEvent(id, jwt.getSubject());
-        venueDeletedProducer.produce(event);
+        venueDeletedProducer.produce(event, MyExchange.BOOKING_EXCHANGE);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -115,7 +119,7 @@ public class VenueController {
 
     @PutMapping("/venue/{id}")
 //    @PreAuthorize("hasRole('ROLE_VENDOR')")
-    public ResponseEntity<HttpStatus> updateVenue(@PathVariable long id,@RequestBody VenueDto body, @AuthenticationPrincipal Jwt jwt) throws Exception {
+    public ResponseEntity<HttpStatus> updateVenue(@PathVariable long id, @RequestBody VenueDto body, @AuthenticationPrincipal Jwt jwt) throws Exception {
 
         Venue venue = venueService.findById(id).orElseThrow(NoSuchVenueException::new);
         if (!jwt.getSubject().equals(venue.getUsername()) || !jwt.getClaimAsStringList("roles").contains("VENDOR")) {
@@ -128,7 +132,15 @@ public class VenueController {
 
         venueService.save(venue);
 
-        //TODO produce venue updated event
+        VenueUpdatedEvent event = new VenueUpdatedEvent(
+                id,
+                body.name(),
+                body.image(),
+                body.capacity(),
+                body.phone(),
+                body.estimate()
+        );
+        venueUpdatedProducer.produce(event,MyExchange.BOOKING_EXCHANGE);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

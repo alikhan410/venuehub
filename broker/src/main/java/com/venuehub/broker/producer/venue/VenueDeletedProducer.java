@@ -1,7 +1,8 @@
-package com.venuehub.broker.producer;
+package com.venuehub.broker.producer.venue;
 
 import com.venuehub.broker.constants.MyExchange;
 import com.venuehub.broker.event.venue.VenueDeletedEvent;
+import com.venuehub.broker.producer.BaseProducer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
@@ -18,8 +19,8 @@ public class VenueDeletedProducer extends BaseProducer<VenueDeletedEvent> {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    public void produce(VenueDeletedEvent event) {
-        rabbitTemplate.convertAndSend(MyExchange.VENUE_EXCHANGE.name(),"venue",event);
+    public void produce(VenueDeletedEvent event ,MyExchange exchange) {
+        rabbitTemplate.convertAndSend(exchange.name(),"venue-deleted",event);
         LOGGER.info("Message sent from venue-deleted-producer");
     }
 }

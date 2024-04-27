@@ -9,9 +9,6 @@ import lombok.Data;
 
 @Data
 public class BookedVenueDto {
-    @NotNullNotBlank(message = "Customer name can not be null or empty")
-    private String username;
-
     @Email(message = "Email can not be null or empty")
     private String email;
 
@@ -25,7 +22,5 @@ public class BookedVenueDto {
 
     @Min(value = 0, message = "Invalid value")
     private int guests;
-//
-//    @JsonBackReference
-//    private Venue venue;
+
 }

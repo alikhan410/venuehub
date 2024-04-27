@@ -2,8 +2,9 @@ package com.venuehub.bookingservice.service;
 
 import com.venuehub.broker.constants.BookingStatus;
 import com.venuehub.bookingservice.model.BookedVenue;
+import com.venuehub.broker.constants.MyExchange;
 import com.venuehub.broker.event.booking.BookingUpdatedEvent;
-import com.venuehub.broker.producer.BookingUpdatedProducer;
+import com.venuehub.broker.producer.booking.BookingUpdatedProducer;
 import com.venuehub.commons.exception.NoSuchBookingException;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -20,10 +21,13 @@ public class RemoveBookingService extends QuartzJobBean {
     @Autowired
     BookedVenueService bookedVenueService;
 
-    @Autowired
-    BookingUpdatedProducer producer;
+    private final BookingUpdatedProducer producer;
 
     private final Logger LOGGER = LoggerFactory.getLogger(RemoveBookingService.class);
+
+    public RemoveBookingService(BookingUpdatedProducer producer) {
+        this.producer = producer;
+    }
 
     @Override
     protected void executeInternal(JobExecutionContext context) throws JobExecutionException {
@@ -40,13 +44,17 @@ public class RemoveBookingService extends QuartzJobBean {
     }
 
     public void removeBooking(long bookingId) throws Exception {
-        bookedVenueService.updateStatus(bookingId, BookingStatus.COMPLETED);
         BookedVenue booking = bookedVenueService.findById(bookingId).orElseThrow(NoSuchBookingException::new);
+        if (booking.getStatus() == BookingStatus.FAILED) {
+            return;
+        }
+        bookedVenueService.updateStatus(bookingId, BookingStatus.COMPLETED);
         LOGGER.info("Booking Completed");
         BookingUpdatedEvent event = new BookingUpdatedEvent(
                 bookingId,
                 BookingStatus.COMPLETED
                 );
-        producer.produce(event);
+        producer.produce(event, MyExchange.VENUE_EXCHANGE);
+        producer.produce(event,MyExchange.PAYMENT_EXCHANGE);
     }
 }

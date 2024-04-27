@@ -89,12 +89,12 @@ public class BookedVenueService {
     }
 
     @Transactional
-    public BookedVenue addNewBooking(BookedVenueDto body, Venue venue){
+    public BookedVenue addNewBooking(BookedVenueDto body, Venue venue, String username){
         BookedVenue newBooking = BookedVenue.builder()
                 .bookingDateTime(body.getBookingDateTime())
                 .status(BookingStatus.RESERVED)
                 .venue(venue)
-                .username(body.getUsername())
+                .username(username)
                 .phone(body.getPhone())
                 .email(body.getEmail())
                 .guests(body.getGuests()).build();

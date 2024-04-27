@@ -3,18 +3,22 @@ package com.venuehub.paymentservice.controller;
 import com.stripe.exception.StripeException;
 import com.stripe.model.PaymentIntent;
 import com.venuehub.broker.constants.BookingStatus;
+import com.venuehub.broker.constants.MyExchange;
 import com.venuehub.broker.event.booking.BookingUpdatedEvent;
-import com.venuehub.broker.producer.BookingUpdatedProducer;
+import com.venuehub.broker.producer.booking.BookingUpdatedProducer;
 import com.venuehub.commons.exception.NoSuchBookingException;
 import com.venuehub.commons.exception.UserUnAuthorizedException;
 import com.venuehub.paymentservice.dto.BookedVenueDto;
-import com.venuehub.paymentservice.dto.BookingPayment;
+import com.venuehub.paymentservice.dto.ConfirmPaymentDto;
+import com.venuehub.paymentservice.model.BookedVenue;
+import com.venuehub.paymentservice.response.ConfirmPaymentResponse;
 import com.venuehub.paymentservice.response.CreatePaymentResponse;
 import com.venuehub.paymentservice.service.BookedVenueService;
 import com.venuehub.paymentservice.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,18 +49,32 @@ public class PaymentController {
         return new CreatePaymentResponse(paymentIntent.getClientSecret());
     }
 
-    public void ConfirmPayment(String clientId, Long bookingId) throws Exception {
-        PaymentIntent paymentIntent = PaymentIntent.retrieve(clientId);
+    @GetMapping("/confirm-payment")
+    public ConfirmPaymentResponse ConfirmPayment(@RequestBody ConfirmPaymentDto body) throws Exception {
+        BookedVenue booking = bookedVenueService.findById(body.bookingId()).orElseThrow(NoSuchBookingException::new);
 
-        if (paymentIntent.getStatus().equals("succeeded")) {
-            bookedVenueService.updateStatus(bookingId, BookingStatus.BOOKED);
-
-            BookingUpdatedEvent event = new BookingUpdatedEvent(bookingId, BookingStatus.BOOKED);
-            producer.produce(event);
-
-        } else {
-            throw new Exception("Payment did not succeed");
+        if(!booking.getStatus().equals(BookingStatus.RESERVED)){
+            //TODO make a new exception for booking not reserved
+            throw new Exception("Booking not reserved");
         }
+
+        bookedVenueService.updateStatus(body.bookingId(), BookingStatus.BOOKED);
+
+        BookingUpdatedEvent event = new BookingUpdatedEvent(body.bookingId(), BookingStatus.BOOKED);
+        producer.produce(event, MyExchange.BOOKING_EXCHANGE);
+        producer.produce(event, MyExchange.VENUE_EXCHANGE);
+        return new ConfirmPaymentResponse("Succeeded");
+//        PaymentIntent paymentIntent = PaymentIntent.retrieve(body.clientId());
+//
+//        if (paymentIntent.getStatus().equals("succeeded")) {
+//            bookedVenueService.updateStatus(body.bookingId(), BookingStatus.BOOKED);
+//
+//            BookingUpdatedEvent event = new BookingUpdatedEvent(body.bookingId(), BookingStatus.BOOKED);
+//            producer.produce(event);
+//
+//        } else {
+//            throw new Exception("Payment did not succeed");
+//        }
 
     }
 }

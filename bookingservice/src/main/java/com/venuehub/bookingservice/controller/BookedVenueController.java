@@ -2,10 +2,11 @@ package com.venuehub.bookingservice.controller;
 
 import com.venuehub.bookingservice.dto.BookedVenueDto;
 import com.venuehub.broker.constants.BookingStatus;
+import com.venuehub.broker.constants.MyExchange;
 import com.venuehub.broker.event.booking.BookingCreatedEvent;
 import com.venuehub.broker.event.booking.BookingUpdatedEvent;
-import com.venuehub.broker.producer.BookingCreatedProducer;
-import com.venuehub.broker.producer.BookingUpdatedProducer;
+import com.venuehub.broker.producer.booking.BookingCreatedProducer;
+import com.venuehub.broker.producer.booking.BookingUpdatedProducer;
 import com.venuehub.commons.exception.*;
 import com.venuehub.bookingservice.mapper.Mapper;
 import com.venuehub.bookingservice.model.BookedVenue;
@@ -67,7 +68,7 @@ public class BookedVenueController {
             throw new BookingUnavailableException();
         }
 
-        BookedVenue newBooking = bookedVenueService.addNewBooking(body, venue);
+        BookedVenue newBooking = bookedVenueService.addNewBooking(body, venue, jwt.getSubject());
 
         //Starting  a booking removing job
         JobDetail bookingjobDetail = jobService.buildBookingJob(newBooking.getId());
@@ -87,7 +88,8 @@ public class BookedVenueController {
                 jwt.getSubject()
         );
 
-        bookingCreatedProducer.produce(event);
+        bookingCreatedProducer.produce(event, MyExchange.VENUE_EXCHANGE);
+        bookingCreatedProducer.produce(event, MyExchange.PAYMENT_EXCHANGE);
 
         BookedVenueDto bookedVenueDto = Mapper.modelToDto(newBooking);
         return new ResponseEntity<>(bookedVenueDto, HttpStatus.CREATED);
@@ -138,7 +140,8 @@ public class BookedVenueController {
 
         //sending the booking updated event
         BookingUpdatedEvent event = new BookingUpdatedEvent(bookingId, BookingStatus.FAILED);
-        bookingUpdatedProducer.produce(event);
+        bookingUpdatedProducer.produce(event,MyExchange.VENUE_EXCHANGE);
+        bookingUpdatedProducer.produce(event,MyExchange.PAYMENT_EXCHANGE);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -176,7 +179,8 @@ public class BookedVenueController {
 
         //Sending the event
         BookingUpdatedEvent event = new BookingUpdatedEvent(bookingId, BookingStatus.RESERVED);
-        bookingUpdatedProducer.produce(event);
+        bookingUpdatedProducer.produce(event,MyExchange.VENUE_EXCHANGE);
+        bookingUpdatedProducer.produce(event,MyExchange.PAYMENT_EXCHANGE);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

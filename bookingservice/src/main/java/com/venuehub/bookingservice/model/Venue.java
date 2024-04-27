@@ -24,7 +24,6 @@ public class Venue {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue")
     private List<BookedVenue> bookings;
 
-
     public Venue(Long id, String username) {
         this.id = id;
         this.username = username;

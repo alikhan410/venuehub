@@ -1,6 +1,7 @@
 package com.venuehub.paymentservice.model;
 
 import com.venuehub.broker.constants.BookingStatus;
+import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -10,6 +11,7 @@ import lombok.Setter;
 import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.MySQLEnumJdbcType;
 
+@Entity
 @Getter
 @Setter
 @AllArgsConstructor

@@ -49,6 +49,6 @@ spring:
         - id: payment-service
           uri: lb://payment-service
           predicates:
-            - Path=/create-payment-intent
+            - Path=/create-payment-intent, /confirm-payment
             - Method=GET,POST
 

@@ -1,7 +1,8 @@
 package com.venuehub.bookingservice.service;
 
+import com.venuehub.broker.constants.MyExchange;
 import com.venuehub.broker.event.booking.BookingUpdatedEvent;
-import com.venuehub.broker.producer.BookingUpdatedProducer;
+import com.venuehub.broker.producer.booking.BookingUpdatedProducer;
 import com.venuehub.commons.exception.NoSuchBookingException;
 import com.venuehub.bookingservice.model.BookedVenue;
 import com.venuehub.broker.constants.BookingStatus;
@@ -45,6 +46,7 @@ public class RemoveReservationService extends QuartzJobBean {
                 bookingId,
                 BookingStatus.FAILED
         );
-        producer.produce(event);
+        producer.produce(event, MyExchange.VENUE_EXCHANGE);
+        producer.produce(event,MyExchange.PAYMENT_EXCHANGE);
     }
 }

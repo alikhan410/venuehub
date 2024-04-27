@@ -15,9 +15,13 @@ package com.venuehub.broker.constants;
 public enum MyQueue {
     ;
     public static class Constants {
-        public static final String VENUE_QUEUE_VALUE = "VENUE_QUEUE";
-        public static final String ORDER_QUEUE_VALUE = "ORDER_QUEUE";
-        public static final String USER_QUEUE_VALUE = "USER_QUEUE";
-        public static final String BOOKING_QUEUE_VALUE = "BOOKING_QUEUE";
+        public static final String BOOKING_CREATED_QUEUE_PAYMENT_SERVICE = "BOOKING_CREATED_QUEUE_PAYMENT_SERVICE";
+        public static final String BOOKING_UPDATED_QUEUE_PAYMENT_SERVICE = "BOOKING_UPDATED_QUEUE_PAYMENT_SERVICE";
+        public static final String BOOKING_CREATED_QUEUE_VENUE_SERVICE = "BOOKING_CREATED_QUEUE_VENUE_SERVICE";
+        public static final String BOOKING_UPDATED_QUEUE_VENUE_SERVICE = "BOOKING_UPDATED_QUEUE_VENUE_SERVICE";
+        public static final String BOOKING_UPDATED_QUEUE_BOOKING_SERVICE = "BOOKING_UPDATED_QUEUE_BOOKING_SERVICE";
+        public static final String VENUE_CREATED_QUEUE_BOOKING_SERVICE = "VENUE_CREATED_QUEUE_BOOKING_SERVICE";
+        public static final String VENUE_DELETED_QUEUE_BOOKING_SERVICE = "VENUE_DELETED_QUEUE_BOOKING_SERVICE";
+        public static final String VENUE_UPDATED_QUEUE_BOOKING_SERVICE = "VENUE_UPDATED_QUEUE_BOOKING_SERVICE";
     }
 }

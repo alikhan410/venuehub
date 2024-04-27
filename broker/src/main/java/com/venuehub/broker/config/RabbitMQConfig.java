@@ -9,72 +9,26 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
-
-    @Bean
-    public ConnectionFactory connectionFactory() {
-        CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
-        connectionFactory.setAddresses("localhost");
-        connectionFactory.setUsername("guest");
-        connectionFactory.setPassword("guest");
-        connectionFactory.setPort(5672);
-        return connectionFactory;
-    }
-
-    @Bean
-    public Queue venueQueue() {
-        return new Queue(MyQueue.Constants.VENUE_QUEUE_VALUE, true);
-    }
-    @Bean
-    public Queue userQueue() {
-        return new Queue(MyQueue.Constants.USER_QUEUE_VALUE, true);
-    }
-
-    @Bean
-    public Queue bookingQueue() {
-        return new Queue(MyQueue.Constants.BOOKING_QUEUE_VALUE, true);
-    }
-
-    @Bean
-    public TopicExchange venueExchange() {
-        return new TopicExchange(MyExchange.VENUE_EXCHANGE.name());
-    }
-    @Bean
-    public TopicExchange userExchange() {
-        return new TopicExchange(MyExchange.USER_EXCHANGE.name());
-    }
-
-    @Bean
-    public TopicExchange bookingExchange() {
-        return new TopicExchange(MyExchange.BOOKING_EXCHANGE.name());
-    }
-
-    @Bean
-    public Binding venueBinding() {
-        return BindingBuilder
-                .bind(venueQueue())
-                .to(venueExchange())
-                .with("venue");
-    }
-    @Bean
-    public Binding userBinding() {
-        return BindingBuilder
-                .bind(userQueue())
-                .to(userExchange())
-                .with("user");
-    }
-
-    @Bean
-    public Binding bookingBinding() {
-        return BindingBuilder
-                .bind(bookingQueue())
-                .to(bookingExchange())
-                .with("booking");
-    }
+//    @Value("${spring.rabbitmq.host}")
+//    private static String HOST;
+//    @Value("${spring.rabbitmq.port}")
+//    private static int PORT;
+//
+//    @Bean
+//    public ConnectionFactory connectionFactory() {
+//        CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
+//        connectionFactory.setAddresses(HOST);
+//        connectionFactory.setUsername("guest");
+//        connectionFactory.setPassword("guest");
+//        connectionFactory.setPort(PORT);
+//        return connectionFactory;
+//    }
 
     @Bean
     public MessageConverter jsonMessageConverter() {

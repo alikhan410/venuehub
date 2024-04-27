@@ -1,0 +1,43 @@
+server:
+  port: 6161
+#//-------------------------------------------------------------//
+spring:
+  rabbitmq:
+    host: rabbitmq-srv
+    port: 5672
+    username: guest
+    password: guest
+  datasource:
+    url: jdbc:mysql://booking-db-srv:3306/paymentservice
+    username: root
+    password: my-secret-pw
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  main:
+    banner-mode: OFF
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: false
+    generate-ddl: true
+    hibernate:
+      ddl-auto: update
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://auth-srv:8181/.well-known/jwks.json
+#//-------------------------------------------------------------//
+logging:
+  level:
+    root: info
+    web: info
+#//-------------------------------------------------------------//
+eureka:
+
+  instance:
+    prefer-ip-address: true
+    metadata-map:
+      zone: zone1
+
+  client:
+    register-with-eureka: false
+    fetch-registry: false

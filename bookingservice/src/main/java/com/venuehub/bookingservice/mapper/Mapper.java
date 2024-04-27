@@ -7,7 +7,6 @@ import com.venuehub.bookingservice.model.BookedVenue;
 public class Mapper {
     public static BookedVenueDto modelToDto(BookedVenue bookedVenue){
         BookedVenueDto bookedVenueDto = new BookedVenueDto();
-        bookedVenueDto.setUsername(bookedVenue.getUsername());
         bookedVenueDto.setEmail(bookedVenue.getEmail());
         bookedVenueDto.setPhone(bookedVenue.getPhone());
         bookedVenueDto.setStatus(bookedVenue.getStatus());

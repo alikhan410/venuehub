@@ -1,7 +1,7 @@
 package com.venuehub.broker.event.venue;
 
 @VenueUpdated
-public record VenueUpdatedEvent(Long venueId, String username) {
+public record VenueUpdatedEvent(Long venueId,String name, byte[] image, int capacity, String phone, String estimate ) {
 }
 //public class VenueUpdatedEvent {
 //    private final Long venueId;
