@@ -3,6 +3,7 @@ package com.venuehub.bookingservice.configuration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -19,7 +20,12 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
+                .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers(HttpMethod.GET, "/booking/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/booking/**").authenticated()
+                        .requestMatchers(HttpMethod.PUT, "/booking/**").authenticated()
+                        .requestMatchers(HttpMethod.DELETE, "/booking/**").authenticated()
+                        .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(j -> jwtAuthenticationConverter()));
 
         return http.build();

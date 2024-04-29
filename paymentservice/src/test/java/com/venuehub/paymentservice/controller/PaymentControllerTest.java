@@ -34,7 +34,7 @@ import java.util.Optional;
 
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@ExtendWith({SpringExtension.class})
+@ExtendWith(SpringExtension.class)
 @WebMvcTest(PaymentController.class)
 class PaymentControllerTest {
     @Autowired
@@ -81,7 +81,6 @@ class PaymentControllerTest {
                 username,
                 BookingStatus.RESERVED
         );
-        producer = new BookingUpdatedProducer(rabbitTemplate);
     }
 
     @Nested

@@ -91,13 +91,13 @@ public class BookedVenueService {
     @Transactional
     public BookedVenue addNewBooking(BookedVenueDto body, Venue venue, String username){
         BookedVenue newBooking = BookedVenue.builder()
-                .bookingDateTime(body.getBookingDateTime())
+                .bookingDateTime(body.bookingDateTime())
                 .status(BookingStatus.RESERVED)
                 .venue(venue)
                 .username(username)
-                .phone(body.getPhone())
-                .email(body.getEmail())
-                .guests(body.getGuests()).build();
+                .phone(body.phone())
+                .email(body.email())
+                .guests(body.guests()).build();
         bookedVenueRepository.save(newBooking);
         return newBooking;
     }

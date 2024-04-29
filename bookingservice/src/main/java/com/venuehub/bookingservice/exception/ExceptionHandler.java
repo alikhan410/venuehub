@@ -25,6 +25,11 @@ public class ExceptionHandler {
     public ResponseEntity<ErrorResponse> handleBookingNotAvailableException(BookingUnavailableException e) {
         return new ResponseEntity<>(e.getResponse(), e.getCode());
     }
+        @org.springframework.web.bind.annotation.ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleBookingNotAvailableException(UserForbiddenException e) {
+        return new ResponseEntity<>(e.getResponse(), e.getCode());
+    }
+
     @org.springframework.web.bind.annotation.ExceptionHandler
     public ResponseEntity<ErrorResponse> handleJobExecutionException(JobExecutionException e) {
         return new ResponseEntity<>(e.getResponse(), e.getCode());

@@ -1,6 +1,7 @@
 package com.venuehub.bookingservice.controller;
 
 import com.venuehub.bookingservice.dto.BookedVenueDto;
+import com.venuehub.bookingservice.dto.BookingDateDto;
 import com.venuehub.broker.constants.BookingStatus;
 import com.venuehub.broker.constants.MyExchange;
 import com.venuehub.broker.event.booking.BookingCreatedEvent;
@@ -31,6 +32,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.*;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -61,7 +63,7 @@ public class BookedVenueController {
 
         Venue venue = venueService.findById(venueId).orElseThrow(NoSuchVenueException::new);
         List<BookedVenue> bookings = venue.getBookings();
-        LocalDateTime bookingDateTime = LocalDateTime.parse(body.getBookingDateTime());
+        LocalDateTime bookingDateTime = LocalDateTime.parse(body.bookingDateTime());
 
 //        LocalDateTime today = LocalDateTime.parse("2019-03-27T10:15:30")
         if (!bookedVenueService.isBookingAvailable(bookingDateTime, bookings)) {
@@ -104,6 +106,8 @@ public class BookedVenueController {
     @GetMapping("/booking")
     public ResponseEntity<BookedVenueListResponse> getBookingByVenue(@RequestParam("venue") long id) {
 
+        venueService.findById(id).orElseThrow(NoSuchVenueException::new);
+
         List<BookedVenue> bookedVenueList = bookedVenueService.findByVenue(id);
 
         List<BookedVenueDto> bookedVenueDtoList = bookedVenueList.stream().map(Mapper::modelToDto).toList();
@@ -127,7 +131,7 @@ public class BookedVenueController {
             throw new UserForbiddenException();
         }
 
-        if (booking.getStatus().equals(BookingStatus.BOOKED)){
+        if (booking.getStatus().equals(BookingStatus.BOOKED)) {
             //TODO add a BookingCancellationException
         }
 
@@ -140,32 +144,32 @@ public class BookedVenueController {
 
         //sending the booking updated event
         BookingUpdatedEvent event = new BookingUpdatedEvent(bookingId, BookingStatus.FAILED);
-        bookingUpdatedProducer.produce(event,MyExchange.VENUE_EXCHANGE);
-        bookingUpdatedProducer.produce(event,MyExchange.PAYMENT_EXCHANGE);
+        bookingUpdatedProducer.produce(event, MyExchange.VENUE_EXCHANGE);
+        bookingUpdatedProducer.produce(event, MyExchange.PAYMENT_EXCHANGE);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
     @PutMapping("/booking/{bookingId}")
-    public ResponseEntity<HttpStatus> updateBookingDate(@PathVariable long bookingId, @RequestBody String dateTime, @AuthenticationPrincipal Jwt jwt) throws Exception {
+    public ResponseEntity<HttpStatus> updateBookingDate(@PathVariable long bookingId, @RequestBody BookingDateDto body, @AuthenticationPrincipal Jwt jwt) throws Exception {
         BookedVenue booking = bookedVenueService.findById(bookingId).orElseThrow(NoSuchBookingException::new);
 
         if (!booking.getUsername().equals(jwt.getSubject())) {
             throw new UserForbiddenException();
         }
 
-        if (booking.getStatus().equals(BookingStatus.BOOKED)){
+        if (booking.getStatus().equals(BookingStatus.BOOKED)) {
             //TODO add a BookingCancellationException
         }
 
-        booking.setBookingDateTime(dateTime);
+        booking.setBookingDateTime(body.BookingDate());
         bookedVenueService.save(booking);
 
         //cancelling previous scheduled jobs
         jobService.cancelBookingJob(String.valueOf(bookingId));
         jobService.cancelReservationJob(String.valueOf(bookingId));
 
-        LocalDateTime bookingDateTime = LocalDateTime.parse(dateTime);
+        LocalDateTime bookingDateTime = LocalDateTime.parse(body.BookingDate());
 
         //Starting  a booking job
         JobDetail bookingjobDetail = jobService.buildBookingJob(bookingId);
@@ -179,8 +183,8 @@ public class BookedVenueController {
 
         //Sending the event
         BookingUpdatedEvent event = new BookingUpdatedEvent(bookingId, BookingStatus.RESERVED);
-        bookingUpdatedProducer.produce(event,MyExchange.VENUE_EXCHANGE);
-        bookingUpdatedProducer.produce(event,MyExchange.PAYMENT_EXCHANGE);
+        bookingUpdatedProducer.produce(event, MyExchange.VENUE_EXCHANGE);
+        bookingUpdatedProducer.produce(event, MyExchange.PAYMENT_EXCHANGE);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

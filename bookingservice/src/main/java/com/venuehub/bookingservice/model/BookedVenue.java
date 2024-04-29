@@ -17,6 +17,7 @@ import org.hibernate.dialect.MySQLEnumJdbcType;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@ToString
 public class BookedVenue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
