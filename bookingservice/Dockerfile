@@ -18,8 +18,8 @@ COPY --from=builder application/snapshot-dependencies/ ./
 COPY --from=builder application/application/ ./
 
 #Set profile to 'prod'
-ENV SPRING_PROFILES_ACTIVE=prod
+#ENV SPRING_PROFILES_ACTIVE=prod
 
 EXPOSE 6000
 
-ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom", "-Dspring.profiles.active=$SPRING_PROFILES_ACTIVE", "org.springframework.boot.loader.launch.JarLauncher"]
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom", "-Dspring.profiles.active=prod", "org.springframework.boot.loader.launch.JarLauncher"]

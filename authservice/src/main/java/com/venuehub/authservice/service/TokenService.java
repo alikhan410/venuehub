@@ -18,12 +18,11 @@ public class TokenService {
     private final JwtEncoder encoder;
 
     @Autowired
-    public TokenService(JwtDecoder decoder, JwtEncoder encoder) {
+    public TokenService( JwtEncoder encoder) {
         this.encoder = encoder;
     }
 
     public String generateJwt(Authentication auth) {
-        new JwtAuthenticationConverter();
         Instant now = Instant.now();
 
         String scope = auth.getAuthorities().stream()
