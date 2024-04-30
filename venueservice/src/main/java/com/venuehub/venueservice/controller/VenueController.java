@@ -12,6 +12,7 @@ import com.venuehub.commons.exception.NoSuchVenueException;
 import com.venuehub.commons.exception.UserForbiddenException;
 import com.venuehub.venueservice.dto.VenueDto;
 import com.venuehub.venueservice.mapper.Mapper;
+import com.venuehub.venueservice.model.BookedVenue;
 import com.venuehub.venueservice.model.Venue;
 import com.venuehub.venueservice.response.VenueListResponse;
 import com.venuehub.venueservice.service.VenueService;
@@ -26,6 +27,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -55,22 +57,33 @@ public class VenueController {
     }
 
     @PostMapping("/venue")
-//    @PreAuthorize("hasRole('ROLE_VENDOR')")
     public ResponseEntity<VenueDto> addVenue(@RequestBody VenueDto body, @AuthenticationPrincipal Jwt jwt) {
 
         if (!jwt.getClaimAsStringList("roles").contains("VENDOR")) {
             throw new UserForbiddenException();
         }
-
-        Venue newVenue = new Venue();
-
-        newVenue.setName(body.name());
-        newVenue.setVenueType(body.venueType());
-        newVenue.setEstimate(body.estimate());
-        newVenue.setCapacity(body.capacity());
-        newVenue.setPhone(body.phone());
-        newVenue.setLocation(body.location());
-        newVenue.setUsername(jwt.getSubject());
+        byte[] images = {};
+        List<BookedVenue> bookings = new ArrayList<>();
+        Venue newVenue = Venue.builder()
+                .venueType(body.venueType())
+                .username(jwt.getSubject())
+                .image(images)
+                .phone(body.phone())
+                .name(body.name())
+                .location(body.location())
+                .estimate(body.estimate())
+                .bookings(body.bookings())
+                .capacity(body.capacity())
+                .build();
+//        Venue newVenue = new Venue();
+//
+//        newVenue.setName(body.name());
+//        newVenue.setVenueType(body.venueType());
+//        newVenue.setEstimate(body.estimate());
+//        newVenue.setCapacity(body.capacity());
+//        newVenue.setPhone(body.phone());
+//        newVenue.setLocation(body.location());
+//        newVenue.setUsername(jwt.getSubject());
 
         venueService.save(newVenue);
         LOGGER.info("Venue added");
@@ -86,7 +99,6 @@ public class VenueController {
 
 
     @DeleteMapping("/venue/{id}")
-//    @PreAuthorize("hasRole('ROLE_VENDOR')")
     public ResponseEntity<HttpStatus> deleteVenue(@PathVariable long id, @AuthenticationPrincipal Jwt jwt) {
 
         //checking if a venue exists
@@ -118,7 +130,6 @@ public class VenueController {
     }
 
     @PutMapping("/venue/{id}")
-//    @PreAuthorize("hasRole('ROLE_VENDOR')")
     public ResponseEntity<HttpStatus> updateVenue(@PathVariable long id, @RequestBody VenueDto body, @AuthenticationPrincipal Jwt jwt) throws Exception {
 
         Venue venue = venueService.findById(id).orElseThrow(NoSuchVenueException::new);
@@ -126,9 +137,11 @@ public class VenueController {
             throw new UserForbiddenException();
         }
 
-        venue.setEstimate(body.estimate());
+        venue.setName(body.name());
+        venue.setImage(body.image());
         venue.setCapacity(body.capacity());
         venue.setPhone(body.phone());
+        venue.setEstimate(body.estimate());
 
         venueService.save(venue);
 

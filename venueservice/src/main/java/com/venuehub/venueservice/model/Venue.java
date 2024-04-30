@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.venuehub.venueservice.validator.NotNullNotBlank;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.List;
 @Entity
 @Table(name = "venue")
 @Data
+@Builder
 public class Venue {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,8 +54,5 @@ public class Venue {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue")
     private List<BookedVenue> bookings;
 
-    public Venue() {
-        this.bookings = new ArrayList<>();
-    }
 
 }
