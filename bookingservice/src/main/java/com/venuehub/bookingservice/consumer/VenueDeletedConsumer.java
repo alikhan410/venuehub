@@ -20,7 +20,7 @@ public class VenueDeletedConsumer extends BaseConsumer<VenueDeletedEvent> {
     @Override
     @RabbitListener(queues = MyQueue.Constants.VENUE_DELETED_QUEUE_BOOKING_SERVICE)
     public void consume(VenueDeletedEvent event) {
-        LOGGER.info(event.getClass().getName() + " reached " + getClass().getName() + event);
+        LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName() + event);
         venueService.deleteById(event.venueId());
         //TODO check if this deletes the associated bookings too
 

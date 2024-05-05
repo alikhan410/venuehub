@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: job-db-depl
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: job-db
+  template:
+    metadata:
+      labels:
+        app: job-db
+    spec:
+      containers:
+        - name: job-db
+          image: job-service-db:latest
+          imagePullPolicy: Never
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              value: my-secret-pw
+            - name: MYSQL_DATABASE
+              value: jobservice
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: job-db-srv
+spec:
+  selector:
+    app: job-db
+  ports:
+    - name: job-db
+      protocol: TCP
+      port: 3306
+      targetPort: 3306

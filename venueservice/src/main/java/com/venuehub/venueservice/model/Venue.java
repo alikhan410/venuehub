@@ -4,17 +4,25 @@ import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.venuehub.venueservice.validator.NotNullNotBlank;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "venue")
+@AllArgsConstructor
 @Data
 @Builder
 public class Venue {
+
+    public Venue() {
+
+    }
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")

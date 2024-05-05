@@ -6,7 +6,6 @@ import com.venuehub.bookingservice.dto.BookingDateDto;
 import com.venuehub.bookingservice.model.BookedVenue;
 import com.venuehub.bookingservice.model.Venue;
 import com.venuehub.bookingservice.service.BookedVenueService;
-import com.venuehub.bookingservice.service.JobService;
 import com.venuehub.bookingservice.service.VenueService;
 import com.venuehub.bookingservice.utils.JwtTestImpl;
 import com.venuehub.broker.constants.BookingStatus;
@@ -55,8 +54,6 @@ class BookedVenueControllerTest {
     private BookedVenueService bookedVenueService;
     @MockBean
     private VenueService venueService;
-    @MockBean
-    private JobService jobService;
     @Autowired
     private BookingCreatedProducer bookingCreatedProducer;
     @Autowired
@@ -305,6 +302,7 @@ class BookedVenueControllerTest {
 
         @Test
         void Should_Set_The_Booking_Failed() throws Exception {
+            bookedVenue.setStatus(BookingStatus.BOOKED);
             Mockito.when(bookedVenueService.findById(bookingId)).thenReturn(Optional.of(bookedVenue));
             Mockito.doNothing().when(bookedVenueService).save(bookedVenue);
 
@@ -322,6 +320,7 @@ class BookedVenueControllerTest {
 
         @Test
         void Should_Produce_Event_2_Times() throws Exception {
+            bookedVenue.setStatus(BookingStatus.BOOKED);
             Mockito.when(bookedVenueService.findById(bookingId)).thenReturn(Optional.of(bookedVenue));
             Mockito.doNothing().when(bookedVenueService).save(bookedVenue);
 
@@ -382,7 +381,7 @@ class BookedVenueControllerTest {
         void Should_Update_Booking_Date() throws Exception {
             //New Date
             BookingDateDto bookingDateDto = new BookingDateDto("2024-12-10T18:30:00");
-
+            bookedVenue.setStatus(BookingStatus.BOOKED);
             Mockito.when(bookedVenueService.findById(bookingId)).thenReturn(Optional.of(bookedVenue));
 
             mvc.perform(
@@ -402,6 +401,7 @@ class BookedVenueControllerTest {
         void Should_Produce_Event_2_Times() throws Exception {
             //New Date
             BookingDateDto bookingDateDto = new BookingDateDto("2024-12-10T18:30:00");
+            bookedVenue.setStatus(BookingStatus.BOOKED);
 
             Mockito.when(bookedVenueService.findById(bookingId)).thenReturn(Optional.of(bookedVenue));
 

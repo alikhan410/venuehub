@@ -68,6 +68,7 @@ public class PaymentController {
         BookingUpdatedEvent event = new BookingUpdatedEvent(body.bookingId(), BookingStatus.BOOKED);
         producer.produce(event, MyExchange.BOOKING_EXCHANGE);
         producer.produce(event, MyExchange.VENUE_EXCHANGE);
+        producer.produce(event, MyExchange.JOB_EXCHANGE);
         return new ConfirmPaymentResponse("Succeeded");
 //        PaymentIntent paymentIntent = PaymentIntent.retrieve(body.clientId());
 //

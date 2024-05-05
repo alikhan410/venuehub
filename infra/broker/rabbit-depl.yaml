@@ -14,7 +14,9 @@ spec:
     spec:
       containers:
         - name: rabbitmq
-          image: rabbitmq:3.13.1-management
+          image: rabbitmq:latest
+          #          image: rabbitmq:3.13.1-management
+          imagePullPolicy: Never
 ---
 apiVersion: v1
 kind: Service

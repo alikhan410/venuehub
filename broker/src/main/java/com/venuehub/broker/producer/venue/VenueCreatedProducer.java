@@ -21,7 +21,7 @@ public class VenueCreatedProducer extends BaseProducer<VenueCreatedEvent> {
 
     public void produce(VenueCreatedEvent event, MyExchange exchange) {
         rabbitTemplate.convertAndSend(exchange.name(),"venue-created",event);
-        LOGGER.info("Message sent from venue-created-producer");
+        LOGGER.info("Message sent from "+getClass().getSimpleName()+" to " + exchange.name());
     }
 }
 

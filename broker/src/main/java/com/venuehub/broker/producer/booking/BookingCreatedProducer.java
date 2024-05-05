@@ -20,7 +20,7 @@ public class BookingCreatedProducer extends BaseProducer<BookingCreatedEvent> {
     }
 
     public void produce(BookingCreatedEvent event, MyExchange exchange) {
-        rabbitTemplate.convertAndSend(exchange.name(),"booking-created",event);
-        LOGGER.info("Message sent from booking-created-producer");
+        rabbitTemplate.convertAndSend(exchange.name(), "booking-created", event);
+        LOGGER.info("Message sent from " + getClass().getSimpleName() + " to " + exchange.name());
     }
 }

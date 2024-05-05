@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
         - name: venue-db
-          image: mysql:8.3.0
+          image: mysql:latest
+          imagePullPolicy: Never
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: my-secret-pw

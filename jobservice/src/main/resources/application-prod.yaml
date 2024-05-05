@@ -1,0 +1,33 @@
+server:
+  port: 7000
+#//-------------------------------------------------------------//
+spring:
+  application:
+    name: jobservice
+  rabbitmq:
+    host: rabbitmq-srv
+    port: 5672
+    username: guest
+    password: guest
+  datasource:
+    url: jdbc:mysql://job-db-srv:3306/jobservice
+    username: root
+    password: my-secret-pw
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  main:
+    banner-mode: OFF
+  jpa:
+    database-platform: org.hibernate.dialect.MySQLDialect
+    show-sql: false
+    generate-ddl: true
+    hibernate:
+      ddl-auto: none
+
+
+#//-------------------------------------------------------------//
+logging:
+  level:
+    root: info
+    web: info
+#//-------------------------------------------------------------//
+

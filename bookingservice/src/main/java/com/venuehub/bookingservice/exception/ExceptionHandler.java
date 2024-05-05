@@ -2,9 +2,7 @@ package com.venuehub.bookingservice.exception;
 
 import com.venuehub.commons.exception.*;
 
-
 import jakarta.validation.ConstraintViolationException;
-import org.quartz.SchedulerException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 

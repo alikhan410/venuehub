@@ -6,21 +6,21 @@ import com.venuehub.broker.constants.BookingStatus;
 import com.venuehub.broker.constants.MyExchange;
 import com.venuehub.broker.event.booking.BookingCreatedEvent;
 import com.venuehub.broker.event.booking.BookingUpdatedEvent;
+import com.venuehub.broker.event.job.BookingJobCancellingEvent;
+import com.venuehub.broker.event.job.BookingJobSchedulingEvent;
 import com.venuehub.broker.producer.booking.BookingCreatedProducer;
 import com.venuehub.broker.producer.booking.BookingUpdatedProducer;
+import com.venuehub.broker.producer.job.BookingJobCancellingProducer;
+import com.venuehub.broker.producer.job.BookingJobSchedulingProducer;
 import com.venuehub.commons.exception.*;
 import com.venuehub.bookingservice.mapper.Mapper;
 import com.venuehub.bookingservice.model.BookedVenue;
 import com.venuehub.bookingservice.model.Venue;
 import com.venuehub.bookingservice.response.BookedVenueListResponse;
 import com.venuehub.bookingservice.service.BookedVenueService;
-import com.venuehub.bookingservice.service.JobService;
 import com.venuehub.bookingservice.service.VenueService;
 
 import jakarta.validation.Valid;
-import org.quartz.JobDetail;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,7 +32,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.*;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -41,17 +40,19 @@ public class BookedVenueController {
     private static final Logger LOGGER = LoggerFactory.getLogger(BookedVenueController.class);
     private final BookedVenueService bookedVenueService;
     private final VenueService venueService;
-    private final JobService jobService;
     private final BookingCreatedProducer bookingCreatedProducer;
     private final BookingUpdatedProducer bookingUpdatedProducer;
+    private final BookingJobSchedulingProducer bookingJobSchedulingProducer;
+    private final BookingJobCancellingProducer bookingJobCancellingProducer;
 
     @Autowired
-    public BookedVenueController(JobService jobService, BookedVenueService bookedVenueService, VenueService venueService, BookingCreatedProducer bookingCreatedProducer, BookingUpdatedProducer bookingUpdatedProducer) {
+    public BookedVenueController(BookedVenueService bookedVenueService, VenueService venueService, BookingCreatedProducer bookingCreatedProducer, BookingUpdatedProducer bookingUpdatedProducer, BookingJobSchedulingProducer bookingJobSchedulingProducer, BookingJobCancellingProducer bookingJobCancellingProducer) {
         this.venueService = venueService;
         this.bookedVenueService = bookedVenueService;
-        this.jobService = jobService;
         this.bookingCreatedProducer = bookingCreatedProducer;
         this.bookingUpdatedProducer = bookingUpdatedProducer;
+        this.bookingJobSchedulingProducer = bookingJobSchedulingProducer;
+        this.bookingJobCancellingProducer = bookingJobCancellingProducer;
     }
 
     @PostMapping("/booking/{venueId}")
@@ -59,7 +60,7 @@ public class BookedVenueController {
             @PathVariable long venueId,
             @Valid @RequestBody BookedVenueDto body,
             @AuthenticationPrincipal Jwt jwt
-    ) throws BookingUnavailableException, SchedulerException {
+    ) throws BookingUnavailableException {
 
         Venue venue = venueService.findById(venueId).orElseThrow(NoSuchVenueException::new);
         List<BookedVenue> bookings = venue.getBookings();
@@ -72,26 +73,25 @@ public class BookedVenueController {
 
         BookedVenue newBooking = bookedVenueService.addNewBooking(body, venue, jwt.getSubject());
 
-        //Starting  a booking removing job
-        JobDetail bookingjobDetail = jobService.buildBookingJob(newBooking.getId());
-        Trigger bookingJobTrigger = jobService.buildBookingJobTrigger(bookingjobDetail, bookingDateTime);
-        jobService.scheduleJob(bookingjobDetail, bookingJobTrigger);
-
-        //starting a reservation job
-        JobDetail reservationJobDetail = jobService.buildReservationJob(newBooking.getId());
-        Trigger reservationJobTrigger = jobService.buildReservationJob(reservationJobDetail);
-        jobService.scheduleJob(reservationJobDetail, reservationJobTrigger);
-
         //Sending the event
-        BookingCreatedEvent event = new BookingCreatedEvent(
+        BookingCreatedEvent bookingCreatedEvent = new BookingCreatedEvent(
                 newBooking.getId(),
                 venueId,
                 BookingStatus.RESERVED,
                 jwt.getSubject()
         );
+        BookingJobSchedulingEvent bookingJobSchedulingEvent = new BookingJobSchedulingEvent(
+                newBooking.getId(),
+                BookingStatus.RESERVED,
+                newBooking.getBookingDateTime(),
+                jwt.getSubject()
 
-        bookingCreatedProducer.produce(event, MyExchange.VENUE_EXCHANGE);
-        bookingCreatedProducer.produce(event, MyExchange.PAYMENT_EXCHANGE);
+        );
+
+        bookingCreatedProducer.produce(bookingCreatedEvent, MyExchange.VENUE_EXCHANGE);
+        bookingCreatedProducer.produce(bookingCreatedEvent, MyExchange.PAYMENT_EXCHANGE);
+
+        bookingJobSchedulingProducer.produce(bookingJobSchedulingEvent,MyExchange.JOB_EXCHANGE);
 
         BookedVenueDto bookedVenueDto = Mapper.modelToDto(newBooking);
         return new ResponseEntity<>(bookedVenueDto, HttpStatus.CREATED);
@@ -124,28 +124,30 @@ public class BookedVenueController {
     }
 
     @DeleteMapping("/booking/{bookingId}")
-    public ResponseEntity<HttpStatus> deleteBooking(@PathVariable long bookingId, @AuthenticationPrincipal Jwt jwt) throws Exception {
+    public ResponseEntity<HttpStatus> cancelBooking(@PathVariable long bookingId, @AuthenticationPrincipal Jwt jwt) throws Exception {
         BookedVenue booking = bookedVenueService.findById(bookingId).orElseThrow(NoSuchBookingException::new);
 
         if (!booking.getUsername().equals(jwt.getSubject())) {
             throw new UserForbiddenException();
         }
 
-        if (booking.getStatus().equals(BookingStatus.BOOKED)) {
+        if (!booking.getStatus().equals(BookingStatus.BOOKED)) {
             //TODO add a BookingCancellationException
+            throw new Exception("Not booked");
         }
-
-        //cancelling the booking job
-        jobService.cancelBookingJob(String.valueOf(bookingId));
 
         //updating the booking as failed
         booking.setStatus(BookingStatus.FAILED);
         bookedVenueService.save(booking);
 
-        //sending the booking updated event
-        BookingUpdatedEvent event = new BookingUpdatedEvent(bookingId, BookingStatus.FAILED);
-        bookingUpdatedProducer.produce(event, MyExchange.VENUE_EXCHANGE);
-        bookingUpdatedProducer.produce(event, MyExchange.PAYMENT_EXCHANGE);
+        //sending the events
+        BookingUpdatedEvent bookingUpdatedEvent = new BookingUpdatedEvent(bookingId, BookingStatus.FAILED);
+        BookingJobCancellingEvent bookingJobCancellingEvent = new BookingJobCancellingEvent(bookingId, BookingStatus.FAILED);
+
+        bookingUpdatedProducer.produce(bookingUpdatedEvent, MyExchange.VENUE_EXCHANGE);
+        bookingUpdatedProducer.produce(bookingUpdatedEvent, MyExchange.PAYMENT_EXCHANGE);
+
+        bookingJobCancellingProducer.produce(bookingJobCancellingEvent, MyExchange.JOB_EXCHANGE);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
@@ -158,33 +160,26 @@ public class BookedVenueController {
             throw new UserForbiddenException();
         }
 
-        if (booking.getStatus().equals(BookingStatus.BOOKED)) {
+        if (!booking.getStatus().equals(BookingStatus.BOOKED)) {
             //TODO add a BookingCancellationException
+            throw new Exception("Not booked");
         }
 
         booking.setBookingDateTime(body.BookingDate());
         bookedVenueService.save(booking);
 
-        //cancelling previous scheduled jobs
-        jobService.cancelBookingJob(String.valueOf(bookingId));
-        jobService.cancelReservationJob(String.valueOf(bookingId));
-
-        LocalDateTime bookingDateTime = LocalDateTime.parse(body.BookingDate());
-
-        //Starting  a booking job
-        JobDetail bookingjobDetail = jobService.buildBookingJob(bookingId);
-        Trigger bookingJobTrigger = jobService.buildBookingJobTrigger(bookingjobDetail, bookingDateTime);
-        jobService.scheduleJob(bookingjobDetail, bookingJobTrigger);
-
-        //starting a reservation job
-        JobDetail reservationJobDetail = jobService.buildReservationJob(bookingId);
-        Trigger reservationJobTrigger = jobService.buildReservationJob(reservationJobDetail);
-        jobService.scheduleJob(reservationJobDetail, reservationJobTrigger);
-
         //Sending the event
-        BookingUpdatedEvent event = new BookingUpdatedEvent(bookingId, BookingStatus.RESERVED);
-        bookingUpdatedProducer.produce(event, MyExchange.VENUE_EXCHANGE);
-        bookingUpdatedProducer.produce(event, MyExchange.PAYMENT_EXCHANGE);
+        BookingUpdatedEvent bookingUpdatedEvent = new BookingUpdatedEvent(bookingId, BookingStatus.RESERVED);
+        BookingJobSchedulingEvent bookingJobSchedulingEvent = new BookingJobSchedulingEvent(
+                bookingId,
+                BookingStatus.RESERVED,
+                body.BookingDate(),
+                jwt.getSubject()
+
+        );
+        bookingUpdatedProducer.produce(bookingUpdatedEvent, MyExchange.VENUE_EXCHANGE);
+        bookingUpdatedProducer.produce(bookingUpdatedEvent, MyExchange.PAYMENT_EXCHANGE);
+        bookingJobSchedulingProducer.produce(bookingJobSchedulingEvent,MyExchange.JOB_EXCHANGE);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

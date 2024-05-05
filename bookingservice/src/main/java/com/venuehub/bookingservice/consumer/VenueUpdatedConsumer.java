@@ -23,7 +23,7 @@ public class VenueUpdatedConsumer extends BaseConsumer<VenueUpdatedEvent> {
     @Override
     @RabbitListener(queues = MyQueue.Constants.VENUE_UPDATED_QUEUE_BOOKING_SERVICE)
     public void consume(VenueUpdatedEvent event) {
-        LOGGER.info(event.getClass().getName() + " reached " + getClass().getName() + event);
+        LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName() + event);
         Venue venue = venueService.findById(event.venueId()).orElseThrow(NoSuchVenueException::new);
         // TODO venue updating logic
 

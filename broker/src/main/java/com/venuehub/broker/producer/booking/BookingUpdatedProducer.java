@@ -19,10 +19,9 @@ public class BookingUpdatedProducer extends BaseProducer<BookingUpdatedEvent> {
         this.rabbitTemplate = rabbitTemplate;
     }
 
-    //TODO think of another way to send a message to multiple exchange
     public void produce(BookingUpdatedEvent event, MyExchange exchange) {
         rabbitTemplate.convertAndSend(exchange.name(), "booking-updated", event);
-        LOGGER.info("Message sent from booking-updated-producer");
+        LOGGER.info("Message sent from "+getClass().getSimpleName()+" to " + exchange.name());
     }
 
 }

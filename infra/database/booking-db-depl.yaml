@@ -14,7 +14,8 @@ spec:
     spec:
       containers:
         - name: booking-db
-          image: booking-mysql:latest
+          image: mysql:latest
+          imagePullPolicy: Never
           env:
             - name: MYSQL_ROOT_PASSWORD
               value: my-secret-pw

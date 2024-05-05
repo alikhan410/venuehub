@@ -1,8 +1,9 @@
-package com.venuehub.bookingservice.service;
-
+package com.venuehub.jobservice.service;
 
 import org.quartz.*;
 import org.quartz.impl.matchers.GroupMatcher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +13,7 @@ import java.util.Set;
 
 @Component
 public class JobService {
+    Logger LOGGER = LoggerFactory.getLogger(JobService.class);
     private final Scheduler scheduler;
 
     @Autowired
@@ -49,27 +51,32 @@ public class JobService {
     }
 
     public Trigger buildBookingJobTrigger(JobDetail jobDetail, LocalDateTime dateTime) {
-
+        //For production
         LocalDate bookingDate = dateTime.toLocalDate();
         LocalTime bookingTime = dateTime.toLocalTime();
         ZoneId zoneId = ZoneId.systemDefault();
         ZonedDateTime startAt = ZonedDateTime.of(bookingDate, bookingTime, zoneId);
-
+        //For Development
         Date dateNow = Date.from(Instant.now());
         long fiveMinutesLater = dateNow.getTime() + 300000; // 5 min in milliseconds
         Date fiveMinutesDate = new Date(fiveMinutesLater);
+
+        Date justNow = Date.from(Instant.now());
+        long oneSecondLater = justNow.getTime() + 5000; // 5 min in milliseconds
+        Date oneSecondDate = new Date(oneSecondLater);
 
         return TriggerBuilder.newTrigger()
                 .forJob(jobDetail)
                 .withIdentity(jobDetail.getKey().getName(), "remove-booking-triggers")
                 .withDescription("Trigger for remove booking job")
+//                .startAt(oneSecondDate)
                 .startAt(fiveMinutesDate)
 //                .startAt(Date.from(startAt.toInstant()))
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow())
                 .build();
     }
 
-    public Trigger buildReservationJob(JobDetail jobDetail) {
+    public Trigger buildReservationJobTrigger(JobDetail jobDetail) {
 
         //Hold the date reserved for two days
         LocalDate today = LocalDate.now();
@@ -81,10 +88,16 @@ public class JobService {
         long twoMinutesLater = dateNow.getTime() + 120000; // 5 min in milliseconds
         Date twoMinutesDate = new Date(twoMinutesLater);
 
+        //For testing
+        Date justNow = Date.from(Instant.now());
+        long oneSecondLater = justNow.getTime() + 1000;
+        Date oneSecondDate = new Date(oneSecondLater);
+
         return TriggerBuilder.newTrigger()
                 .forJob(jobDetail)
                 .withIdentity(jobDetail.getKey().getName(), "reservation-removing-triggers")
                 .withDescription("Trigger for reservation removing")
+//                .startAt(oneSecondDate)
                 .startAt(twoMinutesDate)
 //                .startAt(futureDate)
                 .withSchedule(SimpleScheduleBuilder.simpleSchedule().withMisfireHandlingInstructionFireNow())
@@ -92,6 +105,7 @@ public class JobService {
     }
 
     public void cancelBookingJob(String jobName) throws SchedulerException {
+        //jobName is equivalent to String.of(bookingId)
         JobKey myJobKey = null;
         Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.groupEquals("remove-booking-job"));
 
@@ -100,10 +114,16 @@ public class JobService {
                 myJobKey = jobKey;
             }
         }
+        if (myJobKey == null) {
+            LOGGER.info("myJobkey is null");
+            return;
+        }
+        ;
         scheduler.deleteJob(myJobKey);
     }
 
     public void cancelReservationJob(String jobName) throws SchedulerException {
+        //jobName is equivalent to String.of(bookingId)
         JobKey myJobKey = null;
         Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.groupEquals("reservation-removing-job"));
 
@@ -111,6 +131,10 @@ public class JobService {
             if (jobKey.getName().equals(jobName)) {
                 myJobKey = jobKey;
             }
+        }
+        if (myJobKey == null) {
+            LOGGER.info("myJobkey is null");
+            return;
         }
         scheduler.deleteJob(myJobKey);
     }

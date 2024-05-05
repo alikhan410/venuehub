@@ -6,7 +6,7 @@ ARG JAR_FILE=target/*.jar
 
 ADD ${JAR_FILE} ./
 
-RUN java -Djarmode=layertools -jar payment-0.0.1-SNAPSHOT.jar extract
+RUN java -Djarmode=layertools -jar paymentservice-0.0.1-SNAPSHOT.jar extract
 
 FROM openjdk:17-slim
 
