@@ -13,20 +13,30 @@ import com.venuehub.commons.exception.UserForbiddenException;
 import com.venuehub.venueservice.dto.VenueDto;
 import com.venuehub.venueservice.mapper.Mapper;
 import com.venuehub.venueservice.model.BookedVenue;
+import com.venuehub.venueservice.model.ImageData;
 import com.venuehub.venueservice.model.Venue;
 import com.venuehub.venueservice.response.VenueListResponse;
+import com.venuehub.venueservice.service.ImageDataService;
 import com.venuehub.venueservice.service.VenueService;
+import jakarta.servlet.annotation.MultipartConfig;
+import jdk.jfr.ContentType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartResolver;
+import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -37,13 +47,16 @@ public class VenueController {
     private final Logger LOGGER = LoggerFactory.getLogger(VenueController.class);
 
     private final VenueService venueService;
+    private final ImageDataService imageDataService;
     private final VenueCreatedProducer venueCreatedProducer;
     private final VenueDeletedProducer venueDeletedProducer;
     private final VenueUpdatedProducer venueUpdatedProducer;
 
+
     @Autowired
-    public VenueController(VenueService venueService, VenueCreatedProducer venueCreatedProducer, VenueDeletedProducer venueDeletedProducer, VenueUpdatedProducer venueUpdatedProducer) {
+    public VenueController(VenueService venueService, ImageDataService imageDataService, VenueCreatedProducer venueCreatedProducer, VenueDeletedProducer venueDeletedProducer, VenueUpdatedProducer venueUpdatedProducer) {
         this.venueService = venueService;
+        this.imageDataService = imageDataService;
         this.venueCreatedProducer = venueCreatedProducer;
         this.venueDeletedProducer = venueDeletedProducer;
         this.venueUpdatedProducer = venueUpdatedProducer;
@@ -56,36 +69,39 @@ public class VenueController {
         return new ResponseEntity<>(venueDto, HttpStatus.OK);
     }
 
-    @PostMapping("/venue")
-    public ResponseEntity<VenueDto> addVenue(@RequestBody VenueDto body, @AuthenticationPrincipal Jwt jwt) {
+    @PostMapping(value = "/venue", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<VenueDto> addVenue(@ModelAttribute VenueDto body, @RequestParam("images") MultipartFile[] images, @AuthenticationPrincipal Jwt jwt) throws IOException {
 
         if (!jwt.getClaimAsStringList("roles").contains("VENDOR")) {
             throw new UserForbiddenException();
         }
-        byte[] images = {};
+
+        List<ImageData> allImages = new ArrayList<>();
+
         List<BookedVenue> bookings = new ArrayList<>();
         Venue newVenue = Venue.builder()
                 .venueType(body.venueType())
                 .username(jwt.getSubject())
-                .image(images)
+                .images(allImages)
                 .phone(body.phone())
                 .name(body.name())
                 .location(body.location())
                 .estimate(body.estimate())
-                .bookings(body.bookings())
+                .bookings(bookings)
                 .capacity(body.capacity())
                 .build();
-//        Venue newVenue = new Venue();
-//
-//        newVenue.setName(body.name());
-//        newVenue.setVenueType(body.venueType());
-//        newVenue.setEstimate(body.estimate());
-//        newVenue.setCapacity(body.capacity());
-//        newVenue.setPhone(body.phone());
-//        newVenue.setLocation(body.location());
-//        newVenue.setUsername(jwt.getSubject());
-
         venueService.save(newVenue);
+
+        for (MultipartFile image : images) {
+            ImageData imageData = new ImageData();
+            imageData.setImage(image.getBytes());
+            imageData.setVenue(newVenue);
+            imageDataService.save(imageData);
+//            allImages.add(imageData);
+        }
+
+//        newVenue.setImages(allImages);
+//        venueService.save(newVenue);
         LOGGER.info("Venue added");
 
         VenueDto venueDto = Mapper.modelToDto(newVenue);
@@ -136,9 +152,7 @@ public class VenueController {
         if (!jwt.getSubject().equals(venue.getUsername()) || !jwt.getClaimAsStringList("roles").contains("VENDOR")) {
             throw new UserForbiddenException();
         }
-
         venue.setName(body.name());
-        venue.setImage(body.image());
         venue.setCapacity(body.capacity());
         venue.setPhone(body.phone());
         venue.setEstimate(body.estimate());
@@ -148,12 +162,11 @@ public class VenueController {
         VenueUpdatedEvent event = new VenueUpdatedEvent(
                 id,
                 body.name(),
-                body.image(),
                 body.capacity(),
                 body.phone(),
                 body.estimate()
         );
-        venueUpdatedProducer.produce(event,MyExchange.BOOKING_EXCHANGE);
+        venueUpdatedProducer.produce(event, MyExchange.BOOKING_EXCHANGE);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

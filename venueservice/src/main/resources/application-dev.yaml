@@ -2,6 +2,11 @@ server:
   port: 9000
 #//-------------------------------------------------------------//
 spring:
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 5MB
+      max-request-size: 20MB
   rabbitmq:
     host: localhost
     port: 5672
@@ -12,7 +17,7 @@ spring:
     generate-ddl: true
 
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
   datasource:
     url: jdbc:mysql://localhost:3306/venueservice
     username: ali

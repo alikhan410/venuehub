@@ -43,10 +43,6 @@ public class Venue {
     @NotNullNotBlank(message = "Location can not be blank or empty")
     private String location;
 
-    @Column(name = "image")
-    @Lob
-    private byte[] image;
-
     @Column(name = "capacity")
     @Min(value = 0, message = "Invalid value")
     private int capacity;
@@ -62,5 +58,6 @@ public class Venue {
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue")
     private List<BookedVenue> bookings;
 
-
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue")
+    private List<ImageData> images;
 }
