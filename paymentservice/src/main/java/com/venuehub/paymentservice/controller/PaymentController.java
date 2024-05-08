@@ -20,6 +20,7 @@ import com.venuehub.paymentservice.service.PaymentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -55,6 +56,7 @@ public class PaymentController {
     }
 
     @GetMapping("/confirm-payment")
+    @Transactional
     public ConfirmPaymentResponse ConfirmPayment(@RequestBody ConfirmPaymentDto body) throws Exception {
         BookedVenue booking = bookedVenueService.findById(body.bookingId()).orElseThrow(NoSuchBookingException::new);
 

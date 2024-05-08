@@ -28,6 +28,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -56,6 +57,7 @@ public class BookedVenueController {
     }
 
     @PostMapping("/booking/{venueId}")
+    @Transactional
     public ResponseEntity<BookedVenueDto> addBooking(
             @PathVariable long venueId,
             @Valid @RequestBody BookedVenueDto body,
@@ -124,6 +126,7 @@ public class BookedVenueController {
     }
 
     @DeleteMapping("/booking/{bookingId}")
+    @Transactional
     public ResponseEntity<HttpStatus> cancelBooking(@PathVariable long bookingId, @AuthenticationPrincipal Jwt jwt) throws Exception {
         BookedVenue booking = bookedVenueService.findById(bookingId).orElseThrow(NoSuchBookingException::new);
 
@@ -153,6 +156,7 @@ public class BookedVenueController {
     }
 
     @PutMapping("/booking/{bookingId}")
+    @Transactional
     public ResponseEntity<HttpStatus> updateBookingDate(@PathVariable long bookingId, @RequestBody BookingDateDto body, @AuthenticationPrincipal Jwt jwt) throws Exception {
         BookedVenue booking = bookedVenueService.findById(bookingId).orElseThrow(NoSuchBookingException::new);
 

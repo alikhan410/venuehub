@@ -115,10 +115,9 @@ public class JobService {
             }
         }
         if (myJobKey == null) {
-            LOGGER.info("myJobkey is null");
+            LOGGER.info("myJobkey is null in cancelBookingJob");
             return;
         }
-        ;
         scheduler.deleteJob(myJobKey);
     }
 
@@ -133,7 +132,7 @@ public class JobService {
             }
         }
         if (myJobKey == null) {
-            LOGGER.info("myJobkey is null");
+            LOGGER.info("myJobkey is null in cancelReservationJob");
             return;
         }
         scheduler.deleteJob(myJobKey);

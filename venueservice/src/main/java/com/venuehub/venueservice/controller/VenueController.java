@@ -29,6 +29,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -70,6 +71,7 @@ public class VenueController {
     }
 
     @PostMapping(value = "/venue", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @Transactional
     public ResponseEntity<VenueDto> addVenue(@ModelAttribute VenueDto body, @RequestParam("images") MultipartFile[] images, @AuthenticationPrincipal Jwt jwt) throws IOException {
 
         if (!jwt.getClaimAsStringList("roles").contains("VENDOR")) {
@@ -115,6 +117,7 @@ public class VenueController {
 
 
     @DeleteMapping("/venue/{id}")
+    @Transactional
     public ResponseEntity<HttpStatus> deleteVenue(@PathVariable long id, @AuthenticationPrincipal Jwt jwt) {
 
         //checking if a venue exists
@@ -146,6 +149,7 @@ public class VenueController {
     }
 
     @PutMapping("/venue/{id}")
+    @Transactional
     public ResponseEntity<HttpStatus> updateVenue(@PathVariable long id, @RequestBody VenueDto body, @AuthenticationPrincipal Jwt jwt) throws Exception {
 
         Venue venue = venueService.findById(id).orElseThrow(NoSuchVenueException::new);

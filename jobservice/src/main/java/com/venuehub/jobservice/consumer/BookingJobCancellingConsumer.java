@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class BookingJobCancellingConsumer extends BaseConsumer<BookingJobCancellingEvent> {
@@ -28,6 +29,7 @@ public class BookingJobCancellingConsumer extends BaseConsumer<BookingJobCancell
 
     @Override
     @RabbitListener(queues = MyQueue.Constants.JOB_CANCELLING_QUEUE_JOB_SERVICE)
+    @Transactional
     public void consume(BookingJobCancellingEvent event) {
         LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName() + event);
 

@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 
@@ -31,6 +32,7 @@ public class BookingJobSchedulingConsumer extends BaseConsumer<BookingJobSchedul
 
     @Override
     @RabbitListener(queues = MyQueue.Constants.JOB_SCHEDULING_QUEUE_JOB_SERVICE)
+    @Transactional
     public void consume(BookingJobSchedulingEvent event) {
         LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName() + event);
 
