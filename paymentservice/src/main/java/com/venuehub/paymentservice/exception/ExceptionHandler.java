@@ -25,12 +25,12 @@ public class ExceptionHandler {
     @org.springframework.web.bind.annotation.ExceptionHandler
     public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
         ConstraintViolationExceptionSerializer serializer = new ConstraintViolationExceptionSerializer(e);
-        return new ResponseEntity<>(serializer.getResponse(), serializer.getResponse().getCode());
+        return new ResponseEntity<>(serializer.getResponse(), serializer.getCode());
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception e) {
-        GeneralException generalException = new GeneralException("General error",e.getMessage());
+        GeneralException generalException = new GeneralException(e.getMessage());
 
         return new ResponseEntity<>(generalException.getResponse(), generalException.getCode());
     }

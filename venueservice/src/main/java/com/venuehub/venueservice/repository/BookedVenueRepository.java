@@ -11,5 +11,5 @@ import java.util.List;
 @Repository
 public interface BookedVenueRepository extends JpaRepository<BookedVenue, Long> {
     @Query(value = "SELECT * FROM booked_venue WHERE venue_id = :id", nativeQuery = true)
-    List<BookedVenue> findByVenue(@Param("id") long id);
+    List<BookedVenue> findByVenue(@Param("id") Long id);
 }

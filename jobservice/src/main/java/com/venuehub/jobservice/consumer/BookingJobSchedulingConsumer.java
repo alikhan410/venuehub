@@ -34,7 +34,7 @@ public class BookingJobSchedulingConsumer extends BaseConsumer<BookingJobSchedul
     @RabbitListener(queues = MyQueue.Constants.JOB_SCHEDULING_QUEUE_JOB_SERVICE)
     @Transactional
     public void consume(BookingJobSchedulingEvent event) {
-        LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName() + event);
+        LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName()+" " + event);
 
         //Saving the booking in db
         BookedVenue booking = new BookedVenue();

@@ -6,8 +6,10 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface VenueRepository extends JpaRepository<Venue, Long> {
-    @Query(value = "SELECT * FROM venue WHERE user_id = :id", nativeQuery = true)
-    Long getVendorId(@Param("id")Long venueId);
+    @Query(value = "SELECT * FROM venue WHERE username = :username", nativeQuery = true)
+    List<Venue> findVenueByUsername(@Param("username")String username);
 }

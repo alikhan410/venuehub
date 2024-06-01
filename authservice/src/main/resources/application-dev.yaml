@@ -1,6 +1,19 @@
 server:
   port: 8080
 #//-------------------------------------------------------------//
+
+springdoc:
+  swagger-ui:
+    path: /login/swagger-ui.html
+  open-api:
+    components:
+      securitySchemes:
+        bearerAuth: # arbitrary name for the security scheme
+          type: http
+          scheme: bearer
+          bearerFormat: JWT
+
+
 spring:
   rabbitmq:
     host: localhost

@@ -73,6 +73,7 @@ class BookedVenueControllerTest {
     private int guests;
     private BookingStatus status;
     private String username;
+    private String name;
     private String myJwt;
     @Captor
     private ArgumentCaptor<BookedVenue> bookedVenueArgumentCaptor;
@@ -85,6 +86,7 @@ class BookedVenueControllerTest {
         email = "ali@gmail.com";
         phone = "03178923162";
         guests = 50;
+        name  = "Saffron Venue";
         bookingDateTime = "2024-12-04T18:30:00";
         status = BookingStatus.RESERVED;
 
@@ -92,7 +94,7 @@ class BookedVenueControllerTest {
 
         bookedVenueDto = new BookedVenueDto(email, phone, status, bookingDateTime, guests);
 
-        venue = new Venue(venueId, username);
+        venue = new Venue(venueId, name, username);
 
         bookedVenue = BookedVenue.builder()
                 .id(bookingId)

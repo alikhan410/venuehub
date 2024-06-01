@@ -31,7 +31,7 @@ public class BookingJobCancellingConsumer extends BaseConsumer<BookingJobCancell
     @RabbitListener(queues = MyQueue.Constants.JOB_CANCELLING_QUEUE_JOB_SERVICE)
     @Transactional
     public void consume(BookingJobCancellingEvent event) {
-        LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName() + event);
+        LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName()+" " + event);
 
         BookedVenue booking = bookedVenueService.findById(event.bookingId()).orElseThrow(NoSuchBookingException::new);
         booking.setStatus(event.status());

@@ -27,14 +27,18 @@ public class VenueService {
         return venueRepository.findById(id);
     }
 
-    @Transactional
-    public void deleteById(long id){
-        venueRepository.deleteById(id);
+    public List<Venue> findByUsername(String username){
+        return venueRepository.findVenueByUsername(username);
     }
 
-    public Long getUserId(Long venueId){
-       return venueRepository.getVendorId(venueId);
+    @Transactional
+    public void delete(Venue venue){
+        venueRepository.delete(venue);
     }
+
+//    public Long getUserId(Long venueId){
+//       return venueRepository.getVendorId(venueId);
+//    }
     public List<Venue> findAll(){
         return venueRepository.findAll();
     }

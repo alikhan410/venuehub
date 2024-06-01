@@ -29,14 +29,16 @@ public class AuthserviceApplication {
 	CommandLineRunner run(RoleRepository roleRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {
 		return args -> {
 
+			Role vendorRole = new Role("VENDOR");
+			Role userRole = new Role("USER");
+			Role adminRole = new Role("ADMIN");
+			roleRepository.save(vendorRole);
+			roleRepository.save(userRole);
+			roleRepository.save(adminRole);
 			if (userRepository.findByUsername("admin").isEmpty()) {
 
-
-				Role adminRole = new Role("ADMIN");
-
-				roleRepository.save(adminRole);
-
 				Set<Role> roles = new HashSet<>();
+				roles.add(userRole);
 				roles.add(adminRole);
 				String password = passwordEncoder.encode("pass");
 
@@ -51,10 +53,6 @@ public class AuthserviceApplication {
 				userRepository.save(admin);
 			}
 			if (userRepository.findByUsername("user").isEmpty()) {
-
-				
-				Role userRole = new Role("USER");
-				roleRepository.save(userRole);
 
 				Set<Role> roles = new HashSet<>();
 				roles.add(userRole);
@@ -71,13 +69,10 @@ public class AuthserviceApplication {
 				userRepository.save(user);
 			}
 			if (userRepository.findByUsername("vendor").isEmpty()) {
-				
-				Role vendorRole = new Role("VENDOR");
-				
-				roleRepository.save(vendorRole);
 
 				Set<Role> roles = new HashSet<>();
 				roles.add(vendorRole);
+				roles.add(userRole);
 				String password = passwordEncoder.encode("pass");
 
 				User vendor = new User();

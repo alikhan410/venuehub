@@ -1,10 +1,34 @@
 package com.venuehub.commons.exception;
 
-public class UserForbiddenException extends ForbiddenException {
-    private static final String field="Id";
-    private static final String error = "User is forbidden to perform this action";
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
+
+public class UserForbiddenException extends RuntimeException implements CustomExcpetion {
+    private final HttpStatusCode status = HttpStatus.FORBIDDEN;
+    private final HttpStatus error = HttpStatus.FORBIDDEN;
+    private final String message;
+
+    public UserForbiddenException(String message) {
+        super(message);
+        this.message = message;
+    }
 
     public UserForbiddenException() {
-        super(field, error);
+        this("User is forbidden to perform this action");
+    }
+
+    @Override
+    public ErrorResponse getResponse() {
+        return new ErrorResponse(status,error, message);
+    }
+
+    @Override
+    public HttpStatusCode getCode() {
+        return status;
+    }
+
+    @Override
+    public HttpStatus getStatus() {
+        return error;
     }
 }

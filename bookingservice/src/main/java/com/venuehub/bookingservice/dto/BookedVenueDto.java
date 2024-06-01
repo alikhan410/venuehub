@@ -10,7 +10,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 public record BookedVenueDto(
-        @Email(message = "Email can not be null or empty") String email,
+        String email,
         @NotNull @NotBlank(message = "Phone can not be null or blank") String phone,
         BookingStatus status,
         @NotNull @NotBlank(message = "Date can not be null or empty") String bookingDateTime,

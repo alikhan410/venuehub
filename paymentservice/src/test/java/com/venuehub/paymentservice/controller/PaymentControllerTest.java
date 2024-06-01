@@ -10,6 +10,7 @@ import com.venuehub.paymentservice.dto.ConfirmPaymentDto;
 import com.venuehub.paymentservice.dto.OrderDto;
 import com.venuehub.paymentservice.model.BookedVenue;
 import com.venuehub.paymentservice.service.BookedVenueService;
+import com.venuehub.paymentservice.service.OrderService;
 import com.venuehub.paymentservice.service.PaymentService;
 import com.venuehub.paymentservice.utils.JwtTestImpl;
 import org.junit.jupiter.api.*;
@@ -47,6 +48,8 @@ class PaymentControllerTest {
     private PaymentService paymentService;
     @MockBean
     private BookedVenueService bookedVenueService;
+    @MockBean
+    private OrderService OrderService;
     @Autowired
     private BookingUpdatedProducer producer;
     @Autowired
@@ -73,8 +76,7 @@ class PaymentControllerTest {
         orderDto = new OrderDto(
                 username,
                 amount,
-                bookingId,
-                venueId
+                bookingId
         );
         bookedVenue = new BookedVenue(
                 bookingId,
@@ -113,8 +115,7 @@ class PaymentControllerTest {
             OrderDto newOrderDto = new OrderDto(
                     "wrong_user",
                     amount,
-                    bookingId,
-                    venueId
+                    bookingId
             );
             Mockito.when(bookedVenueService.findById(bookingId)).thenReturn(Optional.of(bookedVenue));
 

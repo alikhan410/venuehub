@@ -12,20 +12,22 @@ import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.stereotype.Service;
 
-@Service
-public class VenueUpdatedConsumer extends BaseConsumer<VenueUpdatedEvent> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(VenueUpdatedConsumer.class);
-    private final VenueService venueService;
-
-    public VenueUpdatedConsumer(VenueService venueService) {
-        this.venueService = venueService;
-    }
-    @Override
-    @RabbitListener(queues = MyQueue.Constants.VENUE_UPDATED_QUEUE_BOOKING_SERVICE)
-    public void consume(VenueUpdatedEvent event) {
-        LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName() + event);
-        Venue venue = venueService.findById(event.venueId()).orElseThrow(NoSuchVenueException::new);
-        // TODO venue updating logic
-
-    }
-}
+//@Service
+//public class VenueUpdatedConsumer extends BaseConsumer<VenueUpdatedEvent> {
+//    private static final Logger LOGGER = LoggerFactory.getLogger(VenueUpdatedConsumer.class);
+//    private final VenueService venueService;
+//
+//    public VenueUpdatedConsumer(VenueService venueService) {
+//        this.venueService = venueService;
+//    }
+//    @Override
+//    @RabbitListener(queues = MyQueue.Constants.VENUE_UPDATED_QUEUE_BOOKING_SERVICE)
+//    public void consume(VenueUpdatedEvent event) {
+//        LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName() + event);
+//        Venue venue = venueService.findById(event.venueId()).orElseThrow(NoSuchVenueException::new);
+//        //TODO find another way to increment version
+//        venue.setId(event.venueId());
+//        venueService.save(venue);
+//
+//    }
+//}

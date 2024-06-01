@@ -27,28 +27,37 @@ logging:
 spring:
   cloud:
     gateway:
+      default-filters:
+        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
+        - AddResponseHeader=Access-Control-Allow-Origin, *
+      globalcors:
+        corsConfigurations:
+          '[/**]':
+            allowedOrigins: "*"
+            allowedMethods: "*"
+            allowedHeaders: "*"
       routes:
         - id: booking-service
           uri: lb://booking-service
           predicates:
-            - Path=/booking/{id}, /booking
+            - Path=/booking/{id}, /booking, /booking/venue/{id}
             - Method=GET,POST, DELETE
 
         - id: auth-service
           uri: lb://auth-service
           predicates:
-            - Path=/user/login,/user/register,/vendor/register,/vendor/login,/.well-known/jwks.json,/current-user
+            - Path=/user/login,/user/logout,/user/register,/vendor/register,/vendor/login,/vendor/logout,/.well-known/jwks.json,/current-user,/login/swagger-ui.html
             - Method=GET,POST
 
         - id: venue-service
           uri: lb://venue-service
           predicates:
-            - Path=/venue, /venue/{id}
+            - Path=/venue, /venue/{id}, /vendor/venue
             - Method=GET,POST,DELETE,PUT
 
         - id: payment-service
           uri: lb://payment-service
           predicates:
-            - Path=/create-payment-intent, /confirm-payment
+            - Path=/order/create-payment-intent, /order/confirm-payment, /order/{clientSecret}
             - Method=GET,POST
 

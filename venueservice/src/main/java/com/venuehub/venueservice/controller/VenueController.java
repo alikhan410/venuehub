@@ -1,6 +1,7 @@
 package com.venuehub.venueservice.controller;
 
 
+import com.venuehub.broker.constants.BookingStatus;
 import com.venuehub.broker.constants.MyExchange;
 import com.venuehub.broker.event.venue.VenueCreatedEvent;
 import com.venuehub.broker.event.venue.VenueDeletedEvent;
@@ -11,6 +12,7 @@ import com.venuehub.broker.producer.venue.VenueUpdatedProducer;
 import com.venuehub.commons.exception.NoSuchVenueException;
 import com.venuehub.commons.exception.UserForbiddenException;
 import com.venuehub.venueservice.dto.VenueDto;
+import com.venuehub.venueservice.dto.VenueListDto;
 import com.venuehub.venueservice.mapper.Mapper;
 import com.venuehub.venueservice.model.BookedVenue;
 import com.venuehub.venueservice.model.ImageData;
@@ -18,12 +20,10 @@ import com.venuehub.venueservice.model.Venue;
 import com.venuehub.venueservice.response.VenueListResponse;
 import com.venuehub.venueservice.service.ImageDataService;
 import com.venuehub.venueservice.service.VenueService;
-import jakarta.servlet.annotation.MultipartConfig;
-import jdk.jfr.ContentType;
+import jakarta.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -33,12 +33,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.MultipartResolver;
-import org.springframework.web.multipart.support.StandardServletMultipartResolver;
 
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @RestController
@@ -66,15 +65,22 @@ public class VenueController {
     @GetMapping("/venue/{id}")
     public ResponseEntity<VenueDto> getVenueById(@PathVariable Long id) {
         Venue venue = venueService.findById(id).orElseThrow(NoSuchVenueException::new);
-        VenueDto venueDto = Mapper.modelToDto(venue);
+        VenueDto venueDto = Mapper.modelToVenueDto(venue);
         return new ResponseEntity<>(venueDto, HttpStatus.OK);
     }
 
     @PostMapping(value = "/venue", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Transactional
-    public ResponseEntity<VenueDto> addVenue(@ModelAttribute VenueDto body, @RequestParam("images") MultipartFile[] images, @AuthenticationPrincipal Jwt jwt) throws IOException {
+    public ResponseEntity<HttpStatus> addVenue(@ModelAttribute @Valid VenueDto body, @RequestParam("images") MultipartFile[] images, @AuthenticationPrincipal Jwt jwt) throws IOException {
 
-        if (!jwt.getClaimAsStringList("roles").contains("VENDOR")) {
+        if (!jwt.getClaim("loggedInAs").equals("VENDOR")) {
+            throw new UserForbiddenException();
+        }
+
+        String rolesString = jwt.getClaim("roles");
+        List<String> roles = Arrays.stream(rolesString.split(" ")).toList();
+
+        if (!roles.contains("VENDOR")) {
             throw new UserForbiddenException();
         }
 
@@ -87,10 +93,11 @@ public class VenueController {
                 .images(allImages)
                 .phone(body.phone())
                 .name(body.name())
+                .description(body.description())
                 .location(body.location())
-                .estimate(body.estimate())
+                .estimate(Double.parseDouble(body.estimate()))
                 .bookings(bookings)
-                .capacity(body.capacity())
+                .capacity(Integer.parseInt(body.capacity()))
                 .build();
         venueService.save(newVenue);
 
@@ -99,35 +106,42 @@ public class VenueController {
             imageData.setImage(image.getBytes());
             imageData.setVenue(newVenue);
             imageDataService.save(imageData);
-//            allImages.add(imageData);
         }
 
-//        newVenue.setImages(allImages);
-//        venueService.save(newVenue);
         LOGGER.info("Venue added");
 
-        VenueDto venueDto = Mapper.modelToDto(newVenue);
-
         //Sending venue created event to the broker
-        VenueCreatedEvent event = new VenueCreatedEvent(newVenue.getId(), jwt.getSubject());
+        VenueCreatedEvent event = new VenueCreatedEvent(newVenue.getId(), newVenue.getName(), jwt.getSubject());
         venueCreatedProducer.produce(event, MyExchange.BOOKING_EXCHANGE);
 
-        return new ResponseEntity<>(venueDto, HttpStatus.CREATED);
+        return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
 
     @DeleteMapping("/venue/{id}")
     @Transactional
-    public ResponseEntity<HttpStatus> deleteVenue(@PathVariable long id, @AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<VenueListResponse> deleteVenue(@PathVariable long id, @AuthenticationPrincipal Jwt jwt) {
 
-        //checking if a venue exists
-        Venue venue = venueService.findById(id).orElseThrow(NoSuchVenueException::new);
-
-        if (!jwt.getSubject().equals(venue.getUsername()) || !jwt.getClaimAsStringList("roles").contains("VENDOR")) {
+        if (!jwt.getClaim("loggedInAs").equals("VENDOR")) {
             throw new UserForbiddenException();
         }
 
-        venueService.deleteById(id);
+        String rolesString = jwt.getClaim("roles");
+        List<String> roles = Arrays.stream(rolesString.split(" ")).toList();
+
+        //checking if a venue exists
+        Venue venue = venueService.findById(id).orElseThrow(NoSuchVenueException::new);
+        List<BookedVenue> bookings = venue.getBookings().stream().filter(booking -> booking.getStatus() != BookingStatus.FAILED).toList();
+        if (
+                !jwt.getSubject().equals(venue.getUsername()) ||
+                        !roles.contains("VENDOR") ||
+                        !bookings.isEmpty()
+        ) {
+            throw new UserForbiddenException();
+        }
+
+
+        venueService.delete(venue);
 
         //Sending venue deleted event to the broker
         VenueDeletedEvent event = new VenueDeletedEvent(id, jwt.getSubject());
@@ -141,7 +155,30 @@ public class VenueController {
 
         List<Venue> venueList = venueService.findAll();
 
-        List<VenueDto> venueDtoList = venueList.stream().map(Mapper::modelToDto).toList();
+        List<VenueListDto> venueDtoList = venueList.stream().map(Mapper::modelToVenueListDto).toList();
+
+        VenueListResponse response = new VenueListResponse(venueDtoList);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/vendor/venue")
+    public ResponseEntity<VenueListResponse> getVenueByUsername(@AuthenticationPrincipal Jwt jwt) {
+
+        if (!jwt.getClaim("loggedInAs").equals("VENDOR")) {
+            throw new UserForbiddenException();
+        }
+
+        String rolesString = jwt.getClaim("roles");
+        List<String> roles = Arrays.stream(rolesString.split(" ")).toList();
+
+        if (!roles.contains("VENDOR")) {
+            throw new UserForbiddenException();
+        }
+
+        List<Venue> venueList = venueService.findByUsername(jwt.getSubject());
+
+        List<VenueListDto> venueDtoList = venueList.stream().map(Mapper::modelToVenueListDto).toList();
 
         VenueListResponse response = new VenueListResponse(venueDtoList);
 
@@ -152,21 +189,29 @@ public class VenueController {
     @Transactional
     public ResponseEntity<HttpStatus> updateVenue(@PathVariable long id, @RequestBody VenueDto body, @AuthenticationPrincipal Jwt jwt) throws Exception {
 
+        if (!jwt.getClaim("loggedInAs").equals("VENDOR")) {
+            throw new UserForbiddenException();
+        }
+
+        String rolesString = jwt.getClaim("roles");
+        List<String> roles = Arrays.stream(rolesString.split(" ")).toList();
+
         Venue venue = venueService.findById(id).orElseThrow(NoSuchVenueException::new);
-        if (!jwt.getSubject().equals(venue.getUsername()) || !jwt.getClaimAsStringList("roles").contains("VENDOR")) {
+        if (!jwt.getSubject().equals(venue.getUsername()) || !roles.contains("VENDOR")) {
             throw new UserForbiddenException();
         }
         venue.setName(body.name());
-        venue.setCapacity(body.capacity());
+        venue.setDescription(body.description());
+        venue.setCapacity(Integer.parseInt(body.capacity()));
         venue.setPhone(body.phone());
-        venue.setEstimate(body.estimate());
+        venue.setEstimate(Double.parseDouble(body.estimate()));
 
         venueService.save(venue);
 
         VenueUpdatedEvent event = new VenueUpdatedEvent(
                 id,
                 body.name(),
-                body.capacity(),
+                Integer.parseInt(body.capacity()),
                 body.phone(),
                 body.estimate()
         );

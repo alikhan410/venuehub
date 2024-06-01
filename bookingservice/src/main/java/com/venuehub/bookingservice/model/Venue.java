@@ -21,58 +21,24 @@ public class Venue {
     @Column(name = "username")
     private String username;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue")
+    @Column(name = "name")
+    private String name;
+
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue", cascade = CascadeType.ALL)
     private List<BookedVenue> bookings;
 
-    public Venue(Long id, String username) {
+    public Venue(Long id, String name, String username) {
         this.id = id;
         this.username = username;
+        this.name = name;
         this.bookings = new ArrayList<>();
     }
 
-}
-//cascade = {CascadeType.PERSIST, CascadeType.REMOVE, CascadeType.MERGE},
+    @Version
+    private Long version;
 
-//@Entity
-//@Table(name = "venue")
-//@Getter
-//@Setter
-//@AllArgsConstructor
-//public class Venue {
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-//    @Column(name = "id")
-//    private long id;
-//
-//    @Column(name = "name")
-//    @NotNullNotBlank(message = "Name can not be blank or empty")
-//    private String name;
-//
-//    @Column(name = "venue_type")
-//    @NotNullNotBlank(message = "Venue type can not be blank or empty")
-//    private String venueType;
-//
-//    @Column(name = "location")
-//    @NotNullNotBlank(message = "Location can not be blank or empty")
-//    private String location;
-//
-//    @Column(name = "capacity")
-//    @Min(value = 0, message = "Invalid value")
-//    private int capacity;
-//
-//    @Column(name = "phone")
-//    @NotNullNotBlank(message = "Phone can not be blank or empty")
-//    private String phone;
-//
-//    @Column(name = "estimate")
-//    @Min(value = 0, message = "Invalid value")
-//    private String estimate;
-//
-//    @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue")
-//    private List<BookedVenue> bookings;
-//
-//    public Venue() {
-//        this.bookings = new ArrayList<>();
-//    }
-//
-//}
+    private void setVersion(Long version) {
+        this.version = version;
+    }
+
+}

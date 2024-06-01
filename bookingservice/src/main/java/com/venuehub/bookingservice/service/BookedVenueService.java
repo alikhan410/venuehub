@@ -45,9 +45,9 @@ public class BookedVenueService {
 
             LocalDate currentBooking = LocalDateTime.parse(booking.getBookingDateTime()).toLocalDate();
 
-                if (!bookingDate.isAfter(currentDate) || bookingDate.equals(currentBooking) || bookingDate.equals(currentDate)) {
-                    return false;
-                }
+            if (!bookingDate.isAfter(currentDate) || bookingDate.equals(currentBooking) || bookingDate.equals(currentDate)) {
+                return false;
+            }
 
         }
         return true;
@@ -72,6 +72,10 @@ public class BookedVenueService {
         return bookedVenueRepository.findById(id);
     }
 
+    public List<BookedVenue> findByUsername(String username) {
+        return bookedVenueRepository.findByUsername(username);
+    }
+
     public Optional<BookedVenue> findCompletedBookingById(long id) {
         return bookedVenueRepository.findCompletedBookingById(id);
     }
@@ -89,7 +93,7 @@ public class BookedVenueService {
     }
 
     @Transactional
-    public BookedVenue addNewBooking(BookedVenueDto body, Venue venue, String username){
+    public BookedVenue addNewBooking(BookedVenueDto body, Venue venue, String username) {
         BookedVenue newBooking = BookedVenue.builder()
                 .bookingDateTime(body.bookingDateTime())
                 .status(BookingStatus.RESERVED)

@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class VenueDeletedConsumer extends BaseConsumer<VenueDeletedEvent> {
     private static final Logger LOGGER = LoggerFactory.getLogger(VenueDeletedConsumer.class);
+
     private final VenueService venueService;
     public VenueDeletedConsumer(VenueService venueService) {
         this.venueService = venueService;
@@ -20,7 +21,7 @@ public class VenueDeletedConsumer extends BaseConsumer<VenueDeletedEvent> {
     @Override
     @RabbitListener(queues = MyQueue.Constants.VENUE_DELETED_QUEUE_BOOKING_SERVICE)
     public void consume(VenueDeletedEvent event) {
-        LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName() + event);
+        LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName()+" " + event);
         venueService.deleteById(event.venueId());
         //TODO check if this deletes the associated bookings too
 

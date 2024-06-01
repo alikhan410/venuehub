@@ -3,24 +3,32 @@ package com.venuehub.commons.exception;
 import jakarta.validation.ConstraintViolationException;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 import java.util.List;
 
-@Getter
-public class ConstraintViolationExceptionSerializer {
-    private static final HttpStatus code = HttpStatus.BAD_REQUEST;
-    private static final String message = "Invalid parameters";
-    ErrorResponse response;
+public class ConstraintViolationExceptionSerializer implements CustomExcpetion {
+    private final HttpStatusCode status = HttpStatus.BAD_REQUEST;
+    private final HttpStatus error = HttpStatus.BAD_REQUEST;
+    private final String message;
+
 
     public ConstraintViolationExceptionSerializer(ConstraintViolationException e) {
-        List<ErrorResponse.ErrorDetails> errors = e.getConstraintViolations().stream().map(v -> {
+        this.message = e.getConstraintViolations().stream().toString();
+    }
 
-            String fieldName = List.of(v.getPropertyPath().toString().split("\\.")).get(2);
+    @Override
+    public ErrorResponse getResponse() {
+        return null;
+    }
 
-            return new ErrorResponse.ErrorDetails(fieldName, v.getMessage());
+    @Override
+    public HttpStatusCode getCode() {
+        return status;
+    }
 
-        }).toList();
-
-        this.response = new ErrorResponse(code, message, errors);
+    @Override
+    public HttpStatus getStatus() {
+        return error;
     }
 }

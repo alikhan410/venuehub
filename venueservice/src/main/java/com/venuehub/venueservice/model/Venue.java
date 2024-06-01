@@ -1,13 +1,11 @@
 package com.venuehub.venueservice.model;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.venuehub.venueservice.validator.NotNullNotBlank;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,13 +18,12 @@ import java.util.List;
 public class Venue {
 
     public Venue() {
-
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
-    private long id;
+    private Long id;
 
     @Column(name = "username")
     private String username;
@@ -34,6 +31,10 @@ public class Venue {
     @Column(name = "name")
     @NotNullNotBlank(message = "Name can not be blank or empty")
     private String name;
+
+    @Column(name = "description")
+    @NotNullNotBlank(message = "description can not be blank or empty")
+    private String description;
 
     @Column(name = "venue_type")
     @NotNullNotBlank(message = "Venue type can not be blank or empty")
@@ -53,11 +54,18 @@ public class Venue {
 
     @Column(name = "estimate")
     @Min(value = 0, message = "Invalid value")
-    private String estimate;
+    private double estimate;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue", cascade = CascadeType.ALL)
     private List<BookedVenue> bookings;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue")
+    @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue", cascade = CascadeType.ALL)
     private List<ImageData> images;
+
+    @Version
+    private Long version;
+
+    private void setVersion(Long version) {
+        this.version = version;
+    }
 }

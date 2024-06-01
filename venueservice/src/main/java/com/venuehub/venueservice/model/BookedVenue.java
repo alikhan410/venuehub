@@ -12,7 +12,6 @@ import org.hibernate.dialect.MySQLEnumJdbcType;
 @Data
 public class BookedVenue {
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
     private long id;
 
@@ -26,6 +25,13 @@ public class BookedVenue {
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonBackReference
     private Venue venue;
+
+    @Version
+    private Long version;
+
+    private void setVersion(Long version) {
+        this.version = version;
+    }
 
 }
 //@Entity

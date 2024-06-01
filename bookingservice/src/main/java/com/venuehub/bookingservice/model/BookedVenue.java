@@ -52,6 +52,13 @@ public class BookedVenue {
     @JsonBackReference
     private Venue venue;
 
+    @Version
+    private Long version;
+
+    private void setVersion(Long version) {
+        this.version = version;
+    }
+
 
 }
 //cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH}

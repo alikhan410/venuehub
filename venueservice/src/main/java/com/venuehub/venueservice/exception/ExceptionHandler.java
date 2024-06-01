@@ -2,19 +2,28 @@ package com.venuehub.venueservice.exception;
 
 import com.venuehub.commons.exception.*;
 import jakarta.validation.ConstraintViolationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 
 @ControllerAdvice
 public class ExceptionHandler {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ExceptionHandler.class);
+
     @org.springframework.web.bind.annotation.ExceptionHandler
     public ResponseEntity<ErrorResponse> handleNoSuchBookingException(NoSuchBookingException e) {
         return new ResponseEntity<>(e.getResponse(), e.getCode());
     }
-    @org.springframework.web.bind.annotation.ExceptionHandler
-    public ResponseEntity<ErrorResponse> handleUserUnAuthorizedException(UserUnAuthorizedException e) {
-        return new ResponseEntity<>(e.getResponse(), e.getCode());
-    }
+
+//    @org.springframework.web.bind.annotation.ExceptionHandler
+//    public ResponseEntity<ErrorResponse> handleAuthenticationException(AuthenticationException e) {
+//        NotAuthenticatedException exception = new NotAuthenticatedException();
+//        return new ResponseEntity<>(exception.getResponse(), exception.getCode());
+//    }
 
     @org.springframework.web.bind.annotation.ExceptionHandler
     public ResponseEntity<ErrorResponse> handleNoSuchVenueException(NoSuchVenueException e) {
@@ -34,13 +43,27 @@ public class ExceptionHandler {
     @org.springframework.web.bind.annotation.ExceptionHandler
     public ResponseEntity<ErrorResponse> handleConstraintViolationException(ConstraintViolationException e) {
         ConstraintViolationExceptionSerializer serializer = new ConstraintViolationExceptionSerializer(e);
-        return new ResponseEntity<>(serializer.getResponse(), serializer.getResponse().getCode());
+        return new ResponseEntity<>(serializer.getResponse(), serializer.getCode());
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler
-    public ResponseEntity<ErrorResponse> handleGeneralException(Exception e) {
-        GeneralException generalException = new GeneralException("General error",e.getMessage());
+    public ResponseEntity<ErrorResponse> handleDuplicateEntryException(DuplicateEntryException e) {
+        return new ResponseEntity<>(e.getResponse(), e.getCode());
+    }
 
-        return new ResponseEntity<>(generalException.getResponse(), generalException.getCode());
+    @org.springframework.web.bind.annotation.ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e) {
+        LOGGER.info(e.getMessage());
+        ValidationSerializer serializer = new ValidationSerializer(e);
+        return new ResponseEntity<>(serializer.getResponse(), serializer.getCode());
+    }
+
+    @org.springframework.web.bind.annotation.ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleGeneralException(Exception e) throws Exception {
+        throw e;
+//        LOGGER.info("Encountered a general exception");
+//        LOGGER.info(e.getMessage());
+//        GeneralException generalException = new GeneralException(e.getMessage());
+//        return new ResponseEntity<>(generalException.getResponse(), generalException.getCode());
     }
 }

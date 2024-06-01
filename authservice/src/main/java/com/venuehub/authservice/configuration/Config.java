@@ -10,9 +10,11 @@ import com.venuehub.authservice.utils.RSAKeyProperties;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -31,7 +33,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import java.util.UUID;
 
 @Configuration
-@EnableWebSecurity
+//@EnableWebSecurity
 public class Config {
     @Autowired
     private final RSAKeyProperties keys;
@@ -63,10 +65,15 @@ public class Config {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers(HttpMethod.GET,"/user/logout").authenticated()
+                        .requestMatchers(HttpMethod.GET,"/vendor/logout").authenticated()
                         .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/vendor/**").permitAll()
                         .requestMatchers("/.well-known/jwks.json").permitAll()
-                        .anyRequest().authenticated())
+                        .requestMatchers( "/login/swagger-ui/index.html").permitAll()
+                        .anyRequest().authenticated()
+
+                )
                 .oauth2ResourceServer(oauth -> oauth.jwt(j -> jwtAuthenticationConverter()));
 
         return http.build();

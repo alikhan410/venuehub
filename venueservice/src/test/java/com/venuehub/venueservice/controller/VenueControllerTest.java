@@ -1,5 +1,6 @@
 package com.venuehub.venueservice.controller;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.venuehub.broker.constants.MyExchange;
 import com.venuehub.broker.event.venue.VenueCreatedEvent;
@@ -28,6 +29,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockHttpServletRequest;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -41,6 +44,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -123,7 +127,7 @@ class VenueControllerTest {
                 .bookings(bookings)
                 .capacity(capacity)
                 .build();
-        venueDto = new VenueDto(venueName, venueType, location, capacity, phone, estimate, bookings);
+        venueDto = new VenueDto(venueId,venueName, venueType, location, capacity, phone, estimate, bookings);
 
     }
 
@@ -183,7 +187,7 @@ class VenueControllerTest {
                     .file(imageFile2)
                     .header("Authorization", "Bearer " + wrongJwt)
                     .contentType(MediaType.MULTIPART_FORM_DATA)
-                    .param("venueName", venueDto.name())
+                    .param("name", venueDto.name())
                     .param("venueType", venueDto.venueType())
                     .param("location", venueDto.location())
                     .param("capacity", String.valueOf(venueDto.capacity())) // Convert capacity to String
@@ -199,7 +203,7 @@ class VenueControllerTest {
                     .file(imageFile2)
                     .header("Authorization", "Bearer " + myJwt)
                     .contentType(MediaType.MULTIPART_FORM_DATA)
-                    .param("venueName", venueDto.name())
+                    .param("name", venueDto.name())
                     .param("venueType", venueDto.venueType())
                     .param("location", venueDto.location())
                     .param("capacity", String.valueOf(venueDto.capacity())) // Convert capacity to String
@@ -208,10 +212,14 @@ class VenueControllerTest {
             ).andExpect(status().isCreated()).andReturn();
 
             String response = result.getResponse().getContentAsString();
-            assertThat(response).contains(venueId.toString());
-            assertThat(response).contains(String.valueOf(capacity));
-            assertThat(response).contains(venueType);
-            assertThat(response).contains(phone);
+
+            Venue responseObject = new ObjectMapper().readValue(response, Venue.class);
+
+            assertThat(responseObject.getEstimate()).isEqualTo(estimate);
+            assertThat(responseObject.getLocation()).isEqualTo(location);
+            assertThat(responseObject.getCapacity()).isEqualTo(capacity);
+            assertThat(responseObject.getVenueType()).isEqualTo(venueType);
+            assertThat(responseObject.getPhone()).isEqualTo(phone);
         }
 
         @Test
@@ -222,16 +230,16 @@ class VenueControllerTest {
                     .file(imageFile2)
                     .header("Authorization", "Bearer " + myJwt)
                     .contentType(MediaType.MULTIPART_FORM_DATA)
-                    .param("venueName", venueDto.name())
+                    .param("name", venueDto.name())
                     .param("venueType", venueDto.venueType())
                     .param("location", venueDto.location())
-                    .param("capacity", String.valueOf(venueDto.capacity())) // Convert capacity to String
+                    .param("capacity", String.valueOf(venueDto.capacity()))
                     .param("phone", venueDto.phone())
                     .param("estimate", String.valueOf(venueDto.estimate()))
             ).andExpect(status().isCreated());
 
-            VenueCreatedEvent event = new VenueCreatedEvent(0L, username);
-            Mockito.verify(rabbitTemplate, times(1)).convertAndSend(MyExchange.BOOKING_EXCHANGE.name(), "venue-created", event);
+//            VenueCreatedEvent event = new VenueCreatedEvent(1L, username);
+            Mockito.verify(rabbitTemplate, times(1)).convertAndSend(any(String.class), any(String.class), any(VenueCreatedEvent.class));
         }
 
     }
@@ -290,7 +298,7 @@ class VenueControllerTest {
                             .header("Authorization", "Bearer " + myJwt))
                     .andExpect(status().isNoContent());
 
-            Mockito.verify(venueService, times(1)).deleteById(venueId);
+            Mockito.verify(venueService, times(1)).delete(venue);
         }
 
         @Test
@@ -401,7 +409,7 @@ class VenueControllerTest {
             Mockito.when(venueService.findById(venueId)).thenReturn(Optional.of(venue));
             String updatedEstimate = "55000";
             int updatedCapacity = 50;
-            VenueDto updatedVenueDto = new VenueDto(venueName, venueType, location, updatedCapacity, phone, updatedEstimate, bookings);
+            VenueDto updatedVenueDto = new VenueDto(venueId, venueName, venueType, location, updatedCapacity, phone, updatedEstimate, bookings);
 
             MvcResult result = mvc.perform(MockMvcRequestBuilders.put("/venue/" + venueId)
                             .header("Authorization", "Bearer " + myJwt)

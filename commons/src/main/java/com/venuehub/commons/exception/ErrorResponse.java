@@ -1,51 +1,22 @@
 package com.venuehub.commons.exception;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.Getter;
-import lombok.Setter;
-import org.springframework.http.HttpStatus;
 
-import java.util.List;
+import lombok.Getter;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 
 @Getter
-@Setter
 public class ErrorResponse {
 
-    private HttpStatus code;
-    private String message;
-    private List<ErrorDetails> details;
+    private final HttpStatusCode status;
+    private final HttpStatus error;
+    private final String message;
 
-    public ErrorResponse(HttpStatus code, String message) {
-        this.code = code;
+    public ErrorResponse(HttpStatusCode status, HttpStatus error, String message) {
+        this.status = status;
+        this.error = error;
         this.message = message;
     }
 
-    public ErrorResponse(HttpStatus code, String message, List<ErrorDetails> details) {
-        this(code, message);
-        this.details = details;
-    }
-
-    @Getter
-    @Setter
-    public static class ErrorDetails {
-        private String field;
-        private String error;
-
-        public ErrorDetails(String field, String error) {
-            this.error = error;
-            this.field = field;
-        }
-
-    }
-
-    public String toJsonString() {
-        ObjectMapper mapper = new ObjectMapper();
-        try {
-            return mapper.writeValueAsString(this);
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error converting error response to JSON", e);
-        }
-    }
 }
 

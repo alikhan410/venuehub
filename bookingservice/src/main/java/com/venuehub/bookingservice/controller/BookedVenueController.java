@@ -2,6 +2,7 @@ package com.venuehub.bookingservice.controller;
 
 import com.venuehub.bookingservice.dto.BookedVenueDto;
 import com.venuehub.bookingservice.dto.BookingDateDto;
+import com.venuehub.bookingservice.response.GetBookingByUsernameResponse;
 import com.venuehub.broker.constants.BookingStatus;
 import com.venuehub.broker.constants.MyExchange;
 import com.venuehub.broker.event.booking.BookingCreatedEvent;
@@ -58,11 +59,11 @@ public class BookedVenueController {
 
     @PostMapping("/booking/{venueId}")
     @Transactional
-    public ResponseEntity<BookedVenueDto> addBooking(
-            @PathVariable long venueId,
-            @Valid @RequestBody BookedVenueDto body,
-            @AuthenticationPrincipal Jwt jwt
-    ) throws BookingUnavailableException {
+    public ResponseEntity<BookedVenueDto> addBooking(@PathVariable long venueId, @Valid @RequestBody BookedVenueDto body, @AuthenticationPrincipal Jwt jwt) throws BookingUnavailableException {
+
+        if(jwt.getClaim("loggedInAs")!="USER"){
+            throw new UserForbiddenException();
+        }
 
         Venue venue = venueService.findById(venueId).orElseThrow(NoSuchVenueException::new);
         List<BookedVenue> bookings = venue.getBookings();
@@ -99,18 +100,12 @@ public class BookedVenueController {
         return new ResponseEntity<>(bookedVenueDto, HttpStatus.CREATED);
     }
 
-    @PostMapping("/reserve/{id}")
-    public String addReservation(@PathVariable long id) {
-        return null;
-    }
+    @GetMapping("/booking/venue/{venueId}")
+    public ResponseEntity<BookedVenueListResponse> getBookingByVenue(@PathVariable Long venueId) {
 
+        venueService.findById(venueId).orElseThrow(NoSuchVenueException::new);
 
-    @GetMapping("/booking")
-    public ResponseEntity<BookedVenueListResponse> getBookingByVenue(@RequestParam("venue") long id) {
-
-        venueService.findById(id).orElseThrow(NoSuchVenueException::new);
-
-        List<BookedVenue> bookedVenueList = bookedVenueService.findByVenue(id);
+        List<BookedVenue> bookedVenueList = bookedVenueService.findByVenue(venueId);
 
         List<BookedVenueDto> bookedVenueDtoList = bookedVenueList.stream().map(Mapper::modelToDto).toList();
 
@@ -125,9 +120,28 @@ public class BookedVenueController {
         return bookedVenueService.findById(bookingId).orElseThrow(NoSuchBookingException::new);
     }
 
+    @GetMapping("/booking")
+    public ResponseEntity<List<GetBookingByUsernameResponse>> getBookingByUsername(@AuthenticationPrincipal Jwt jwt) throws NoSuchBookingException {
+
+        if(jwt.getClaim("loggedInAs")!="USER"){
+            throw new UserForbiddenException();
+        }
+
+        List<BookedVenue> bookedVenueList = bookedVenueService.findByUsername(jwt.getSubject());
+
+        List<GetBookingByUsernameResponse> bookedVenueDtoList = bookedVenueList.stream().map(Mapper::modelToResponse).toList();
+
+        return new ResponseEntity<>(bookedVenueDtoList, HttpStatus.OK);
+    }
+
     @DeleteMapping("/booking/{bookingId}")
     @Transactional
     public ResponseEntity<HttpStatus> cancelBooking(@PathVariable long bookingId, @AuthenticationPrincipal Jwt jwt) throws Exception {
+
+        if(jwt.getClaim("loggedInAs")!="USER"){
+            throw new UserForbiddenException();
+        }
+
         BookedVenue booking = bookedVenueService.findById(bookingId).orElseThrow(NoSuchBookingException::new);
 
         if (!booking.getUsername().equals(jwt.getSubject())) {
@@ -158,6 +172,11 @@ public class BookedVenueController {
     @PutMapping("/booking/{bookingId}")
     @Transactional
     public ResponseEntity<HttpStatus> updateBookingDate(@PathVariable long bookingId, @RequestBody BookingDateDto body, @AuthenticationPrincipal Jwt jwt) throws Exception {
+
+        if(jwt.getClaim("loggedInAs")!="USER"){
+            throw new UserForbiddenException();
+        }
+
         BookedVenue booking = bookedVenueService.findById(bookingId).orElseThrow(NoSuchBookingException::new);
 
         if (!booking.getUsername().equals(jwt.getSubject())) {

@@ -5,18 +5,20 @@ import com.venuehub.venueservice.model.ImageData;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
 public record VenueDto(
-        @NotNull @NotBlank(message = "Name can not be blank or empty") String name,
-        @NotNull @NotBlank(message = "Venue type can not be blank or empty") String venueType,
-        @NotNull @NotBlank(message = "Location can not be blank or empty") String location,
-        @Min(value = 0, message = "Invalid value") int capacity,
-//        List<ImageData> images,
-        @NotNull @NotBlank(message = "Phone can not be blank or empty") String phone,
-        @Min(value = 0, message = "Invalid value") String estimate,
+        Long id,
+        @NotNull(message = "Venue Name can not be empty") @NotBlank(message = "Venue Name can not be blank") String name,
+        String username,
+        @NotNull(message = "description can not be empty") @NotBlank(message = "description can not be blank") String description,
+        @NotNull(message = "Venue type can not be empty") @NotBlank(message = "Venue type can not be blank") String venueType,
+        @NotNull(message = "Location can not be empty") @NotBlank(message = "Location can not be blank") String location,
+        @Min(value = 20, message = "Enter a capacity more than 20") @NotBlank(message = "Capacity can not be blank") String capacity,
+        List<ImageData> imageDataList,
+        @NotNull(message = "Phone can not be empty") @NotBlank(message = "Phone can not be blank") String phone,
+        @NotNull(message = "Estimate can not be empty") @NotBlank(message = "Estimate can not be blank") String estimate,
         List<BookedVenue> bookings
 ) {
 }

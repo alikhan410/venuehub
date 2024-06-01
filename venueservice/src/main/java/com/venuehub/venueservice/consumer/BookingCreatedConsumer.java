@@ -27,7 +27,7 @@ public class BookingCreatedConsumer extends BaseConsumer<BookingCreatedEvent> {
     @Override
     @RabbitListener(queues = MyQueue.Constants.BOOKING_CREATED_QUEUE_VENUE_SERVICE)
     public void consume(BookingCreatedEvent event) {
-        LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName() + event);
+        LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName()+" " + event);
         BookedVenue bookedVenue = new BookedVenue();
         bookedVenue.setId(event.bookingId());
         bookedVenue.setStatus(event.status());
