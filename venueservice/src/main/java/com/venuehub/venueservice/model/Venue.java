@@ -3,6 +3,7 @@ package com.venuehub.venueservice.model;
 import com.venuehub.venueservice.validator.NotNullNotBlank;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -45,16 +46,16 @@ public class Venue {
     private String location;
 
     @Column(name = "capacity")
-    @Min(value = 0, message = "Invalid value")
+    @Min(value = 20, message = "Capacity should be more than 20")
     private int capacity;
 
     @Column(name = "phone")
-    @NotNullNotBlank(message = "Phone can not be blank or empty")
+    @NotNull(message = "Phone can not be null")
     private String phone;
 
     @Column(name = "estimate")
-    @Min(value = 0, message = "Invalid value")
-    private double estimate;
+    @Min(value = 10000, message = "Minimum value for estimates is 10000")
+    private int estimate;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue", cascade = CascadeType.ALL)
     private List<BookedVenue> bookings;

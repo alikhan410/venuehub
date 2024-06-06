@@ -38,6 +38,7 @@ public class TokenService {
                 .build();
         return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
+
     public String generateVendorJwt(Authentication auth) {
         Instant now = Instant.now();
 

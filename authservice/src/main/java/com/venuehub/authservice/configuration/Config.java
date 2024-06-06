@@ -14,9 +14,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -35,12 +33,14 @@ import java.util.UUID;
 @Configuration
 //@EnableWebSecurity
 public class Config {
-    @Autowired
     private final RSAKeyProperties keys;
 
+    private final CustomAuthenticationException customAuthenticationException;
+
     @Autowired
-    public Config(RSAKeyProperties rsaKeyProperties) {
+    public Config(RSAKeyProperties rsaKeyProperties, CustomAuthenticationException customAuthenticationException) {
         this.keys = rsaKeyProperties;
+        this.customAuthenticationException = customAuthenticationException;
     }
 
     @Bean
@@ -57,6 +57,7 @@ public class Config {
         daoProvider.setPasswordEncoder(passwordEncoder());
         return new ProviderManager(daoProvider);
 
+
     }
 
     @Bean
@@ -65,21 +66,25 @@ public class Config {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers(HttpMethod.GET,"/user/logout").authenticated()
-                        .requestMatchers(HttpMethod.GET,"/vendor/logout").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/user/logout").authenticated()
+                        .requestMatchers(HttpMethod.GET, "/vendor/logout").authenticated()
                         .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/vendor/**").permitAll()
                         .requestMatchers("/.well-known/jwks.json").permitAll()
-                        .requestMatchers( "/login/swagger-ui/index.html").permitAll()
+                        .requestMatchers("/login/swagger-ui/index.html").permitAll()
                         .anyRequest().authenticated()
 
                 )
-                .oauth2ResourceServer(oauth -> oauth.jwt(j -> jwtAuthenticationConverter()));
+                .oauth2ResourceServer(oauth ->
+                        oauth.jwt(j ->
+                                        jwtAuthenticationConverter()
+                                )
+                                .authenticationEntryPoint(customAuthenticationException)
+                );
 
         return http.build();
 
     }
-
 
     @Bean
     public JWKSet jwkSet() {

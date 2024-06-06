@@ -2,6 +2,7 @@ server:
   port: 6000
 #//-------------------------------------------------------------//
 spring:
+
   rabbitmq:
     host: localhost
     port: 5672
@@ -12,7 +13,7 @@ spring:
     generate-ddl: true
 
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
 
   datasource:
     url: jdbc:mysql://localhost:3306/bookingservice

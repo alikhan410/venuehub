@@ -19,4 +19,16 @@ public class ImageData {
     @ManyToOne(fetch = FetchType.EAGER)
     @JsonBackReference
     private Venue venue;
+
+    public ImageData(byte[] image, Venue venue) {
+        this.image = image;
+        this.venue = venue;
+    }
+
+    public ImageData(byte[] image) {
+        this.image = image;
+    }
+
+    public ImageData() {
+    }
 }

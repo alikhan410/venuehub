@@ -2,7 +2,7 @@ package com.venuehub.bookingservice.controller;
 
 import com.venuehub.bookingservice.dto.BookedVenueDto;
 import com.venuehub.bookingservice.dto.BookingDateDto;
-import com.venuehub.bookingservice.response.GetBookingByUsernameResponse;
+import com.venuehub.bookingservice.response.*;
 import com.venuehub.broker.constants.BookingStatus;
 import com.venuehub.broker.constants.MyExchange;
 import com.venuehub.broker.event.booking.BookingCreatedEvent;
@@ -17,7 +17,6 @@ import com.venuehub.commons.exception.*;
 import com.venuehub.bookingservice.mapper.Mapper;
 import com.venuehub.bookingservice.model.BookedVenue;
 import com.venuehub.bookingservice.model.Venue;
-import com.venuehub.bookingservice.response.BookedVenueListResponse;
 import com.venuehub.bookingservice.service.BookedVenueService;
 import com.venuehub.bookingservice.service.VenueService;
 
@@ -57,11 +56,11 @@ public class BookedVenueController {
         this.bookingJobCancellingProducer = bookingJobCancellingProducer;
     }
 
-    @PostMapping("/booking/{venueId}")
+    @PostMapping("/bookings/venue/{venueId}")
     @Transactional
     public ResponseEntity<BookedVenueDto> addBooking(@PathVariable long venueId, @Valid @RequestBody BookedVenueDto body, @AuthenticationPrincipal Jwt jwt) throws BookingUnavailableException {
 
-        if(jwt.getClaim("loggedInAs")!="USER"){
+        if (!jwt.getClaim("loggedInAs").equals("USER")) {
             throw new UserForbiddenException();
         }
 
@@ -81,12 +80,14 @@ public class BookedVenueController {
                 newBooking.getId(),
                 venueId,
                 BookingStatus.RESERVED,
+                newBooking.getBookingFee(),
                 jwt.getSubject()
         );
         BookingJobSchedulingEvent bookingJobSchedulingEvent = new BookingJobSchedulingEvent(
                 newBooking.getId(),
                 BookingStatus.RESERVED,
                 newBooking.getBookingDateTime(),
+                newBooking.getReservationExpiry(),
                 jwt.getSubject()
 
         );
@@ -94,36 +95,48 @@ public class BookedVenueController {
         bookingCreatedProducer.produce(bookingCreatedEvent, MyExchange.VENUE_EXCHANGE);
         bookingCreatedProducer.produce(bookingCreatedEvent, MyExchange.PAYMENT_EXCHANGE);
 
-        bookingJobSchedulingProducer.produce(bookingJobSchedulingEvent,MyExchange.JOB_EXCHANGE);
+        bookingJobSchedulingProducer.produce(bookingJobSchedulingEvent, MyExchange.JOB_EXCHANGE);
 
         BookedVenueDto bookedVenueDto = Mapper.modelToDto(newBooking);
         return new ResponseEntity<>(bookedVenueDto, HttpStatus.CREATED);
     }
 
-    @GetMapping("/booking/venue/{venueId}")
-    public ResponseEntity<BookedVenueListResponse> getBookingByVenue(@PathVariable Long venueId) {
+    @GetMapping("/bookings/venue/{venueId}")
+    public ResponseEntity<BookingDateListResponse> getBookingByVenue(@PathVariable Long venueId) {
 
         venueService.findById(venueId).orElseThrow(NoSuchVenueException::new);
 
         List<BookedVenue> bookedVenueList = bookedVenueService.findByVenue(venueId);
 
-        List<BookedVenueDto> bookedVenueDtoList = bookedVenueList.stream().map(Mapper::modelToDto).toList();
+        List<BookingDateDto> bookedVenueDtoList = bookedVenueList.stream().map(Mapper::modelToBookingDateDto).toList();
 
-        BookedVenueListResponse response = new BookedVenueListResponse(bookedVenueDtoList);
+        BookingDateListResponse response = new BookingDateListResponse(bookedVenueDtoList);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
 
     }
 
-    @GetMapping("/booking/{bookingId}")
-    public BookedVenue getBookingById(@PathVariable long bookingId) throws NoSuchBookingException {
-        return bookedVenueService.findById(bookingId).orElseThrow(NoSuchBookingException::new);
+    @GetMapping("/bookings/{bookingId}")
+    public ResponseEntity<BookingStatusResponse> getBookingStatus(@PathVariable long bookingId, @AuthenticationPrincipal Jwt jwt) throws NoSuchBookingException {
+
+        if (!jwt.getClaim("loggedInAs").equals("USER")) {
+            throw new UserForbiddenException();
+        }
+        BookedVenue booking = bookedVenueService.findById(bookingId).orElseThrow(NoSuchBookingException::new);
+
+        if (!booking.getUsername().equals(jwt.getSubject())) {
+            throw new UserForbiddenException();
+        }
+
+        BookingStatusResponse response = new BookingStatusResponse( booking.getStatus());
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/booking")
+    @GetMapping("/bookings/user")
     public ResponseEntity<List<GetBookingByUsernameResponse>> getBookingByUsername(@AuthenticationPrincipal Jwt jwt) throws NoSuchBookingException {
 
-        if(jwt.getClaim("loggedInAs")!="USER"){
+        if (!jwt.getClaim("loggedInAs").equals("USER")) {
             throw new UserForbiddenException();
         }
 
@@ -134,11 +147,11 @@ public class BookedVenueController {
         return new ResponseEntity<>(bookedVenueDtoList, HttpStatus.OK);
     }
 
-    @DeleteMapping("/booking/{bookingId}")
+    @DeleteMapping("/bookings/{bookingId}")
     @Transactional
     public ResponseEntity<HttpStatus> cancelBooking(@PathVariable long bookingId, @AuthenticationPrincipal Jwt jwt) throws Exception {
 
-        if(jwt.getClaim("loggedInAs")!="USER"){
+        if (!jwt.getClaim("loggedInAs").equals("USER")) {
             throw new UserForbiddenException();
         }
 
@@ -169,11 +182,11 @@ public class BookedVenueController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PutMapping("/booking/{bookingId}")
+    @PutMapping("/bookings/{bookingId}")
     @Transactional
     public ResponseEntity<HttpStatus> updateBookingDate(@PathVariable long bookingId, @RequestBody BookingDateDto body, @AuthenticationPrincipal Jwt jwt) throws Exception {
 
-        if(jwt.getClaim("loggedInAs")!="USER"){
+        if (!jwt.getClaim("loggedInAs").equals("USER")) {
             throw new UserForbiddenException();
         }
 
@@ -188,21 +201,22 @@ public class BookedVenueController {
             throw new Exception("Not booked");
         }
 
-        booking.setBookingDateTime(body.BookingDate());
-        bookedVenueService.save(booking);
+        //updating both the booking and reservation
+        bookedVenueService.updateBooking(bookingId, body.BookingDate());
 
-        //Sending the event
+        //Sending the events
         BookingUpdatedEvent bookingUpdatedEvent = new BookingUpdatedEvent(bookingId, BookingStatus.RESERVED);
         BookingJobSchedulingEvent bookingJobSchedulingEvent = new BookingJobSchedulingEvent(
                 bookingId,
                 BookingStatus.RESERVED,
-                body.BookingDate(),
+                booking.getBookingDateTime(),
+                booking.getReservationExpiry(),
                 jwt.getSubject()
 
         );
         bookingUpdatedProducer.produce(bookingUpdatedEvent, MyExchange.VENUE_EXCHANGE);
         bookingUpdatedProducer.produce(bookingUpdatedEvent, MyExchange.PAYMENT_EXCHANGE);
-        bookingJobSchedulingProducer.produce(bookingJobSchedulingEvent,MyExchange.JOB_EXCHANGE);
+        bookingJobSchedulingProducer.produce(bookingJobSchedulingEvent, MyExchange.JOB_EXCHANGE);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }

@@ -23,16 +23,21 @@ public class VenueService {
         venueRepository.save(venue);
     }
 
+    @Transactional
+    public void saveAll(List<Venue> venues) {
+        venueRepository.saveAll(venues);
+    }
+
     public Optional<Venue> findById(long id) {
         return venueRepository.findById(id);
     }
 
     @Transactional
-    public void deleteById(long id){
+    public void deleteById(long id) {
         venueRepository.deleteById(id);
     }
 
-    public List<Venue> findAll(){
+    public List<Venue> findAll() {
         return venueRepository.findAll();
     }
 }

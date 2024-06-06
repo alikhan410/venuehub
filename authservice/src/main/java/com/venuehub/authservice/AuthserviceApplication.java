@@ -24,6 +24,7 @@ public class AuthserviceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(AuthserviceApplication.class, args);
 	}
+
 	@Transactional
 	@Bean
 	CommandLineRunner run(RoleRepository roleRepository, UserRepository userRepository, PasswordEncoder passwordEncoder) {

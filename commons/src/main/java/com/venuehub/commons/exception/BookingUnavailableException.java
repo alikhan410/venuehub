@@ -2,13 +2,11 @@ package com.venuehub.commons.exception;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 
-import java.util.List;
 
 @Getter
 public class BookingUnavailableException extends RuntimeException implements CustomExcpetion {
-    private final HttpStatusCode status = HttpStatus.NOT_FOUND;
+    private final int status = HttpStatus.NOT_FOUND.value();
     private final HttpStatus error = HttpStatus.NOT_FOUND;
     private final String message;
 
@@ -17,17 +15,17 @@ public class BookingUnavailableException extends RuntimeException implements Cus
         this.message = message;
     }
 
-    public BookingUnavailableException(){
+    public BookingUnavailableException() {
         this("Booking is not available");
     }
 
     @Override
     public ErrorResponse getResponse() {
-        return new ErrorResponse(status,error, message);
+        return new ErrorResponse(status, error, message);
     }
 
     @Override
-    public HttpStatusCode getCode() {
+    public int getCode() {
         return status;
     }
 

@@ -1,14 +1,11 @@
 package com.venuehub.commons.exception;
 
 import jakarta.validation.ConstraintViolationException;
-import lombok.Getter;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 
-import java.util.List;
 
 public class ConstraintViolationExceptionSerializer implements CustomExcpetion {
-    private final HttpStatusCode status = HttpStatus.BAD_REQUEST;
+    private final int status = HttpStatus.BAD_REQUEST.value();
     private final HttpStatus error = HttpStatus.BAD_REQUEST;
     private final String message;
 
@@ -19,11 +16,11 @@ public class ConstraintViolationExceptionSerializer implements CustomExcpetion {
 
     @Override
     public ErrorResponse getResponse() {
-        return null;
+        return new ErrorResponse(status, error, message);
     }
 
     @Override
-    public HttpStatusCode getCode() {
+    public int getCode() {
         return status;
     }
 

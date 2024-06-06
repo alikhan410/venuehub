@@ -22,4 +22,5 @@ public class BookedVenue {
     @Column(name = "status")
     @JdbcType(MySQLEnumJdbcType.class)
     private BookingStatus status;
+
 }

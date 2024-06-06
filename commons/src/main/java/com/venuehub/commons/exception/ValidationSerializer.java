@@ -11,7 +11,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ValidationSerializer implements CustomExcpetion {
-    private final HttpStatusCode status = HttpStatus.BAD_REQUEST;
+    private final int status = HttpStatus.BAD_REQUEST.value();
     private final HttpStatus error = HttpStatus.BAD_REQUEST;
     private final String message;
 
@@ -35,11 +35,11 @@ public class ValidationSerializer implements CustomExcpetion {
 
     @Override
     public ErrorResponse getResponse() {
-        return new ErrorResponse(status,error, message);
+        return new ErrorResponse(status, error, message);
     }
 
     @Override
-    public HttpStatusCode getCode() {
+    public int getCode() {
         return status;
     }
 

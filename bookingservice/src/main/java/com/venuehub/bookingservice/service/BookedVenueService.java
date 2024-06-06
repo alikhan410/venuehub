@@ -13,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -98,12 +99,25 @@ public class BookedVenueService {
                 .bookingDateTime(body.bookingDateTime())
                 .status(BookingStatus.RESERVED)
                 .venue(venue)
+                .bookingFee(venue.getEstimate())
                 .username(username)
                 .phone(body.phone())
                 .email(body.email())
                 .guests(body.guests()).build();
         bookedVenueRepository.save(newBooking);
         return newBooking;
+    }
+
+    @Transactional
+    public void updateBooking(Long bookingId, String newBookingDate) {
+        BookedVenue bookedVenue = bookedVenueRepository.findById(bookingId).orElseThrow(NoSuchBookingException::new);
+        bookedVenue.setBookingDateTime(newBookingDate);
+
+        //setting a new reservation date
+        String newReservation = LocalDateTime.now(ZoneId.of("PLT")).plusMinutes(2).toString();
+        bookedVenue.setReservationExpiry(newReservation);
+
+        bookedVenueRepository.save(bookedVenue);
     }
 
 }

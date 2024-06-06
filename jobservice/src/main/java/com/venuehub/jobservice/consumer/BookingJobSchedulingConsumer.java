@@ -34,7 +34,7 @@ public class BookingJobSchedulingConsumer extends BaseConsumer<BookingJobSchedul
     @RabbitListener(queues = MyQueue.Constants.JOB_SCHEDULING_QUEUE_JOB_SERVICE)
     @Transactional
     public void consume(BookingJobSchedulingEvent event) {
-        LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName()+" " + event);
+        LOGGER.info("{} reached {} {}", event.getClass().getSimpleName(), getClass().getSimpleName(), event);
 
         //Saving the booking in db
         BookedVenue booking = new BookedVenue();
@@ -42,8 +42,6 @@ public class BookingJobSchedulingConsumer extends BaseConsumer<BookingJobSchedul
         booking.setStatus(event.status());
         booking.setUsername(event.username());
         bookedVenueService.save(booking);
-
-        LocalDateTime bookingDateTime = LocalDateTime.parse(event.bookingDateTime());
 
         //cancelling the booking job for this id if it has any
         try {
@@ -62,7 +60,7 @@ public class BookingJobSchedulingConsumer extends BaseConsumer<BookingJobSchedul
         try {
             //Starting  a booking removing job
             JobDetail bookingjobDetail = jobService.buildBookingJob(booking.getId());
-            Trigger bookingJobTrigger = jobService.buildBookingJobTrigger(bookingjobDetail, bookingDateTime);
+            Trigger bookingJobTrigger = jobService.buildBookingJobTrigger(bookingjobDetail, event.bookingDateTime());
             jobService.scheduleJob(bookingjobDetail, bookingJobTrigger);
         } catch (SchedulerException e) {
             throw new RuntimeException(e);
@@ -71,7 +69,7 @@ public class BookingJobSchedulingConsumer extends BaseConsumer<BookingJobSchedul
         try {
             //starting a reservation job
             JobDetail reservationJobDetail = jobService.buildReservationJob(booking.getId());
-            Trigger reservationJobTrigger = jobService.buildReservationJobTrigger(reservationJobDetail);
+            Trigger reservationJobTrigger = jobService.buildReservationJobTrigger(reservationJobDetail, event.reservationExpiry());
             jobService.scheduleJob(reservationJobDetail, reservationJobTrigger);
         } catch (SchedulerException e) {
             throw new RuntimeException(e);

@@ -21,6 +21,8 @@ public class BookedVenue {
 
     private String username;
 
+    private int bookingFee;
+
     @JdbcType(MySQLEnumJdbcType.class)
     private BookingStatus status;
 }

@@ -42,17 +42,22 @@ public class RemoveBookingService extends QuartzJobBean {
 
     public void removeBooking(long bookingId) {
         BookedVenue booking = bookedVenueService.findById(bookingId).orElseThrow(NoSuchBookingException::new);
+
         if (booking.getStatus() == BookingStatus.FAILED) {
+            LOGGER.info("Booking Failed");
             return;
         }
+
         booking.setStatus(BookingStatus.COMPLETED);
         bookedVenueService.save(booking);
 
         LOGGER.info("Booking Completed");
+
         BookingUpdatedEvent event = new BookingUpdatedEvent(
                 bookingId,
                 BookingStatus.COMPLETED
         );
+
         producer.produce(event, MyExchange.VENUE_EXCHANGE);
         producer.produce(event, MyExchange.BOOKING_EXCHANGE);
         producer.produce(event, MyExchange.PAYMENT_EXCHANGE);

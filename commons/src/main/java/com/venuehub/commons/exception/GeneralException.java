@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
 public class GeneralException extends RuntimeException implements CustomExcpetion {
-    private final HttpStatusCode status = HttpStatus.INTERNAL_SERVER_ERROR;
+    private final int status = HttpStatus.INTERNAL_SERVER_ERROR.value();
     private final HttpStatus error = HttpStatus.INTERNAL_SERVER_ERROR;
     private final String message;
 
@@ -15,11 +15,11 @@ public class GeneralException extends RuntimeException implements CustomExcpetio
 
     @Override
     public ErrorResponse getResponse() {
-        return new ErrorResponse(status,error, message);
+        return new ErrorResponse(status, error, message);
     }
 
     @Override
-    public HttpStatusCode getCode() {
+    public int getCode() {
         return status;
     }
 

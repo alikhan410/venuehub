@@ -50,6 +50,7 @@ public class JwtTestImpl {
                 .issuer("self")
                 .subject(username)
                 .claim("roles", role)
+                .claim("loggedInAs", "VENDOR")
                 .build();
         JwtEncoder encoder = jwtEncoder();
         return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

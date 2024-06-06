@@ -81,6 +81,7 @@ class VenueControllerTest {
     private String venueType;
     private String location;
     private String estimate;
+    private String description;
     private String phone;
     private String myJwt;
     private final List<ImageData> images = new ArrayList<>();
@@ -93,6 +94,7 @@ class VenueControllerTest {
     void BeforeEach() {
         venueId = 1L;
         estimate = "80000";
+        description = "This is a description";
         capacity = 200;
         username = "test_user";
         myJwt = jwtTestImpl.generateJwt(username, "VENDOR");
@@ -109,6 +111,7 @@ class VenueControllerTest {
         imageData1.setImage(img1);
         imageData2.setImage(img2);
 
+
         imageFile1 = new MockMultipartFile("images", "image1.jpg", "image/png", imageData1.getImage());
         imageFile2 = new MockMultipartFile("images", "image2.png", "image/png", imageData2.getImage());
 
@@ -123,11 +126,21 @@ class VenueControllerTest {
                 .phone(phone)
                 .name(venueName)
                 .location(location)
-                .estimate(estimate)
+                .estimate(Integer.parseInt(estimate))
                 .bookings(bookings)
                 .capacity(capacity)
                 .build();
-        venueDto = new VenueDto(venueId,venueName, venueType, location, capacity, phone, estimate, bookings);
+        venueDto = new VenueDto(venueId,
+                venueName,
+                username,
+                description,
+                venueType,
+                location,
+                String.valueOf(capacity),
+                images,
+                phone,
+                estimate,
+                bookings);
 
     }
 
@@ -409,7 +422,18 @@ class VenueControllerTest {
             Mockito.when(venueService.findById(venueId)).thenReturn(Optional.of(venue));
             String updatedEstimate = "55000";
             int updatedCapacity = 50;
-            VenueDto updatedVenueDto = new VenueDto(venueId, venueName, venueType, location, updatedCapacity, phone, updatedEstimate, bookings);
+            VenueDto updatedVenueDto = new VenueDto(
+                    venueId,
+                    venueName,
+                    username,
+                    description,
+                    venueType,
+                    location,
+                    String.valueOf(updatedCapacity),
+                    images,
+                    phone,
+                    updatedEstimate,
+                    bookings);
 
             MvcResult result = mvc.perform(MockMvcRequestBuilders.put("/venue/" + venueId)
                             .header("Authorization", "Bearer " + myJwt)

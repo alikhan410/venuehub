@@ -1,5 +1,6 @@
 package com.venuehub.paymentservice.configuration;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -10,13 +11,16 @@ import org.springframework.security.web.SecurityFilterChain;
 
 @Configuration
 public class SecurityConfig {
+    @Autowired
+    private CustomAuthenticationException customAuthenticationException;
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                .oauth2ResourceServer(oauth -> oauth.jwt(j -> jwtAuthenticationConverter()));
+                .oauth2ResourceServer(oauth -> oauth.jwt(j -> jwtAuthenticationConverter())
+                        .authenticationEntryPoint(customAuthenticationException));
 
         return http.build();
     }

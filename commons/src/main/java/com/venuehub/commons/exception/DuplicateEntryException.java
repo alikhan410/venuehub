@@ -1,10 +1,9 @@
 package com.venuehub.commons.exception;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 
-public class DuplicateEntryException extends RuntimeException implements CustomExcpetion{
-    private final HttpStatusCode status = HttpStatus.BAD_REQUEST;
+public class DuplicateEntryException extends RuntimeException implements CustomExcpetion {
+    private final int status = HttpStatus.BAD_REQUEST.value();
     private final HttpStatus error = HttpStatus.BAD_REQUEST;
     private final String message;
 
@@ -19,7 +18,7 @@ public class DuplicateEntryException extends RuntimeException implements CustomE
     }
 
     @Override
-    public HttpStatusCode getCode() {
+    public int getCode() {
         return status;
     }
 

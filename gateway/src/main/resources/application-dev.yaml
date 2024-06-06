@@ -40,7 +40,7 @@ spring:
         - id: booking-service
           uri: lb://booking-service
           predicates:
-            - Path=/booking/{id}, /booking, /booking/venue/{id}
+            - Path=/bookings/{id}, /bookings/venue/{id}, /bookings/user
             - Method=GET,POST, DELETE
 
         - id: auth-service
@@ -58,6 +58,6 @@ spring:
         - id: payment-service
           uri: lb://payment-service
           predicates:
-            - Path=/order/create-payment-intent, /order/confirm-payment, /order/{clientSecret}
+            - Path=/order/create-payment-intent/{bookingId}, /order/confirm-payment, /order/client-secret/{clientSecret}
             - Method=GET,POST
 

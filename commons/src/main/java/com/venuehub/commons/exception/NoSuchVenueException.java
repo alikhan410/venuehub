@@ -9,25 +9,26 @@ import java.util.List;
 
 @Getter
 public class NoSuchVenueException extends RuntimeException implements CustomExcpetion {
-    private final HttpStatusCode status = HttpStatus.NOT_FOUND;
+    private final int status = HttpStatus.NOT_FOUND.value();
     private final HttpStatus error = HttpStatus.NOT_FOUND;
     private final String message;
 
-    public NoSuchVenueException(String message)  {
+    public NoSuchVenueException(String message) {
         super(message);
         this.message = message;
     }
-    public NoSuchVenueException(){
+
+    public NoSuchVenueException() {
         this("No Venue Found");
     }
 
     @Override
     public ErrorResponse getResponse() {
-        return new ErrorResponse(status,error, message);
+        return new ErrorResponse(status, error, message);
     }
 
     @Override
-    public HttpStatusCode getCode() {
+    public int getCode() {
         return status;
     }
 

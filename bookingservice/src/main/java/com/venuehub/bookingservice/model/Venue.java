@@ -2,6 +2,7 @@ package com.venuehub.bookingservice.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
 import lombok.*;
 
 import java.util.ArrayList;
@@ -24,13 +25,18 @@ public class Venue {
     @Column(name = "name")
     private String name;
 
+    @Column(name = "estimate")
+    @Min(value = 10000, message = "Minimum value for estimates is 10000")
+    private int estimate;
+
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue", cascade = CascadeType.ALL)
     private List<BookedVenue> bookings;
 
-    public Venue(Long id, String name, String username) {
+    public Venue(Long id, String name, int estimate, String username) {
         this.id = id;
         this.username = username;
         this.name = name;
+        this.estimate = estimate;
         this.bookings = new ArrayList<>();
     }
 

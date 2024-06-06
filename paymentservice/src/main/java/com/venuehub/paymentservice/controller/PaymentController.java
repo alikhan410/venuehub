@@ -47,31 +47,32 @@ public class PaymentController {
         this.orderService = orderService;
     }
 
-    @PostMapping("/order/create-payment-intent")
-    public ResponseEntity<OrderDto> createPaymentIntent(@RequestBody PaymentDto paymentDto, @AuthenticationPrincipal Jwt jwt) throws StripeException {
+    @GetMapping("/order/create-payment-intent/{bookingId}")
+    public ResponseEntity<OrderDto> createPaymentIntent(@PathVariable Long bookingId, @AuthenticationPrincipal Jwt jwt) throws StripeException {
 
-        BookedVenue booking = bookedVenueService.findById(paymentDto.bookingId()).orElseThrow(NoSuchBookingException::new);
+        BookedVenue booking = bookedVenueService.findById(bookingId).orElseThrow(NoSuchBookingException::new);
 
         //TODO redo these exceptions
         if (!jwt.getSubject().equals(booking.getUsername())) throw new UserForbiddenException();
         if (!booking.getStatus().equals(BookingStatus.RESERVED)) throw new BookingUnavailableException();
 
-        PaymentIntent paymentIntent = paymentService.createPayment(paymentDto.amount());
+        PaymentIntent paymentIntent = paymentService.createPayment(booking.getBookingFee());
 
         BookingOrder bookingOrder = new BookingOrder(
                 jwt.getSubject(),
-                paymentDto.amount(),
+                booking.getBookingFee(),
                 booking.getId(),
                 paymentIntent.getClientSecret()
         );
 
-        OrderDto dto = Mapper.modelToDto(bookingOrder);
         orderService.save(bookingOrder);
+
+        OrderDto dto = Mapper.modelToDto(bookingOrder);
 
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
-    @GetMapping("/order/{clientSecret}")
+    @GetMapping("/order/client-secret/{clientSecret}")
     public ResponseEntity<BookingStatus> getOrderStatus(@PathVariable String clientSecret, @AuthenticationPrincipal Jwt jwt) {
         System.out.println(clientSecret);
         BookingOrder order = orderService.findByClientSecret(clientSecret);

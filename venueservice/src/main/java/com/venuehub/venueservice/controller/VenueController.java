@@ -17,6 +17,7 @@ import com.venuehub.venueservice.mapper.Mapper;
 import com.venuehub.venueservice.model.BookedVenue;
 import com.venuehub.venueservice.model.ImageData;
 import com.venuehub.venueservice.model.Venue;
+import com.venuehub.venueservice.response.VenueAddedResponse;
 import com.venuehub.venueservice.response.VenueListResponse;
 import com.venuehub.venueservice.service.ImageDataService;
 import com.venuehub.venueservice.service.VenueService;
@@ -71,7 +72,7 @@ public class VenueController {
 
     @PostMapping(value = "/venue", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Transactional
-    public ResponseEntity<HttpStatus> addVenue(@ModelAttribute @Valid VenueDto body, @RequestParam("images") MultipartFile[] images, @AuthenticationPrincipal Jwt jwt) throws IOException {
+    public ResponseEntity<VenueAddedResponse> addVenue(@ModelAttribute @Valid VenueDto body, @RequestParam("images") MultipartFile[] images, @AuthenticationPrincipal Jwt jwt) throws IOException {
 
         if (!jwt.getClaim("loggedInAs").equals("VENDOR")) {
             throw new UserForbiddenException();
@@ -95,26 +96,32 @@ public class VenueController {
                 .name(body.name())
                 .description(body.description())
                 .location(body.location())
-                .estimate(Double.parseDouble(body.estimate()))
+                .estimate(Integer.parseInt(body.estimate()))
                 .bookings(bookings)
                 .capacity(Integer.parseInt(body.capacity()))
                 .build();
         venueService.save(newVenue);
 
         for (MultipartFile image : images) {
-            ImageData imageData = new ImageData();
-            imageData.setImage(image.getBytes());
-            imageData.setVenue(newVenue);
+            ImageData imageData = new ImageData(image.getBytes(), newVenue);
+//            imageData.setImage(image.getBytes());
+//            imageData.setVenue(newVenue);
             imageDataService.save(imageData);
         }
 
         LOGGER.info("Venue added");
 
         //Sending venue created event to the broker
-        VenueCreatedEvent event = new VenueCreatedEvent(newVenue.getId(), newVenue.getName(), jwt.getSubject());
+        VenueCreatedEvent event = new VenueCreatedEvent(
+                newVenue.getId(),
+                newVenue.getName(),
+                newVenue.getEstimate(),
+                jwt.getSubject()
+        );
         venueCreatedProducer.produce(event, MyExchange.BOOKING_EXCHANGE);
 
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        VenueAddedResponse response = new VenueAddedResponse();
+        return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
 
@@ -204,7 +211,7 @@ public class VenueController {
         venue.setDescription(body.description());
         venue.setCapacity(Integer.parseInt(body.capacity()));
         venue.setPhone(body.phone());
-        venue.setEstimate(Double.parseDouble(body.estimate()));
+        venue.setEstimate(Integer.parseInt(body.estimate()));
 
         venueService.save(venue);
 

@@ -4,7 +4,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 
 public class UserForbiddenException extends RuntimeException implements CustomExcpetion {
-    private final HttpStatusCode status = HttpStatus.FORBIDDEN;
+    private final int status = HttpStatus.FORBIDDEN.value();
     private final HttpStatus error = HttpStatus.FORBIDDEN;
     private final String message;
 
@@ -19,11 +19,11 @@ public class UserForbiddenException extends RuntimeException implements CustomEx
 
     @Override
     public ErrorResponse getResponse() {
-        return new ErrorResponse(status,error, message);
+        return new ErrorResponse(status, error, message);
     }
 
     @Override
-    public HttpStatusCode getCode() {
+    public int getCode() {
         return status;
     }
 
