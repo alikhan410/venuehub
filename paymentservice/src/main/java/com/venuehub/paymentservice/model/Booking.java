@@ -14,8 +14,8 @@ import org.hibernate.dialect.MySQLEnumJdbcType;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "booked_venue")
-public class BookedVenue {
+@Table(name = "booking")
+public class Booking {
     @Id
     private Long id;
 

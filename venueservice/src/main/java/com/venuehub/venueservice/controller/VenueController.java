@@ -14,20 +14,23 @@ import com.venuehub.commons.exception.UserForbiddenException;
 import com.venuehub.venueservice.dto.VenueDto;
 import com.venuehub.venueservice.dto.VenueListDto;
 import com.venuehub.venueservice.mapper.Mapper;
-import com.venuehub.venueservice.model.BookedVenue;
+import com.venuehub.venueservice.model.Booking;
 import com.venuehub.venueservice.model.ImageData;
 import com.venuehub.venueservice.model.Venue;
+import com.venuehub.venueservice.response.MainVenueImage;
 import com.venuehub.venueservice.response.VenueAddedResponse;
 import com.venuehub.venueservice.response.VenueListResponse;
 import com.venuehub.venueservice.service.ImageDataService;
 import com.venuehub.venueservice.service.VenueService;
 import jakarta.validation.Valid;
+import org.apache.commons.io.file.FilesUncheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,8 +40,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -70,6 +75,14 @@ public class VenueController {
         return new ResponseEntity<>(venueDto, HttpStatus.OK);
     }
 
+    @GetMapping("/venue/get-main")
+    public ResponseEntity<MainVenueImage> getMainImage(@RequestParam("venueId") Long venueId) {
+        Venue venue = venueService.findById(venueId).orElseThrow(NoSuchVenueException::new);
+        ImageData mainImage = venue.getImages().get(0);
+        MainVenueImage res = new MainVenueImage(mainImage);
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
+
     @PostMapping(value = "/venue", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     @Transactional
     public ResponseEntity<VenueAddedResponse> addVenue(@ModelAttribute @Valid VenueDto body, @RequestParam("images") MultipartFile[] images, @AuthenticationPrincipal Jwt jwt) throws IOException {
@@ -85,9 +98,19 @@ public class VenueController {
             throw new UserForbiddenException();
         }
 
+        //Creating temp files for storing the images to prevent
+        //multiple threads from using the same resources which is in this case
+        //is MultiPartFile[] images
+        List<Path> pathList = new ArrayList<>();
+        for (MultipartFile image : images) {
+            Path tempPath = FilesUncheck.createTempFile("venue_image_", ".tmp");
+            image.transferTo(tempPath);
+            pathList.add(tempPath);
+        }
+
         List<ImageData> allImages = new ArrayList<>();
 
-        List<BookedVenue> bookings = new ArrayList<>();
+        List<Booking> bookings = new ArrayList<>();
         Venue newVenue = Venue.builder()
                 .venueType(body.venueType())
                 .username(jwt.getSubject())
@@ -100,14 +123,15 @@ public class VenueController {
                 .bookings(bookings)
                 .capacity(Integer.parseInt(body.capacity()))
                 .build();
+
         venueService.save(newVenue);
 
-        for (MultipartFile image : images) {
-            ImageData imageData = new ImageData(image.getBytes(), newVenue);
-//            imageData.setImage(image.getBytes());
-//            imageData.setVenue(newVenue);
-            imageDataService.save(imageData);
-        }
+        //storing the images asynchronously
+        //it runs in the same transactional context maintaining data integrity
+        imageDataService.storeImagesAsync(newVenue, pathList);
+
+        //storing the images synchronously
+//        imageDataService.storeImagesSync(newVenue, images);
 
         LOGGER.info("Venue added");
 
@@ -124,7 +148,6 @@ public class VenueController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-
     @DeleteMapping("/venue/{id}")
     @Transactional
     public ResponseEntity<VenueListResponse> deleteVenue(@PathVariable long id, @AuthenticationPrincipal Jwt jwt) {
@@ -138,7 +161,7 @@ public class VenueController {
 
         //checking if a venue exists
         Venue venue = venueService.findById(id).orElseThrow(NoSuchVenueException::new);
-        List<BookedVenue> bookings = venue.getBookings().stream().filter(booking -> booking.getStatus() != BookingStatus.FAILED).toList();
+        List<Booking> bookings = venue.getBookings().stream().filter(booking -> booking.getStatus() != BookingStatus.FAILED).toList();
         if (
                 !jwt.getSubject().equals(venue.getUsername()) ||
                         !roles.contains("VENDOR") ||

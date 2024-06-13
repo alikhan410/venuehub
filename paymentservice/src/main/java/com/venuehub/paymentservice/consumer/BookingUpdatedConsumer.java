@@ -4,7 +4,7 @@ import com.venuehub.broker.constants.MyQueue;
 import com.venuehub.broker.consumer.BaseConsumer;
 import com.venuehub.broker.event.booking.BookingUpdatedEvent;
 import com.venuehub.commons.exception.NoSuchBookingException;
-import com.venuehub.paymentservice.model.BookedVenue;
+import com.venuehub.paymentservice.model.Booking;
 import com.venuehub.paymentservice.service.BookedVenueService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ public class BookingUpdatedConsumer extends BaseConsumer<BookingUpdatedEvent> {
     @RabbitListener(queues = MyQueue.Constants.BOOKING_UPDATED_QUEUE_PAYMENT_SERVICE)
     public void consume(BookingUpdatedEvent event) {
         LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName()+" " + event);
-        BookedVenue booking = bookedVenueService.findById(event.bookingId()).orElseThrow(NoSuchBookingException::new);
+        Booking booking = bookedVenueService.findById(event.bookingId()).orElseThrow(NoSuchBookingException::new);
         booking.setStatus(event.status());
         bookedVenueService.save(booking);
     }

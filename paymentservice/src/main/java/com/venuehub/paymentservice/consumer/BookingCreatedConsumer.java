@@ -3,7 +3,7 @@ package com.venuehub.paymentservice.consumer;
 import com.venuehub.broker.constants.MyQueue;
 import com.venuehub.broker.consumer.BaseConsumer;
 import com.venuehub.broker.event.booking.BookingCreatedEvent;
-import com.venuehub.paymentservice.model.BookedVenue;
+import com.venuehub.paymentservice.model.Booking;
 import com.venuehub.paymentservice.model.BookingOrder;
 import com.venuehub.paymentservice.service.BookedVenueService;
 import com.venuehub.paymentservice.service.OrderService;
@@ -28,11 +28,11 @@ public class BookingCreatedConsumer extends BaseConsumer<BookingCreatedEvent> {
     @RabbitListener(queues = MyQueue.Constants.BOOKING_CREATED_QUEUE_PAYMENT_SERVICE)
     public void consume(BookingCreatedEvent event) {
         LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName()+" " + event);
-        BookedVenue bookedVenue = new BookedVenue();
-        bookedVenue.setId(event.bookingId());
-        bookedVenue.setStatus(event.status());
-        bookedVenue.setBookingFee(event.bookingFee());
-        bookedVenue.setUsername(event.username());
-        bookedVenueService.save(bookedVenue);
+        Booking booking = new Booking();
+        booking.setId(event.bookingId());
+        booking.setStatus(event.status());
+        booking.setBookingFee(event.bookingFee());
+        booking.setUsername(event.username());
+        bookedVenueService.save(booking);
     }
 }

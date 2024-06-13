@@ -10,9 +10,9 @@ import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.MySQLEnumJdbcType;
 
 @Entity
-@Table(name = "booked_venue")
+@Table(name = "booking")
 @Data
-public class BookedVenue {
+public class Booking {
     @Id
     private long id;
 

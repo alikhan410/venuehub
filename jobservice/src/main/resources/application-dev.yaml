@@ -25,6 +25,7 @@ spring:
     show-sql: false
     generate-ddl: true
     hibernate:
+      ddl-auto: create
   quartz:
     properties:
       org.quartz.threadPool.threadCount: 5

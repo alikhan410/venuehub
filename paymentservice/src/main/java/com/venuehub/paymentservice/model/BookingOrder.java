@@ -1,5 +1,6 @@
 package com.venuehub.paymentservice.model;
 
+import com.venuehub.broker.constants.BookingStatus;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,6 +30,7 @@ public class BookingOrder {
 
     @JdbcType(MySQLEnumJdbcType.class)
     private OrderStatus orderStatus;
+
 
     public BookingOrder(String username, int amount, Long bookingId, String clientSecret) {
         this.orderStatus = OrderStatus.PENDING;

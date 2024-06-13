@@ -3,7 +3,7 @@ package com.venuehub.venueservice.mapper;
 import com.venuehub.venueservice.dto.BookedVenueDto;
 import com.venuehub.venueservice.dto.VenueDto;
 import com.venuehub.venueservice.dto.VenueListDto;
-import com.venuehub.venueservice.model.BookedVenue;
+import com.venuehub.venueservice.model.Booking;
 import com.venuehub.venueservice.model.Venue;
 
 
@@ -31,7 +31,7 @@ public class Mapper {
         );
     }
 
-    public static BookedVenueDto modelToVenueDto(BookedVenue bookedVenue) {
-        return new BookedVenueDto(bookedVenue.getStatus(), bookedVenue.getVenue());
+    public static BookedVenueDto modelToVenueDto(Booking booking) {
+        return new BookedVenueDto(booking.getStatus(), booking.getVenue());
     }
 }

@@ -1,6 +1,6 @@
 package com.venuehub.paymentservice.response;
 
 
-public record CreatePaymentResponse(String clientSecret) {
+public record CreatePaymentResponse(Long orderId) {
 
 }

@@ -12,17 +12,16 @@ import org.hibernate.dialect.MySQLEnumJdbcType;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.Date;
 
 @Entity
-@Table(name = "booked_venue")
+@Table(name = "booking")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @ToString
-public class BookedVenue {
+public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id")
@@ -39,7 +38,6 @@ public class BookedVenue {
     @Column(name = "booking_fee")
     @Min(value = 10000, message = "Minimum value for estimates is 10000")
     private int bookingFee;
-
 
     @Builder.Default
     @Column(name = "reservation_expiry")

@@ -3,7 +3,7 @@ package com.venuehub.jobservice.consumer;
 import com.venuehub.broker.constants.MyQueue;
 import com.venuehub.broker.consumer.BaseConsumer;
 import com.venuehub.broker.event.job.BookingJobSchedulingEvent;
-import com.venuehub.jobservice.entity.BookedVenue;
+import com.venuehub.jobservice.entity.Booking;
 import com.venuehub.jobservice.service.BookedVenueService;
 import com.venuehub.jobservice.service.JobService;
 import org.quartz.JobDetail;
@@ -37,7 +37,7 @@ public class BookingJobSchedulingConsumer extends BaseConsumer<BookingJobSchedul
         LOGGER.info("{} reached {} {}", event.getClass().getSimpleName(), getClass().getSimpleName(), event);
 
         //Saving the booking in db
-        BookedVenue booking = new BookedVenue();
+        Booking booking = new Booking();
         booking.setId(event.bookingId());
         booking.setStatus(event.status());
         booking.setUsername(event.username());

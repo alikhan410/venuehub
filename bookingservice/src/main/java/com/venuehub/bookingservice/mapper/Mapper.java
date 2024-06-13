@@ -1,38 +1,47 @@
 package com.venuehub.bookingservice.mapper;
 
-import com.venuehub.bookingservice.dto.BookedVenueDto;
+import com.venuehub.bookingservice.dto.BookingDto;
 import com.venuehub.bookingservice.dto.BookingDateDto;
-import com.venuehub.bookingservice.model.BookedVenue;
+import com.venuehub.bookingservice.model.Booking;
 import com.venuehub.bookingservice.response.GetBookingByUsernameResponse;
-
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import com.venuehub.bookingservice.response.GetBookingVendorResponse;
 
 
 public class Mapper {
-    public static BookedVenueDto modelToDto(BookedVenue bookedVenue) {
-        return new BookedVenueDto(
-                bookedVenue.getEmail(),
-                bookedVenue.getPhone(),
-                bookedVenue.getStatus(),
-                bookedVenue.getBookingDateTime(),
-                bookedVenue.getGuests()
+    public static BookingDto modeltoBookingDto(Booking booking) {
+        return new BookingDto(
+                booking.getEmail(),
+                booking.getPhone(),
+                booking.getStatus(),
+                booking.getBookingDateTime(),
+                booking.getGuests()
         );
     }
 
-    public static BookingDateDto modelToBookingDateDto(BookedVenue bookedVenue) {
-        return new BookingDateDto(bookedVenue.getBookingDateTime());
+    public static BookingDateDto modelToBookingDateDto(Booking booking) {
+        return new BookingDateDto(booking.getBookingDateTime());
     }
 
-    public static GetBookingByUsernameResponse modelToResponse(BookedVenue bookedVenue) {
+    public static GetBookingByUsernameResponse modelToResponse(Booking booking) {
 
         return new GetBookingByUsernameResponse(
-                bookedVenue.getId(),
-                bookedVenue.getStatus(),
-                bookedVenue.getUsername(),
-                bookedVenue.getVenue().getName(),
-                bookedVenue.getBookingDateTime(),
-                bookedVenue.getReservationExpiry()
+                booking.getId(),
+                booking.getStatus(),
+                booking.getUsername(),
+                booking.getVenue().getName(),
+                booking.getBookingDateTime(),
+                booking.getReservationExpiry()
+        );
+    }
+
+    public static GetBookingVendorResponse modelToVendorResponse(Booking booking) {
+
+        return new GetBookingVendorResponse(
+                booking.getId(),
+                booking.getVenue().getName(),
+                booking.getUsername(),
+                booking.getBookingDateTime(),
+                booking.getStatus()
         );
     }
 

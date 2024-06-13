@@ -1,6 +1,6 @@
 package com.venuehub.jobservice.service;
 
-import com.venuehub.jobservice.entity.BookedVenue;
+import com.venuehub.jobservice.entity.Booking;
 import com.venuehub.jobservice.repository.BookedVenueRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,11 +18,11 @@ public class BookedVenueService {
     }
 
     @Transactional
-    public void save(BookedVenue bookedVenue) {
-        bookedVenueRepository.save(bookedVenue);
+    public void save(Booking booking) {
+        bookedVenueRepository.save(booking);
     }
 
-    public Optional<BookedVenue> findById(Long id) {
+    public Optional<Booking> findById(Long id) {
         return bookedVenueRepository.findById(id);
     }
 

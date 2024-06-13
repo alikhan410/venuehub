@@ -36,7 +36,7 @@ public class JwtTestImpl {
         return new JWKSet(rsaKey);
 
     }
-    public String generateJwt(String username) {
+    public String generateJwt(String username, String role) {
         Instant now = Instant.now();
 
 //        String scope = auth.getAuthorities().stream()
@@ -47,7 +47,8 @@ public class JwtTestImpl {
                 .issuedAt(now)
                 .issuer("self")
                 .subject(username)
-//                .claim("roles", scope)
+                .claim("loggedInAs", "USER")
+                .claim("roles", role)
                 .build();
         JwtEncoder encoder = jwtEncoder();
         return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

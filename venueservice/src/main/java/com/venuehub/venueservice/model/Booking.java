@@ -8,9 +8,9 @@ import org.hibernate.annotations.JdbcType;
 import org.hibernate.dialect.MySQLEnumJdbcType;
 
 @Entity
-@Table(name = "booked_venue")
+@Table(name = "booking")
 @Data
-public class BookedVenue {
+public class Booking {
     @Id
     @Column(name = "id")
     private long id;
@@ -37,7 +37,7 @@ public class BookedVenue {
 //@Entity
 //@Table(name = "booked_venue")
 //@Data
-//public class BookedVenue {
+//public class Booking {
 //    @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    @Column(name = "id")

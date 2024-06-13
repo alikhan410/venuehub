@@ -29,7 +29,7 @@ public class PaymentService {
 
         PaymentIntentCreateParams.Builder createParamsBuilder = PaymentIntentCreateParams.builder()
                 .setAmount((long) amount)
-                .setCurrency("USD")
+                .setCurrency("PKR")
                 .setAutomaticPaymentMethods(methods);
 
 

@@ -11,6 +11,7 @@ import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.imageio.ImageIO;
@@ -27,6 +28,7 @@ import java.util.Objects;
 @SpringBootApplication
 @EnableDiscoveryClient
 @ComponentScan(basePackages = {"com.venuehub.venueservice", "com.venuehub.broker"})
+@EnableAsync
 public class VenueserviceApplication {
 
     public static void main(String[] args) {
@@ -38,6 +40,9 @@ public class VenueserviceApplication {
     CommandLineRunner run(VenueService venueService, ImageDataService imageDataService) {
 
         return args -> {
+            if (!venueService.findAll().isEmpty()){
+                return;
+            }
             addTestVenues(venueService, imageDataService);
         };
 

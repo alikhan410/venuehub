@@ -32,6 +32,10 @@ public class VenueService {
         return venueRepository.findById(id);
     }
 
+    public Optional<Venue> findByUsername(String username) {
+        return venueRepository.findByUsername(username);
+    }
+
     @Transactional
     public void deleteById(long id) {
         venueRepository.deleteById(id);

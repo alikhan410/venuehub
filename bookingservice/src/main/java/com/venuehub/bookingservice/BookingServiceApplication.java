@@ -26,12 +26,15 @@ public class BookingServiceApplication {
     @Bean
     CommandLineRunner run(VenueService venueService) {
         return args -> {
+            if (!venueService.findAll().isEmpty()) {
+                return;
+            }
             List<Venue> venues = new ArrayList<>();
-            Venue venue1 = new Venue(1L, "Emerald Banquet",75000, "vendor");
-            Venue venue2 = new Venue(2L, "Royal Hall",150000, "vendor");
-            Venue venue3 = new Venue(3L, "Blue Sky Banquet",50000, "vendor");
-            Venue venue4 = new Venue(4L, "Greenfield Hall",100000, "vendor");
-            Venue venue5 = new Venue(5L, "Grand Banquet",200000, "vendor");
+            Venue venue1 = new Venue(1L, "Emerald Banquet", 75000, "vendor");
+            Venue venue2 = new Venue(2L, "Royal Hall", 150000, "vendor");
+            Venue venue3 = new Venue(3L, "Blue Sky Banquet", 50000, "vendor");
+            Venue venue4 = new Venue(4L, "Greenfield Hall", 100000, "vendor");
+            Venue venue5 = new Venue(5L, "Grand Banquet", 200000, "vendor");
             venues.add(venue1);
             venues.add(venue2);
             venues.add(venue3);

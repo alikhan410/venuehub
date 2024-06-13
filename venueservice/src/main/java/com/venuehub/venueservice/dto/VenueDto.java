@@ -1,6 +1,6 @@
 package com.venuehub.venueservice.dto;
 
-import com.venuehub.venueservice.model.BookedVenue;
+import com.venuehub.venueservice.model.Booking;
 import com.venuehub.venueservice.model.ImageData;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -19,6 +19,6 @@ public record VenueDto(
         List<ImageData> imageDataList,
         @NotNull(message = "Phone can not be empty") @NotBlank(message = "Phone can not be blank") String phone,
         @NotNull(message = "Estimate can not be empty") @NotBlank(message = "Estimate can not be blank") String estimate,
-        List<BookedVenue> bookings
+        List<Booking> bookings
 ) {
 }

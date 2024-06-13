@@ -4,7 +4,7 @@ import com.venuehub.broker.constants.MyQueue;
 import com.venuehub.broker.consumer.BaseConsumer;
 import com.venuehub.broker.event.job.BookingJobCancellingEvent;
 import com.venuehub.commons.exception.NoSuchBookingException;
-import com.venuehub.jobservice.entity.BookedVenue;
+import com.venuehub.jobservice.entity.Booking;
 import com.venuehub.jobservice.service.BookedVenueService;
 import com.venuehub.jobservice.service.JobService;
 import org.quartz.SchedulerException;
@@ -33,7 +33,7 @@ public class BookingJobCancellingConsumer extends BaseConsumer<BookingJobCancell
     public void consume(BookingJobCancellingEvent event) {
         LOGGER.info(event.getClass().getSimpleName() + " reached " + getClass().getSimpleName()+" " + event);
 
-        BookedVenue booking = bookedVenueService.findById(event.bookingId()).orElseThrow(NoSuchBookingException::new);
+        Booking booking = bookedVenueService.findById(event.bookingId()).orElseThrow(NoSuchBookingException::new);
         booking.setStatus(event.status());
         bookedVenueService.save(booking);
 

@@ -4,7 +4,7 @@ import com.venuehub.broker.constants.MyQueue;
 import com.venuehub.broker.consumer.BaseConsumer;
 import com.venuehub.broker.event.booking.BookingUpdatedEvent;
 import com.venuehub.commons.exception.NoSuchBookingException;
-import com.venuehub.jobservice.entity.BookedVenue;
+import com.venuehub.jobservice.entity.Booking;
 import com.venuehub.jobservice.service.BookedVenueService;
 import com.venuehub.jobservice.service.JobService;
 import org.slf4j.Logger;
@@ -29,7 +29,7 @@ public class BookingUpdatedConsumer extends BaseConsumer<BookingUpdatedEvent> {
 
         LOGGER.info("{} reached {} {}", event.getClass().getSimpleName(), getClass().getSimpleName(), event);
 
-        BookedVenue booking = bookedVenueService.findById(event.bookingId()).orElseThrow(NoSuchBookingException::new);
+        Booking booking = bookedVenueService.findById(event.bookingId()).orElseThrow(NoSuchBookingException::new);
 
         booking.setStatus(event.status());
 

@@ -4,7 +4,7 @@ import com.venuehub.broker.constants.MyQueue;
 import com.venuehub.broker.consumer.BaseConsumer;
 import com.venuehub.broker.event.booking.BookingCreatedEvent;
 import com.venuehub.commons.exception.NoSuchVenueException;
-import com.venuehub.venueservice.model.BookedVenue;
+import com.venuehub.venueservice.model.Booking;
 import com.venuehub.venueservice.model.Venue;
 import com.venuehub.venueservice.service.BookedVenueService;
 import com.venuehub.venueservice.service.VenueService;
@@ -29,16 +29,16 @@ public class BookingCreatedConsumer extends BaseConsumer<BookingCreatedEvent> {
     public void consume(BookingCreatedEvent event) {
         LOGGER.info("{} reached {} {}", event.getClass().getSimpleName(), getClass().getSimpleName(), event);
 
-        BookedVenue bookedVenue = new BookedVenue();
-        bookedVenue.setId(event.bookingId());
-        bookedVenue.setStatus(event.status());
-        bookedVenue.setUsername(event.username());
+        Booking booking = new Booking();
+        booking.setId(event.bookingId());
+        booking.setStatus(event.status());
+        booking.setUsername(event.username());
 
         Venue venue = venueService.findById(event.venueId()).orElseThrow(NoSuchVenueException::new);
-        bookedVenue.setVenue(venue);
+        booking.setVenue(venue);
 
 
-        bookedVenueService.save(bookedVenue);
+        bookedVenueService.save(booking);
 
     }
 }

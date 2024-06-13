@@ -34,6 +34,7 @@ public class PaymentServiceRabbitMQConfig {
     @Bean
     public Binding bookingUpdatedToPaymentExchange() {
         return BindingBuilder
+
                 .bind(bookingUpdatedQueue())
                 .to(paymentExchange())
                 .with("booking-updated");

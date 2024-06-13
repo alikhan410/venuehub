@@ -10,9 +10,10 @@ import com.venuehub.broker.producer.venue.VenueCreatedProducer;
 import com.venuehub.broker.producer.venue.VenueDeletedProducer;
 import com.venuehub.broker.producer.venue.VenueUpdatedProducer;
 import com.venuehub.venueservice.dto.VenueDto;
-import com.venuehub.venueservice.model.BookedVenue;
+import com.venuehub.venueservice.model.Booking;
 import com.venuehub.venueservice.model.ImageData;
 import com.venuehub.venueservice.model.Venue;
+import com.venuehub.venueservice.response.VenueAddedResponse;
 import com.venuehub.venueservice.service.BookedVenueService;
 import com.venuehub.venueservice.service.ImageDataService;
 import com.venuehub.venueservice.service.VenueService;
@@ -74,7 +75,7 @@ class VenueControllerTest {
     private Long venueId;
     private Venue venue;
     private VenueDto venueDto;
-    private List<BookedVenue> bookings;
+    private List<Booking> bookings;
     private int capacity;
     private String username;
     private String venueName;
@@ -97,7 +98,7 @@ class VenueControllerTest {
         description = "This is a description";
         capacity = 200;
         username = "test_user";
-        myJwt = jwtTestImpl.generateJwt(username, "VENDOR");
+        myJwt = jwtTestImpl.generateJwt(username, "USER VENDOR");
         venueType = "C";
         phone = "03178923162";
         venueName = "Marquee Venue";
@@ -122,6 +123,7 @@ class VenueControllerTest {
                 .venueType(venueType)
                 .id(venueId)
                 .username(username)
+                .description(description)
                 .images(images)
                 .phone(phone)
                 .name(venueName)
@@ -201,6 +203,7 @@ class VenueControllerTest {
                     .header("Authorization", "Bearer " + wrongJwt)
                     .contentType(MediaType.MULTIPART_FORM_DATA)
                     .param("name", venueDto.name())
+                    .param("description", venueDto.description())
                     .param("venueType", venueDto.venueType())
                     .param("location", venueDto.location())
                     .param("capacity", String.valueOf(venueDto.capacity())) // Convert capacity to String
@@ -218,6 +221,7 @@ class VenueControllerTest {
                     .contentType(MediaType.MULTIPART_FORM_DATA)
                     .param("name", venueDto.name())
                     .param("venueType", venueDto.venueType())
+                    .param("description", venueDto.description())
                     .param("location", venueDto.location())
                     .param("capacity", String.valueOf(venueDto.capacity())) // Convert capacity to String
                     .param("phone", venueDto.phone())
@@ -225,14 +229,10 @@ class VenueControllerTest {
             ).andExpect(status().isCreated()).andReturn();
 
             String response = result.getResponse().getContentAsString();
+//
+            VenueAddedResponse responseObject = new ObjectMapper().readValue(response, VenueAddedResponse.class);
 
-            Venue responseObject = new ObjectMapper().readValue(response, Venue.class);
-
-            assertThat(responseObject.getEstimate()).isEqualTo(estimate);
-            assertThat(responseObject.getLocation()).isEqualTo(location);
-            assertThat(responseObject.getCapacity()).isEqualTo(capacity);
-            assertThat(responseObject.getVenueType()).isEqualTo(venueType);
-            assertThat(responseObject.getPhone()).isEqualTo(phone);
+            assertThat(responseObject.status()).isEqualTo("Venue added");
         }
 
         @Test
@@ -244,6 +244,7 @@ class VenueControllerTest {
                     .header("Authorization", "Bearer " + myJwt)
                     .contentType(MediaType.MULTIPART_FORM_DATA)
                     .param("name", venueDto.name())
+                    .param("description", venueDto.description())
                     .param("venueType", venueDto.venueType())
                     .param("location", venueDto.location())
                     .param("capacity", String.valueOf(venueDto.capacity()))
@@ -349,6 +350,7 @@ class VenueControllerTest {
         @Test
         void Should_Return_Venue_List() throws Exception {
             List<Venue> venueList = new ArrayList<>();
+
             venueList.add(venue);
             Mockito.when(venueService.findAll()).thenReturn(venueList);
 

@@ -58,7 +58,7 @@ public class Venue {
     private int estimate;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue", cascade = CascadeType.ALL)
-    private List<BookedVenue> bookings;
+    private List<Booking> bookings;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue", cascade = CascadeType.ALL)
     private List<ImageData> images;

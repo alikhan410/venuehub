@@ -5,7 +5,7 @@ import com.venuehub.broker.constants.MyExchange;
 import com.venuehub.broker.event.booking.BookingUpdatedEvent;
 import com.venuehub.broker.producer.booking.BookingUpdatedProducer;
 import com.venuehub.commons.exception.NoSuchBookingException;
-import com.venuehub.jobservice.entity.BookedVenue;
+import com.venuehub.jobservice.entity.Booking;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -41,7 +41,7 @@ public class RemoveReservationService extends QuartzJobBean {
 
     public void removeBooking(long bookingId) {
 
-        BookedVenue booking = bookedVenueService.findById(bookingId).orElseThrow(NoSuchBookingException::new);
+        Booking booking = bookedVenueService.findById(bookingId).orElseThrow(NoSuchBookingException::new);
         if (booking.getStatus() == BookingStatus.BOOKED) {
             return;
         }
