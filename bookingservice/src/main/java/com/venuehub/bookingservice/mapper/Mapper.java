@@ -3,8 +3,7 @@ package com.venuehub.bookingservice.mapper;
 import com.venuehub.bookingservice.dto.BookingDto;
 import com.venuehub.bookingservice.dto.BookingDateDto;
 import com.venuehub.bookingservice.model.Booking;
-import com.venuehub.bookingservice.response.GetBookingByUsernameResponse;
-import com.venuehub.bookingservice.response.GetBookingVendorResponse;
+import com.venuehub.bookingservice.response.GetBookingsResponse;
 
 
 public class Mapper {
@@ -22,26 +21,16 @@ public class Mapper {
         return new BookingDateDto(booking.getBookingDateTime());
     }
 
-    public static GetBookingByUsernameResponse modelToResponse(Booking booking) {
+    public static GetBookingsResponse modelToResponse(Booking booking) {
 
-        return new GetBookingByUsernameResponse(
+        return new GetBookingsResponse(
                 booking.getId(),
                 booking.getStatus(),
                 booking.getUsername(),
                 booking.getVenue().getName(),
+                booking.getVenue().getId(),
                 booking.getBookingDateTime(),
                 booking.getReservationExpiry()
-        );
-    }
-
-    public static GetBookingVendorResponse modelToVendorResponse(Booking booking) {
-
-        return new GetBookingVendorResponse(
-                booking.getId(),
-                booking.getVenue().getName(),
-                booking.getUsername(),
-                booking.getBookingDateTime(),
-                booking.getStatus()
         );
     }
 

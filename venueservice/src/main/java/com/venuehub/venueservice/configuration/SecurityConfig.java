@@ -1,6 +1,10 @@
 package com.venuehub.venueservice.configuration;
 
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.spring.cache.RedissonSpringCacheManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -11,12 +15,20 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtAut
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 
+import java.util.Objects;
+
 @Configuration
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    private final CustomAuthenticationException customAuthenticationException;
+    private final RedissonClient redissonClient;
+
     @Autowired
-    private CustomAuthenticationException customAuthenticationException;
+    public SecurityConfig(CustomAuthenticationException customAuthenticationException, RedissonClient redissonClient) {
+        this.customAuthenticationException = customAuthenticationException;
+        this.redissonClient = redissonClient;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -24,6 +36,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers(HttpMethod.GET, "/venue/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/venue").permitAll()
                         .requestMatchers(HttpMethod.POST, "/venue/**").authenticated()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(j -> jwtAuthenticationConverter())
@@ -32,6 +45,11 @@ public class SecurityConfig {
         return http.build();
     }
 
+
+    @Bean
+    public CacheManager cacheManager(RedissonClient redissonClient) {
+        return new RedissonSpringCacheManager(redissonClient);
+    }
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {

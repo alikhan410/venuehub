@@ -15,6 +15,7 @@ import com.venuehub.paymentservice.mapper.Mapper;
 import com.venuehub.paymentservice.model.Booking;
 import com.venuehub.paymentservice.model.BookingOrder;
 import com.venuehub.paymentservice.model.OrderStatus;
+import com.venuehub.paymentservice.response.BookingOrderListResponse;
 import com.venuehub.paymentservice.response.ConfirmPaymentResponse;
 import com.venuehub.paymentservice.response.CreatePaymentResponse;
 import com.venuehub.paymentservice.service.BookedVenueService;
@@ -31,6 +32,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.awt.print.Book;
+import java.util.List;
 
 @RestController
 @Validated
@@ -50,6 +52,11 @@ public class PaymentController {
 
     @PostMapping("/orders/create-payment-intent")
     public ResponseEntity<CreatePaymentResponse> createPaymentIntent(@RequestBody BookingDto bookingDto, @AuthenticationPrincipal Jwt jwt) throws StripeException {
+
+        if (!jwt.getClaim("loggedInAs").equals("USER")) {
+            throw new UserForbiddenException();
+        }
+
         Booking booking = bookedVenueService.findById(bookingDto.bookingId()).orElseThrow(NoSuchBookingException::new);
 
         if (!booking.getStatus().equals(BookingStatus.RESERVED)) throw new ActionForbiddenException();
@@ -73,17 +80,31 @@ public class PaymentController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    @GetMapping("/orders/{orderId}")
+    @GetMapping("/orders/status/{orderId}")
     public ResponseEntity<BookingOrder> getOrderStatus(@PathVariable Long orderId, @AuthenticationPrincipal Jwt jwt) {
         BookingOrder order = orderService.findById(orderId).orElseThrow(NoSuchOrderException::new);
 
         Booking booking = bookedVenueService.findById(order.getBookingId()).orElseThrow(NoSuchBookingException::new);
 
-        if (!booking.getStatus().equals(BookingStatus.RESERVED)) throw new ActionForbiddenException("Reservation expired");
+        if (!booking.getStatus().equals(BookingStatus.RESERVED))
+            throw new ActionForbiddenException("Reservation expired");
 
         return new ResponseEntity<>(order, HttpStatus.OK);
     }
 
+    @GetMapping("/orders/user")
+    public ResponseEntity<BookingOrderListResponse> getUserOrders(@AuthenticationPrincipal Jwt jwt) {
+
+        if (!jwt.getClaim("loggedInAs").equals("USER")) {
+            throw new UserForbiddenException();
+        }
+
+        List<BookingOrder> order = orderService.findByUsername(jwt.getSubject());
+
+        BookingOrderListResponse res = new BookingOrderListResponse(order);
+
+        return new ResponseEntity<>(res, HttpStatus.OK);
+    }
 //    @GetMapping("/orders/confirm-payment")
 //    @Transactional
 //    public ConfirmPaymentResponse ConfirmPayment(@RequestBody ConfirmPaymentDto body, @AuthenticationPrincipal Jwt jwt) throws Exception {
@@ -110,11 +131,10 @@ public class PaymentController {
 
     @GetMapping("/orders/confirm-payment")
     @Transactional
-    public ConfirmPaymentResponse ConfirmPayment(@RequestParam("clientId") String clientId,@RequestParam("clientSecret") String clientSecret, @AuthenticationPrincipal Jwt jwt) throws Exception {
-//        Booking booking = bookedVenueService.findById(body.bookingId()).orElseThrow(NoSuchBookingException::new);
+    public ConfirmPaymentResponse ConfirmPayment(@RequestParam("clientId") String clientId, @RequestParam("clientSecret") String clientSecret,@RequestParam("vendor") String vendor, @AuthenticationPrincipal Jwt jwt) throws Exception {
         BookingOrder order = orderService.findByClientSecret(clientSecret);
 
-        if (order.getOrderStatus().equals(OrderStatus.COMPLETED)){
+        if (order.getOrderStatus().equals(OrderStatus.COMPLETED)) {
             throw new Exception("Order is already completed");
         }
 //
@@ -128,7 +148,9 @@ public class PaymentController {
         if (!paymentIntent.getStatus().equals("succeeded")) {
 
             order.setOrderStatus(OrderStatus.CANCELLED);
+            order.setVendor(vendor);
             orderService.save(order);
+
 
             BookingUpdatedEvent event = new BookingUpdatedEvent(order.getBookingId(), BookingStatus.FAILED);
             producer.produce(event, MyExchange.BOOKING_EXCHANGE);
@@ -137,10 +159,12 @@ public class PaymentController {
 
             throw new Exception("Payment did not succeed");
 
-        };
+        }
+        ;
 
 
         order.setOrderStatus(OrderStatus.COMPLETED);
+        order.setVendor(vendor);
         orderService.save(order);
 
         bookedVenueService.updateStatus(order.getBookingId(), BookingStatus.BOOKED);

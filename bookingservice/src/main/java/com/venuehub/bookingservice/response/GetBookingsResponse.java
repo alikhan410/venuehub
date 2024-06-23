@@ -2,9 +2,7 @@ package com.venuehub.bookingservice.response;
 
 import com.venuehub.broker.constants.BookingStatus;
 
-import java.time.LocalDateTime;
-
-public record GetBookingByUsernameResponse(
+public record GetBookingsResponse(
         Long bookingId,
         BookingStatus status,
         String username,
@@ -14,4 +12,3 @@ public record GetBookingByUsernameResponse(
         String reservationExpiry
 ) {
 }
-

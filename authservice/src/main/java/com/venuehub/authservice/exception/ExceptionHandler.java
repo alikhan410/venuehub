@@ -61,6 +61,7 @@ public class ExceptionHandler {
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception e) {
         LOGGER.info("Encountered a general exception");
         LOGGER.info(e.getMessage());
+
         GeneralException generalException = new GeneralException(e.getMessage());
         return new ResponseEntity<>(generalException.getResponse(), generalException.getStatus());
     }

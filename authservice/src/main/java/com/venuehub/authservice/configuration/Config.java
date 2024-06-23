@@ -7,7 +7,11 @@ import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import com.venuehub.authservice.utils.RSAKeyProperties;
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.spring.cache.RedissonSpringCacheManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -28,6 +32,7 @@ import org.springframework.security.oauth2.server.resource.authentication.JwtGra
 import org.springframework.security.web.SecurityFilterChain;
 
 
+import java.util.Objects;
 import java.util.UUID;
 
 @Configuration
@@ -37,15 +42,26 @@ public class Config {
 
     private final CustomAuthenticationException customAuthenticationException;
 
+    private final RedissonClient redissonClient;
+
     @Autowired
-    public Config(RSAKeyProperties rsaKeyProperties, CustomAuthenticationException customAuthenticationException) {
+    public Config(RSAKeyProperties rsaKeyProperties, CustomAuthenticationException customAuthenticationException, RedissonClient redissonClient) {
         this.keys = rsaKeyProperties;
         this.customAuthenticationException = customAuthenticationException;
+        this.redissonClient = redissonClient;
     }
 
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
+    }
+
+
+
+
+    @Bean
+    public CacheManager cacheManager(RedissonClient redissonClient) {
+        return new RedissonSpringCacheManager(redissonClient);
     }
 
     @Bean

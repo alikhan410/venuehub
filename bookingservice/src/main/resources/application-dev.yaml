@@ -13,9 +13,10 @@ spring:
     generate-ddl: true
 
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
 
   datasource:
+#    url: jdbc:mysql://localhost:53602/bookingservice
     url: jdbc:mysql://localhost:3306/bookingservice
     username: ali
     password: "@Li4103568"

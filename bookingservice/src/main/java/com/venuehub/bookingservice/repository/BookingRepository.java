@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface BookedVenueRepository extends JpaRepository<Booking, Long> {
+public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query(value = "SELECT * FROM booking WHERE venue_id = :id AND status != 'FAILED'", nativeQuery = true)
     List<Booking> findByVenue(@Param("id") long id);
 

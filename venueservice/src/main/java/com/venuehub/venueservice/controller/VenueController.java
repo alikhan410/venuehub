@@ -75,8 +75,8 @@ public class VenueController {
         return new ResponseEntity<>(venueDto, HttpStatus.OK);
     }
 
-    @GetMapping("/venue/get-main")
-    public ResponseEntity<MainVenueImage> getMainImage(@RequestParam("venueId") Long venueId) {
+    @GetMapping("/venue/{id}/image-0")
+    public ResponseEntity<MainVenueImage> getMainImage(@PathVariable Long venueId) {
         Venue venue = venueService.findById(venueId).orElseThrow(NoSuchVenueException::new);
         ImageData mainImage = venue.getImages().get(0);
         MainVenueImage res = new MainVenueImage(mainImage);
@@ -183,17 +183,13 @@ public class VenueController {
     @GetMapping("/venue")
     public ResponseEntity<VenueListResponse> getVenue() {
 
-        List<Venue> venueList = venueService.findAll();
-
-        List<VenueListDto> venueDtoList = venueList.stream().map(Mapper::modelToVenueListDto).toList();
-
-        VenueListResponse response = new VenueListResponse(venueDtoList);
+        VenueListResponse response = venueService.getAllVenues();
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/vendor/venue")
-    public ResponseEntity<VenueListResponse> getVenueByUsername(@AuthenticationPrincipal Jwt jwt) {
+    @GetMapping("/venue/vendor/all-venue")
+    public ResponseEntity<VenueListResponse> getVenueByVendorName(@AuthenticationPrincipal Jwt jwt) {
 
         if (!jwt.getClaim("loggedInAs").equals("VENDOR")) {
             throw new UserForbiddenException();

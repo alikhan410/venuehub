@@ -1,6 +1,7 @@
 package com.venuehub.venueservice.mapper;
 
 import com.venuehub.venueservice.dto.BookedVenueDto;
+import com.venuehub.venueservice.dto.ImageDto;
 import com.venuehub.venueservice.dto.VenueDto;
 import com.venuehub.venueservice.dto.VenueListDto;
 import com.venuehub.venueservice.model.Booking;
@@ -26,8 +27,9 @@ public class Mapper {
     }
 
     public static VenueListDto modelToVenueListDto(Venue venue) {
+        ImageDto imageDto = new ImageDto(venue.getImages().get(0).getImage());
         return new VenueListDto(
-                venue.getId(), venue.getName(), venue.getVenueType(), venue.getLocation(),venue.getImages().get(0),String.valueOf(venue.getEstimate())
+                venue.getId(), venue.getName(), venue.getVenueType(), venue.getLocation(),imageDto,String.valueOf(venue.getEstimate())
         );
     }
 

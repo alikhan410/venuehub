@@ -5,6 +5,7 @@ import com.nimbusds.jose.jwk.JWKSet;
 import com.venuehub.authservice.dto.CurrentUserDto;
 import com.venuehub.commons.exception.UserForbiddenException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;

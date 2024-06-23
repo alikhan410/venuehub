@@ -52,12 +52,12 @@ spring:
         - id: venue-service
           uri: lb://venue-service
           predicates:
-            - Path=/venue, /venue/{id}, /vendor/venue, /venue/get-main
+            - Path=/venue, /venue/{id}, /venue/vendor/info , /venue/vendor/all-venue, /venue/{id}/image-0
             - Method=GET,POST,DELETE,PUT
 
         - id: payment-service
           uri: lb://payment-service
           predicates:
-            - Path=/orders/create-payment-intent, /orders/confirm-payment, /orders/{orderId}
+            - Path=/orders/create-payment-intent, /orders/confirm-payment, /orders/status/{orderId}, /orders/user
             - Method=GET,POST
 

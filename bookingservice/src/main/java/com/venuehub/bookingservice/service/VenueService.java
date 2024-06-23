@@ -32,7 +32,7 @@ public class VenueService {
         return venueRepository.findById(id);
     }
 
-    public Optional<Venue> findByUsername(String username) {
+    public List<Venue> findByUsername(String username) {
         return venueRepository.findByUsername(username);
     }
 

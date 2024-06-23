@@ -1,0 +1,27 @@
+server:
+  port: 6000
+#//-------------------------------------------------------------//
+spring:
+  jpa:
+    show-sql: false
+    generate-ddl: true
+
+    hibernate:
+      ddl-auto: create
+
+  datasource:
+    #    url: jdbc:mysql://localhost:53602/bookingservice
+    url: jdbc:mysql://localhost:3306/bookingservice
+    username: ali
+    password: "@Li4103568"
+
+
+#//-------------------------------------------------------------//
+logging:
+  level:
+    root: info
+    web: info
+#//-------------------------------------------------------------//
+eureka:
+  client:
+    enabled: false

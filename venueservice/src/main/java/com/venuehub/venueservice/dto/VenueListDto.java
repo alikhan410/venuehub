@@ -12,7 +12,7 @@ public record VenueListDto(
         @NotNull @NotBlank(message = "Name can not be blank or empty") String name,
         @NotNull @NotBlank(message = "Venue type can not be blank or empty") String venueType,
         @NotNull @NotBlank(message = "Location can not be blank or empty") String location,
-        ImageData image,
+        ImageDto image,
         @Min(value = 0, message = "Invalid value") String estimate
 ) {
 }

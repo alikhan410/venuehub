@@ -34,6 +34,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @Validated
@@ -106,9 +107,9 @@ public class BookingController {
 
         venueService.findById(venueId).orElseThrow(NoSuchVenueException::new);
 
-        List<Booking> bookedVenueList = bookingService.findByVenue(venueId);
+        List<Booking> bookingList = bookingService.findByVenue(venueId);
 
-        List<BookingDateDto> bookedVenueDtoList = bookedVenueList.stream().map(Mapper::modelToBookingDateDto).toList();
+        List<BookingDateDto> bookedVenueDtoList = bookingList.stream().map(Mapper::modelToBookingDateDto).toList();
 
         BookingDateListResponse response = new BookingDateListResponse(bookedVenueDtoList);
 
@@ -134,33 +135,37 @@ public class BookingController {
     }
 
     @GetMapping("/bookings/user")
-    public ResponseEntity<List<GetBookingByUsernameResponse>> getBookingByUser(@AuthenticationPrincipal Jwt jwt) throws NoSuchBookingException {
+    public ResponseEntity<List<GetBookingsResponse>> getBookingByUser(@AuthenticationPrincipal Jwt jwt) throws NoSuchBookingException {
 
         if (!jwt.getClaim("loggedInAs").equals("USER")) {
             throw new UserForbiddenException();
         }
 
-        List<Booking> bookedVenueList = bookingService.findByUsername(jwt.getSubject());
+        List<Booking> bookingList = bookingService.findByUsername(jwt.getSubject());
 
-        List<GetBookingByUsernameResponse> bookedVenueDtoList = bookedVenueList.stream().map(Mapper::modelToResponse).toList();
+        List<GetBookingsResponse> bookingsList = bookingList.stream().map(Mapper::modelToResponse).toList();
 
-        return new ResponseEntity<>(bookedVenueDtoList, HttpStatus.OK);
+        return new ResponseEntity<>(bookingsList, HttpStatus.OK);
     }
 
     @GetMapping("/bookings/vendor")
-    public ResponseEntity<List<GetBookingVendorResponse>> getBookingByVendor(@AuthenticationPrincipal Jwt jwt) throws NoSuchBookingException {
+    public ResponseEntity<List<GetBookingsResponse>> getBookingByVendor(@AuthenticationPrincipal Jwt jwt) throws NoSuchBookingException {
 
         if (!jwt.getClaim("loggedInAs").equals("VENDOR")) {
             throw new UserForbiddenException();
         }
 
-        Venue venue = venueService.findByUsername(jwt.getSubject()).orElseThrow(NoSuchVenueException::new);
+        List<Booking> bookings = venueService.findByUsername(jwt.getSubject())
+                .stream()
+                .flatMap(venue -> venue.getBookings().stream())
+                .toList();
 
-        List<Booking> bookings = venue.getBookings();
 
-        List<GetBookingVendorResponse> getBookingVendorResponses = bookings.stream().map(Mapper::modelToVendorResponse).toList();
+//        List<Booking> bookingList = bookingService.findByUsername(jwt.getSubject());
 
-        return new ResponseEntity<>(getBookingVendorResponses, HttpStatus.OK);
+        List<GetBookingsResponse> bookingsList = bookings.stream().map(Mapper::modelToResponse).toList();
+
+        return new ResponseEntity<>(bookingsList, HttpStatus.OK);
     }
 
     @DeleteMapping("/bookings/{bookingId}")

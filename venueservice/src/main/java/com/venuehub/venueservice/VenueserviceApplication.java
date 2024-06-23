@@ -7,6 +7,7 @@ import com.venuehub.venueservice.service.VenueService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -29,6 +30,7 @@ import java.util.Objects;
 @EnableDiscoveryClient
 @ComponentScan(basePackages = {"com.venuehub.venueservice", "com.venuehub.broker"})
 @EnableAsync
+@EnableCaching
 public class VenueserviceApplication {
 
     public static void main(String[] args) {
@@ -40,9 +42,9 @@ public class VenueserviceApplication {
     CommandLineRunner run(VenueService venueService, ImageDataService imageDataService) {
 
         return args -> {
-            if (!venueService.findAll().isEmpty()){
-                return;
-            }
+//            if (!venueService.findAll().isEmpty()){
+//                return;
+//            }
             addTestVenues(venueService, imageDataService);
         };
 

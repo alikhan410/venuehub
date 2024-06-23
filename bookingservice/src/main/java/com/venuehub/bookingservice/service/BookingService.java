@@ -5,7 +5,7 @@ import com.venuehub.bookingservice.model.Venue;
 import com.venuehub.commons.exception.NoSuchBookingException;
 import com.venuehub.bookingservice.model.Booking;
 import com.venuehub.broker.constants.BookingStatus;
-import com.venuehub.bookingservice.repository.BookedVenueRepository;
+import com.venuehub.bookingservice.repository.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,20 +20,20 @@ import java.util.Optional;
 
 @Service
 public class BookingService {
-    private final BookedVenueRepository bookedVenueRepository;
+    private final BookingRepository bookingRepository;
 
     @Autowired
-    public BookingService(BookedVenueRepository bookedVenueRepository) {
-        this.bookedVenueRepository = bookedVenueRepository;
+    public BookingService(BookingRepository bookingRepository) {
+        this.bookingRepository = bookingRepository;
     }
 
     @Transactional
     public void save(Booking booking) {
-        bookedVenueRepository.save(booking);
+        bookingRepository.save(booking);
     }
 
     public List<Booking> findByVenue(long id) {
-        return bookedVenueRepository.findByVenue(id);
+        return bookingRepository.findByVenue(id);
     }
 
     public Boolean isBookingAvailable(LocalDateTime bookingDateTime, List<Booking> bookings) {
@@ -69,27 +69,27 @@ public class BookingService {
     }
 
     public Optional<Booking> findById(long id) {
-        return bookedVenueRepository.findById(id);
+        return bookingRepository.findById(id);
     }
 
     public List<Booking> findByUsername(String username) {
-        return bookedVenueRepository.findByUsername(username);
+        return bookingRepository.findByUsername(username);
     }
 
     public Optional<Booking> findCompletedBookingById(long id) {
-        return bookedVenueRepository.findCompletedBookingById(id);
+        return bookingRepository.findCompletedBookingById(id);
     }
 
     @Transactional
     public void deleteBooking(long id) {
-        bookedVenueRepository.deleteById(id);
+        bookingRepository.deleteById(id);
     }
 
     @Transactional
     public void updateStatus(long id, BookingStatus status) throws NoSuchBookingException {
-        Booking booking = bookedVenueRepository.findById(id).orElseThrow(NoSuchBookingException::new);
+        Booking booking = bookingRepository.findById(id).orElseThrow(NoSuchBookingException::new);
         booking.setStatus(status);
-        bookedVenueRepository.save(booking);
+        bookingRepository.save(booking);
     }
 
     @Transactional
@@ -103,7 +103,7 @@ public class BookingService {
                 .phone(body.phone())
                 .email(body.email())
                 .guests(body.guests()).build();
-        bookedVenueRepository.save(newBooking);
+        bookingRepository.save(newBooking);
         return newBooking;
     }
 
@@ -115,7 +115,7 @@ public class BookingService {
         String newReservation = LocalDateTime.now(ZoneId.of("PLT")).plusMinutes(2).toString();
         booking.setReservationExpiry(newReservation);
 
-        bookedVenueRepository.save(booking);
+        bookingRepository.save(booking);
     }
 
 }

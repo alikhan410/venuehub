@@ -5,6 +5,7 @@ import com.venuehub.paymentservice.repository.OrderRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -20,7 +21,7 @@ public class OrderService {
         orderRepository.save(bookingOrder);
     }
 
-    public Optional<BookingOrder> findById(Long orderId){
+    public Optional<BookingOrder> findById(Long orderId) {
         return orderRepository.findById(orderId);
     }
 
@@ -30,5 +31,9 @@ public class OrderService {
 
     public BookingOrder findByClientSecret(String clientSecret) {
         return orderRepository.findByClientSecret(clientSecret);
+    }
+
+    public List<BookingOrder> findByUsername(String username) {
+        return orderRepository.findByUsername(username);
     }
 }
