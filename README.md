@@ -78,7 +78,7 @@ List of external APIs:
 - **Data Model**:  [﻿Data Model - Booking Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=Rm2LswYDsCYX5Y1d74zn3g) 
 ### Microservice 4: Job Service
 - **Overview**: The Job Services handles the Booking Jobs sent by the Booking Service and schedule them using Quartz.
-- **Class Diagrams**:**  **[﻿`Diagram depicting the classes involved in the Job Service.`](https://lucid.app/documents/embedded/c27a9bc3-2d8f-4a7f-ab48-a07050449ef6) 
+- **Class Diagrams**: [﻿`Diagram depicting the classes involved in the Job Service.`](https://lucid.app/documents/embedded/c27a9bc3-2d8f-4a7f-ab48-a07050449ef6) 
 - **Method Descriptions**: Detailed method descriptions and API documentation can be found at the Job Service API Documentation
 - **Data Flow**: [﻿Quartz Data Flow](https://s3.stackabuse.com/media/articles/guide-to-quartz-with-spring-boot-job-scheduling-and-automation-1.png) 
 - **Data Mode:** [﻿Data Model - Job Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=DMVIN4qgfJz1Qd_ujjCWrA) 
@@ -92,7 +92,7 @@ List of external APIs:
 - **Authorization Mechanisms**: Access to various services is controlled using JWT tokens. When a user makes a request, the Service validates the token using public keys provided by the Auth Service. If the token is verified, the Service performs Method Level Authorization to determine the user's permissions for the requested action.
 - **Data Protection**: 
     - **Access Controls: Role-Based Access Control (RBAC)**: Our system employs Role-Based Access Control (RBAC) to enforce access restrictions to sensitive data. Upon user authentication, roles are assigned and encoded into a JWT (JSON Web Token). Subsequently, when a user makes a request to a service, the JWT containing role information is validated. This validation ensures that only authorized users, based on their roles, can access specific resources and perform designated actions within the system.
-    - **Authentication and JWT Validation**:** **Authentication and JWT validation in our system are strengthened by RSA asymmetric encryption. The Auth Service securely manages the private key required for JWT decoding, while exposing public keys through endpoints for token validation by other services. This approach ensures the integrity and confidentiality of authentication processes, mitigating the risk of unauthorized access to sensitive information.
+    - **Authentication and JWT Validation**: Authentication and JWT validation in our system are strengthened by RSA asymmetric encryption. The Auth Service securely manages the private key required for JWT decoding, while exposing public keys through endpoints for token validation by other services. This approach ensures the integrity and confidentiality of authentication processes, mitigating the risk of unauthorized access to sensitive information.
 - **Auth Sequence Diagram**:** **[﻿JWT Authentication Flow](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=ZTKxuiWpN6D-xg_4lIbQIA) 
 ## Performance Metrics
 For detailed performance metrics, please refer to the [`﻿Performance Metrics Document.`](https://alikhan410.notion.site/Performance-Metrics-for-VenueHub-de5e571dd162409bba52df8ed053fb62?pvs=4) 
