@@ -93,7 +93,7 @@ List of external APIs:
 - **Data Protection**: 
     - **Access Controls: Role-Based Access Control (RBAC)**: Our system employs Role-Based Access Control (RBAC) to enforce access restrictions to sensitive data. Upon user authentication, roles are assigned and encoded into a JWT (JSON Web Token). Subsequently, when a user makes a request to a service, the JWT containing role information is validated. This validation ensures that only authorized users, based on their roles, can access specific resources and perform designated actions within the system.
     - **Authentication and JWT Validation**: Authentication and JWT validation in our system are strengthened by RSA asymmetric encryption. The Auth Service securely manages the private key required for JWT decoding, while exposing public keys through endpoints for token validation by other services. This approach ensures the integrity and confidentiality of authentication processes, mitigating the risk of unauthorized access to sensitive information.
-- **Auth Sequence Diagram**:** **[﻿JWT Authentication Flow](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=ZTKxuiWpN6D-xg_4lIbQIA) 
+- **Auth Sequence Diagram**: [﻿JWT Authentication Flow](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=ZTKxuiWpN6D-xg_4lIbQIA) 
 ## Performance Metrics
 For detailed performance metrics, please refer to the [`﻿Performance Metrics Document.`](https://alikhan410.notion.site/Performance-Metrics-for-VenueHub-de5e571dd162409bba52df8ed053fb62?pvs=4) 
 
@@ -117,7 +117,7 @@ For detailed performance metrics, please refer to the [`﻿Performance Metrics D
 - **Update Procedures**: Procedures for applying updates to the system.//TODO
 ## TODO
 - **Integration Test**: Add integration test in all services.
-- **Open Api Documentation: **Write open API documentation for all services
+- **Open Api Documentation**: Write open API documentation for all services
 ## Appendices
 - **Glossary**: Definitions of terms used in the document.//TODO
 - **References**: List of references used in the document.//TODO
