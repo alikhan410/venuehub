@@ -1,0 +1,26 @@
+entity-relationship-diagram
+
+Venue [icon: building, color:lightgreen]{
+  id long pk
+  username string
+  name string
+  estimates number
+  bookings
+}
+bookings [icon: book-open, color: coral]{
+  id long pk
+  status enum
+  bookingDateTime timestamp
+  bookingFee number
+  reservationExpiry timestamp
+  username string
+  email string
+  phone string
+  guests number
+  venue
+}
+
+
+Venue.bookings < bookings.id
+bookings.venue > Venue.id
+

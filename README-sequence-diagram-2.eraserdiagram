@@ -1,0 +1,44 @@
+sequence-diagram
+
+Client [icon: monitor, color: lightgray]
+Auth Service [icon:shield, color:lightcoral]
+Payment Service [icon: money, color:lightgreen]
+Stripe API [icon: stripe, color: CornflowerBlue]
+Broker[icon:rabbitmq, color:orangered ]
+
+Client > Payment Service: CreatePaymentIntent
+activate Client
+activate Payment Service
+alt[label:Authorized,color:sandybrown]{
+  Payment Service > Auth Service: Validate Jwt token
+activate Auth Service
+  Auth Service --> Payment Service: Token Valid
+deactivate Auth Service
+Payment Service > Stripe API: Build Intent Object
+activate Stripe API
+Stripe API --> Payment Service: ClientSecret
+deactivate Stripe API 
+  Payment Service --> Client: CreatePaymentResponse
+}else[label:Unauthorized]{
+  Payment Service >Auth Service: Validate Jwt Token
+activate Auth Service
+Auth Service --> Payment Service: Invalid Jwt
+deactivate Auth Service
+Payment Service --> Client: Unauthorized
+deactivate Client
+deactivate Payment Service
+}
+
+Client > Stripe API: Pay Order
+activate Client
+activate Stripe API
+Stripe API --> Payment Service: ConfirmPayment
+deactivate Stripe API
+activate Payment Service
+Payment Service --> Broker: Booking Updated Event
+Payment Service --> Client: Payment Confirmed
+deactivate Client
+deactivate Payment Service
+
+
+

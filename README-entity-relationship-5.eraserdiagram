@@ -1,0 +1,23 @@
+entity-relationship-diagram
+
+users [icon: user, color: blue] {
+  id long pk
+  username string
+  firstName string
+  lastName string
+  email string
+  password string
+  authorities
+}
+
+roles[icon: key, color:green]{
+  id long pk
+  authority string
+  users
+}
+users.authorities  <> roles.id
+roles.users <> users.id
+
+
+
+

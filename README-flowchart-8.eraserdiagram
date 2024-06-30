@@ -1,0 +1,18 @@
+flowchart-diagram
+
+// Nodes and groups
+User [shape: rectangle, icon: file-text]
+Web Client [icon: desktop, color: orange, shape: circle]
+Backend[color: blue]{
+Spring Gateway[icon: spring, color: lightgreen,]
+  
+Booking Service[icon: book-open, color: lightcoral]
+Database[shape: cylinder, icon: mysql,color: lightblue]
+}
+
+
+User <> Web Client:POST /Add Booking
+Web Client <> Spring Gateway: Forward Request
+Spring Gateway <> Booking Service: Forward Request
+Booking Service <> Database: read/write
+

@@ -1,0 +1,58 @@
+sequence-diagram
+
+Title: User Authentication and Authorization Flow within Microservice
+
+User [icon: user, color: lightgreen]
+Auth Service [icon: lock, color: lightcoral]
+Auth Database [icon:database,color:black]
+Service [icon: server, color: lightblue]
+Service Database [icon:database,color:black]
+
+User > Auth Service: Login request
+activate User
+
+alt[label:Authenticated,color: green]{
+activate Auth Service
+
+Auth Database <> Auth Service: Retreive data
+activate Auth Database
+deactivate Auth Database
+  Auth Service -> User: Jwt Token
+}else[ label:Unauthenticated]{
+  Auth Database <> Auth Service: Retreive data
+activate Auth Database
+deactivate Auth Database
+  Auth Service -> User: Invalid credentials
+}
+
+deactivate Auth Service
+
+
+User > Service: Request with Jwt Token
+activate Service
+
+alt [label:Authorized,color: red]{
+
+    Service -> Auth Service: Validate Jwt Token
+    activate Auth Service
+    Auth Service --> Service: Token Valid
+    deactivate Auth Service
+Service <> Service Database: Retreive Data
+activate Service Database
+deactivate Service Database
+    Service -> User: Response
+
+}
+else [label:Unauthorized]{
+
+    Service -> Auth Service: Validate Jwt Token
+    activate Auth Service
+    Auth Service --> Service: Token Invalid
+    deactivate Auth Service
+    Service --> User: Not Authorized
+}
+
+
+deactivate User
+deactivate Service
+

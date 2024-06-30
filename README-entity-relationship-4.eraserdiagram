@@ -1,0 +1,11 @@
+entity-relationship-diagram
+
+booking [icon: book-open, color: blue] {
+  id long pk
+  username string
+  status enum
+}
+
+
+
+
