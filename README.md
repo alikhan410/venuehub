@@ -31,6 +31,10 @@ These services communicate with each other asynchronously using RabbitMQ, ensuri
 - **Redis for Caching and Rate Limiting**:
     - **Caching**: Redis is utilized for caching frequently accessed data, reducing database load and improving response times.
     - **Rate Limiting**: Provides efficient rate limiting capabilities, protecting backend services from excessive requests and ensuring system stability under varying loads.
+### External APIs and Integrations:
+List of external APIs:
+
+- Stripe Payment Gateway API
 ### Infrastructure and Deployment
 - **Kubernetes**:
     - **Usage**: Kubernetes is used in production for deploying and managing microservices.
@@ -48,64 +52,48 @@ These services communicate with each other asynchronously using RabbitMQ, ensuri
 
 [﻿RabbitMQ Setup](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=DuSClt1QZg3J9efYXZfitg) 
 
-- **Microservices and Their Interactions**:
+- **Microservices**:
     - [﻿Auth Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=rwh2XJsNpyd_pQIREeK8-g) 
     - [﻿Venue Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=4GgGaWISGcOnV8RNiMOqxQ) 
     - [﻿Booking Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=m8bF-g1r3kwlUIF12i6M_A) 
     - [﻿Job Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=H5TvUBjyeCMW9RacL7Z1YQ) 
     - [﻿Payment Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=IcOPQMjIKlhOj3flTHHm2Q) 
-- **External APIs and Integrations**:
-    - List of external APIs:
-        - Stripe Payment Gateway API
 - **External APIs Sequence Diagram:**
-[﻿Stripe Interaction](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=vlR--OD486IlhYiJUAuLXQ) 
-
+    - [﻿Stripe Interaction](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=vlR--OD486IlhYiJUAuLXQ) 
 ## Detailed Design
 ### Microservice 1: Auth Service
 - **Overview**: The Auth Service handles user authentication, profile management, and authorization. It provides endpoints for user/vendor registration, login, and role management.
 - **Class Diagrams**: [`﻿Diagram depicting the classes involved in the Auth Service.`](https://lucid.app/documents/embedded/08686b00-ca8c-4384-a1ec-20c3ef8e7a41?invitationId=inv_3ee4dc99-a9ec-4ac8-b889-ecd14cab1146#) 
 - **Method Descriptions**: Detailed method descriptions and API documentation can be found at the Auth Service API Documentation
-- **Data Model**:
-[﻿Data Model - Auth Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=7oVWRHiFpNCUNYFJIY0GDg) 
-
+- **Data Model**: [﻿Data Model - Auth Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=7oVWRHiFpNCUNYFJIY0GDg) 
 ### Microservice 2: Venue Service
 - **Overview**: The Venue Service handles venue management. It provides endpoints for adding, updating, deleting venues.
 - **Class Diagrams**:  [`﻿Diagram depicting the classes involved in the Venue Service.`](https://lucid.app/documents/embedded/dd654d40-ae47-4d5b-b013-01cb3f5a3bc4) 
 - **Method Descriptions**: Detailed method descriptions and API documentation can be found at the Venue Service API Documentation
-- **Data Model**:
-[﻿Data Model - Venue Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=icNTZ5qjSXVpDZyX_tEw8g) 
-
+- **Data Model**: [﻿Data Model - Venue Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=icNTZ5qjSXVpDZyX_tEw8g) 
 ### Microservice 3: Booking Service
 - **Overview**: Manages the booking process, including availability checks and confirmations.
 - **Class Diagrams**: [﻿` Diagram depicting the classes involved in the Booking Service.`](https://lucid.app/documents/embedded/93b864ed-0a4a-452f-845c-6093a12bd980) 
 - **Method Descriptions**: Detailed method descriptions and API documentation can be found at the Booking Service API Documentation
-- **Data Model**: 
-[﻿Data Model - Booking Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=Rm2LswYDsCYX5Y1d74zn3g) 
-
+- **Data Model**:  [﻿Data Model - Booking Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=Rm2LswYDsCYX5Y1d74zn3g) 
 ### Microservice 4: Job Service
 - **Overview**: The Job Services handles the Booking Jobs sent by the Booking Service and schedule them using Quartz.
 - **Class Diagrams:  **[﻿`Diagram depicting the classes involved in the Job Service.`](https://lucid.app/documents/embedded/c27a9bc3-2d8f-4a7f-ab48-a07050449ef6) 
 - **Method Descriptions**: Detailed method descriptions and API documentation can be found at the Job Service API Documentation
 - **Data Flow**: [﻿Quartz Data Flow](https://s3.stackabuse.com/media/articles/guide-to-quartz-with-spring-boot-job-scheduling-and-automation-1.png) 
-- **Data Mode:** 
-[﻿Data Model - Job Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=DMVIN4qgfJz1Qd_ujjCWrA) 
-
+- **Data Mode:** [﻿Data Model - Job Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=DMVIN4qgfJz1Qd_ujjCWrA) 
 ### Microservice 4: Payment Service
 - **Overview**: Payment Service handles the payment related task and performs validation using external Stripe API.
 - **Class Diagrams**: [﻿`Diagram depicting the classes involved in the Payment Service.`](https://lucid.app/documents/embedded/992658c2-429f-4ade-9137-7a4166c0aaa2) 
 - **Method Descriptions**: Detailed method descriptions and API documentation can be found at the Payment Service API Documentation
-- **Data Model**: 
-[﻿Data Model - Payment Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=w06NFg8UjSqXa_EdDejzeg)    
-
+- **Data Model**: [﻿Data Model - Payment Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=w06NFg8UjSqXa_EdDejzeg)    
 ## Security Considerations
 - **Authentication Mechanisms**: User authentication involves submitting login credentials to the Auth Service, which validates them against the Auth Database. Upon successful authentication, the Auth Service issues a JWT token to the user; otherwise, it returns an appropriate error message.
 - **Authorization Mechanisms**: Access to various services is controlled using JWT tokens. When a user makes a request, the Service validates the token using public keys provided by the Auth Service. If the token is verified, the Service performs Method Level Authorization to determine the user's permissions for the requested action.
 - **Data Protection**: 
     - **Access Controls: Role-Based Access Control (RBAC): **Our system employs Role-Based Access Control (RBAC) to enforce access restrictions to sensitive data. Upon user authentication, roles are assigned and encoded into a JWT (JSON Web Token). Subsequently, when a user makes a request to a service, the JWT containing role information is validated. This validation ensures that only authorized users, based on their roles, can access specific resources and perform designated actions within the system.
     - **Authentication and JWT Validation: **Authentication and JWT validation in our system are strengthened by RSA asymmetric encryption. The Auth Service securely manages the private key required for JWT decoding, while exposing public keys through endpoints for token validation by other services. This approach ensures the integrity and confidentiality of authentication processes, mitigating the risk of unauthorized access to sensitive information.
-- **Auth Sequence Diagram:**
-[﻿JWT Authentication Flow](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=ZTKxuiWpN6D-xg_4lIbQIA) 
-
+- **Auth Sequence Diagram: **[﻿JWT Authentication Flow](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=ZTKxuiWpN6D-xg_4lIbQIA) 
 ## Performance Metrics
 For detailed performance metrics, please refer to the [`﻿Performance Metrics Document.`](https://alikhan410.notion.site/Performance-Metrics-for-VenueHub-de5e571dd162409bba52df8ed053fb62?pvs=4) 
 
