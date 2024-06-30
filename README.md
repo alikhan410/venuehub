@@ -44,21 +44,16 @@ These services communicate with each other asynchronously using RabbitMQ, ensuri
     - **Routing**: Manages routing of requests to the appropriate microservices.
     - **API Management and Documentation**: Provides API management capabilities such as rate limiting, security, and monitoring. Also, exposes an Open API Documentation endpoint that includes documentation for all the services.
 ### Architecture Diagrams:
-![VenueHub architecture overview](undefined "VenueHub architecture overview")
+[﻿VenueHub architecture overview](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=bl0-QUs1w-pwMMYbgRu7KQ) 
 
 [﻿RabbitMQ Setup](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=DuSClt1QZg3J9efYXZfitg) 
 
 - **Microservices and Their Interactions**:
-[﻿Auth Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=rwh2XJsNpyd_pQIREeK8-g) 
-
-[﻿Venue Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=4GgGaWISGcOnV8RNiMOqxQ) 
-
-[﻿Booking Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=m8bF-g1r3kwlUIF12i6M_A) 
-
-[﻿Job Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=H5TvUBjyeCMW9RacL7Z1YQ) 
-
-[﻿Payment Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=IcOPQMjIKlhOj3flTHHm2Q) 
-
+    - [﻿Auth Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=rwh2XJsNpyd_pQIREeK8-g) 
+    - [﻿Venue Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=4GgGaWISGcOnV8RNiMOqxQ) 
+    - [﻿Booking Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=m8bF-g1r3kwlUIF12i6M_A) 
+    - [﻿Job Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=H5TvUBjyeCMW9RacL7Z1YQ) 
+    - [﻿Payment Service](https://app.eraser.io/workspace/3CTdIKRpLWBRUgDMOeFg?elements=IcOPQMjIKlhOj3flTHHm2Q) 
 - **External APIs and Integrations**:
     - List of external APIs:
         - Stripe Payment Gateway API
