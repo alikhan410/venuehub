@@ -18,8 +18,8 @@ public class RedisConfig {
             org.redisson.config.Config config = new org.redisson.config.Config();
             config.useSingleServer()
                     .setAddress("redis://127.0.0.1:6379")
-                    //Increasing the connection timeout to 5 seconds - default is 3
-                    .setTimeout(5000);
+                    //Increasing the connection timeout to 60 seconds - default is 3
+                    .setTimeout(60000);
             redissonClient = Redisson.create(config);
         }
         return redissonClient;

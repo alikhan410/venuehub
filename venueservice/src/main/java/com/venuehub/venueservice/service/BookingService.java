@@ -1,7 +1,7 @@
 package com.venuehub.venueservice.service;
 
 import com.venuehub.venueservice.model.Booking;
-import com.venuehub.venueservice.repository.BookedVenueRepository;
+import com.venuehub.venueservice.repository.BookingRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,30 +11,30 @@ import java.util.Optional;
 
 
 @Service
-public class BookedVenueService {
-    private final BookedVenueRepository bookedVenueRepository;
+public class BookingService {
+    private final BookingRepository bookingRepository;
 
     @Autowired
-    public BookedVenueService(BookedVenueRepository bookedVenueRepository) {
-        this.bookedVenueRepository = bookedVenueRepository;
+    public BookingService(BookingRepository bookingRepository) {
+        this.bookingRepository = bookingRepository;
     }
 
     @Transactional
     public void save(Booking booking) {
-        bookedVenueRepository.save(booking);
+        bookingRepository.save(booking);
     }
 
     public Optional<Booking> findById(Long id) {
-        return bookedVenueRepository.findById(id);
+        return bookingRepository.findById(id);
     }
 
     @Transactional
     public void deleteById(long id) {
-        bookedVenueRepository.deleteById(id);
+        bookingRepository.deleteById(id);
     }
 
     public List<Booking> findByVenue(long id) {
-        return bookedVenueRepository.findByVenue(id);
+        return bookingRepository.findByVenue(id);
     }
 
 }

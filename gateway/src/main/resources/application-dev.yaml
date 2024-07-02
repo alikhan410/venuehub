@@ -1,9 +1,11 @@
 server:
   port: 8181
 #//-------------------------------------------------------------//
+
 eureka:
 
   instance:
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
     prefer-ip-address: true
     metadata-map:
       zone: zone1
@@ -24,7 +26,14 @@ logging:
     root: warn
     web: warn
 #//-------------------------------------------------------------//
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - "mappings"
 spring:
+
   cloud:
     gateway:
       default-filters:
@@ -40,24 +49,70 @@ spring:
         - id: booking-service
           uri: lb://booking-service
           predicates:
-            - Path=/bookings/{id}, /bookings/venue/{id}, /bookings/user,/bookings/vendor
+            - Path=/bookings/{id}, /bookings/venue/{id}, /bookings/user,/bookings/vendor, /booking/v3/api-docs
             - Method=GET,POST, DELETE
 
         - id: auth-service
           uri: lb://auth-service
           predicates:
-            - Path=/user/login,/user/logout,/user/register,/vendor/register,/vendor/login,/vendor/logout,/.well-known/jwks.json,/current-user,/login/swagger-ui.html
+            - Path=/user/login,/user/logout,/user/register,/vendor/register,/vendor/login,/vendor/logout,/.well-known/jwks.json,/current-user,/auth/v3/api-docs
             - Method=GET,POST
 
         - id: venue-service
           uri: lb://venue-service
           predicates:
-            - Path=/venue, /venue/{id}, /venue/vendor/info , /venue/vendor/all-venue, /venue/{id}/image-0
+            - Path=/venue, /venue/{id}, /venue/vendor/info , /venue/vendor/all-venue, /venue/{id}/image-0,/venue/v3/api-docs
             - Method=GET,POST,DELETE,PUT
 
         - id: payment-service
           uri: lb://payment-service
           predicates:
-            - Path=/orders/create-payment-intent, /orders/confirm-payment, /orders/status/{orderId}, /orders/user
+            - Path=/orders/create-payment-intent, /orders/confirm-payment, /orders/status/{orderId}, /orders/user, /orders/vendor, /payment/v3/api-docs
             - Method=GET,POST
 
+        - id: openapi
+          uri: http://localhost:8181
+          predicates:
+            - Path=/auth/v3/api-docs, /venue/v3/api-docs
+            - Method=GET
+#
+springdoc:
+  cache:
+    disabled: true
+  swagger-ui:
+    use-root-path: true
+    urls:
+      - url: /auth/v3/api-docs
+        name: Auth Service
+      - url: /venue/v3/api-docs
+        name: Venue Service
+      - url: /booking/v3/api-docs
+        name: Booking Service
+      - url: /payment/v3/api-docs
+        name: Payment Service
+  api-docs:
+    version: openapi_3_1
+
+#springdoc:
+#  api-docs:
+#    enabled: true
+#  swagger-ui:
+#    enabled: true
+#    config-url: /v3/api-docs/swagger-config
+#    urls:
+#      - url: /EN/v3/api-docs
+#        name: English Greetings Service
+#      - url: /GE/v3/api-docs
+#        name: German Greetings Service
+#springdoc:
+#  cache:
+#    disabled: true
+#  swagger-ui:
+#    use-root-path: true
+#    urls:
+#      - url: /auth/v3/api-docs
+#        name: Auth Service
+#      - url: /venue/v3/api-docs
+#        name: Venue Service
+#  api-docs:
+#    version: openapi_3_1

@@ -18,6 +18,7 @@ public class ExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNoSuchVenueException(NoSuchVenueException e) {
         return new ResponseEntity<>(e.getResponse(), e.getStatus());
     }
+
     @org.springframework.web.bind.annotation.ExceptionHandler
     public ResponseEntity<ErrorResponse> handleNoSuchOrderException(NoSuchOrderException e) {
         return new ResponseEntity<>(e.getResponse(), e.getStatus());
@@ -27,6 +28,7 @@ public class ExceptionHandler {
     public ResponseEntity<ErrorResponse> handleNoSuchVenueException(UserForbiddenException e) {
         return new ResponseEntity<>(e.getResponse(), e.getStatus());
     }
+
     @org.springframework.web.bind.annotation.ExceptionHandler
     public ResponseEntity<ErrorResponse> handleActionForbiddenException(ActionForbiddenException e) {
         return new ResponseEntity<>(e.getResponse(), e.getStatus());
@@ -40,9 +42,8 @@ public class ExceptionHandler {
 
     @org.springframework.web.bind.annotation.ExceptionHandler
     public ResponseEntity<ErrorResponse> handleGeneralException(Exception e) throws Exception {
-        throw e;
-//        GeneralException generalException = new GeneralException(e.getMessage());
-//        return new ResponseEntity<>(generalException.getResponse(), generalException.getStatus());
+        GeneralException generalException = new GeneralException(e.getMessage());
+        return new ResponseEntity<>(generalException.getResponse(), generalException.getStatus());
     }
 
 }

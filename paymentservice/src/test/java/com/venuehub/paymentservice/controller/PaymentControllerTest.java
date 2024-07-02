@@ -9,7 +9,8 @@ import com.venuehub.broker.producer.booking.BookingUpdatedProducer;
 import com.venuehub.paymentservice.dto.ConfirmPaymentDto;
 import com.venuehub.paymentservice.dto.OrderDto;
 import com.venuehub.paymentservice.model.Booking;
-import com.venuehub.paymentservice.service.BookedVenueService;
+import com.venuehub.paymentservice.model.OrderStatus;
+import com.venuehub.paymentservice.service.BookingService;
 import com.venuehub.paymentservice.service.OrderService;
 import com.venuehub.paymentservice.service.PaymentService;
 import com.venuehub.paymentservice.utils.JwtTestImpl;
@@ -47,7 +48,7 @@ class PaymentControllerTest {
     @MockBean
     private PaymentService paymentService;
     @MockBean
-    private BookedVenueService bookedVenueService;
+    private BookingService bookingService;
     @MockBean
     private OrderService OrderService;
     @Autowired
@@ -74,13 +75,17 @@ class PaymentControllerTest {
         amount = 250;
         expectedClientSecret = "secret";
         orderDto = new OrderDto(
+                1L,
                 username,
+                "secret",
                 amount,
-                bookingId
+                bookingId,
+                OrderStatus.PENDING
         );
         booking = new Booking(
                 bookingId,
                 username,
+                amount,
                 BookingStatus.RESERVED
         );
     }
@@ -99,7 +104,7 @@ class PaymentControllerTest {
 
         @Test
         void Expect_404_When_Booking_Not_Found() throws Exception {
-            Mockito.when(bookedVenueService.findById(5L)).thenReturn(Optional.of(booking));
+            Mockito.when(bookingService.findById(5L)).thenReturn(Optional.of(booking));
 
 
             MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/create-payment-intent")
@@ -117,7 +122,7 @@ class PaymentControllerTest {
                     amount,
                     bookingId
             );
-            Mockito.when(bookedVenueService.findById(bookingId)).thenReturn(Optional.of(booking));
+            Mockito.when(bookingService.findById(bookingId)).thenReturn(Optional.of(booking));
 
 
             MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/create-payment-intent")
@@ -131,7 +136,7 @@ class PaymentControllerTest {
         @Test
         void Expect_400_When_Action_is_Forbidden_2() throws Exception {
             Booking newBooking = new Booking(bookingId, "wrong_user", BookingStatus.RESERVED);
-            Mockito.when(bookedVenueService.findById(bookingId)).thenReturn(Optional.of(newBooking));
+            Mockito.when(bookingService.findById(bookingId)).thenReturn(Optional.of(newBooking));
 
 
             MvcResult result = mvc.perform(MockMvcRequestBuilders.post("/create-payment-intent")
@@ -148,7 +153,7 @@ class PaymentControllerTest {
             PaymentIntent paymentIntent = new PaymentIntent();
             paymentIntent.setClientSecret(expectedClientSecret);
 
-            Mockito.when(bookedVenueService.findById(bookingId)).thenReturn(Optional.of(booking));
+            Mockito.when(bookingService.findById(bookingId)).thenReturn(Optional.of(booking));
             Mockito.when(paymentService.createPayment(amount)).thenReturn(paymentIntent);
 
 
@@ -183,7 +188,7 @@ class PaymentControllerTest {
 
         @Test
         void Expect_404_When_Booking_Not_Found() throws Exception {
-            Mockito.when(bookedVenueService.findById(5L)).thenReturn(Optional.of(booking));
+            Mockito.when(bookingService.findById(5L)).thenReturn(Optional.of(booking));
             ConfirmPaymentDto confirmPaymentDto = new ConfirmPaymentDto("clientSecret", bookingId);
 
             MvcResult result = mvc.perform(MockMvcRequestBuilders.get("/confirm-payment")
@@ -196,7 +201,7 @@ class PaymentControllerTest {
 
         @Test
         void Successfully_Confirm_Payment() throws Exception {
-            Mockito.when(bookedVenueService.findById(bookingId)).thenReturn(Optional.of(booking));
+            Mockito.when(bookingService.findById(bookingId)).thenReturn(Optional.of(booking));
             ConfirmPaymentDto confirmPaymentDto = new ConfirmPaymentDto("clientSecret", bookingId);
 
             MvcResult result = mvc.perform(MockMvcRequestBuilders.get("/confirm-payment")
@@ -212,7 +217,7 @@ class PaymentControllerTest {
         @Test
         void Should_Produce_Event_2_Times() throws Exception {
 
-            Mockito.when(bookedVenueService.findById(bookingId)).thenReturn(Optional.of(booking));
+            Mockito.when(bookingService.findById(bookingId)).thenReturn(Optional.of(booking));
             ConfirmPaymentDto confirmPaymentDto = new ConfirmPaymentDto("clientSecret", bookingId);
 
             MvcResult result = mvc.perform(MockMvcRequestBuilders.get("/confirm-payment")

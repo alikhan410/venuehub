@@ -1,5 +1,6 @@
 package com.venuehub.authservice.service;
 
+import com.venuehub.authservice.dto.RegisterUserDto;
 import com.venuehub.authservice.dto.UserDto;
 import com.venuehub.authservice.model.Role;
 import com.venuehub.authservice.model.User;
@@ -42,50 +43,50 @@ public class AuthenticationService {
         this.tokenService = tokenService;
     }
 
-    public User registerUser(String username, String password, String email, String firstName, String lastName) {
+    public User registerUser(RegisterUserDto body) {
 
         if (roleRepository.findByAuthority("USER").isEmpty()) return null;
 
-        if (userRepository.findByEmail(email).isPresent()) {
+        if (userRepository.findByEmail(body.email()).isPresent()) {
             throw new DuplicateEntryException("Email is already taken");
         }
 
-        if (userRepository.findByUsername(username).isPresent()) {
+        if (userRepository.findByUsername(body.username()).isPresent()) {
             throw new DuplicateEntryException("Username is already taken");
         }
 
 
-        String encodedPassword = passwordEncoder.encode(password);
+        String encodedPassword = passwordEncoder.encode(body.password());
         Role userRole = roleRepository.findByAuthority("USER").get();
         Set<Role> authorities = new HashSet<>();
         authorities.add(userRole);
 
         User newUser = new User();
-        newUser.setFirstName(firstName);
-        newUser.setLastName(lastName);
-        newUser.setEmail(email);
+        newUser.setFirstName(body.firstName());
+        newUser.setLastName(body.lastName());
+        newUser.setEmail(body.email());
         newUser.setPassword(encodedPassword);
-        newUser.setUsername(username);
+        newUser.setUsername(body.username());
         newUser.setAuthorities(authorities);
 
         return userRepository.save(newUser);
 
     }
 
-    public User registerVendor(String username, String password, String email, String firstName, String lastName) {
+    public User registerVendor(RegisterUserDto body) {
 
         if (roleRepository.findByAuthority("VENDOR").isEmpty()) return null;
         if (roleRepository.findByAuthority("USER").isEmpty()) return null;
 
-        if (userRepository.findByEmail(email).isPresent()) {
+        if (userRepository.findByEmail(body.email()).isPresent()) {
             throw new DuplicateEntryException("Email is already taken");
         }
 
-        if (userRepository.findByUsername(username).isPresent()) {
+        if (userRepository.findByUsername(body.username()).isPresent()) {
             throw new DuplicateEntryException("Username is already taken");
         }
 
-        String encodedPassword = passwordEncoder.encode(password);
+        String encodedPassword = passwordEncoder.encode(body.password());
         Role vendorRole = roleRepository.findByAuthority("VENDOR").get();
         Role userRole = roleRepository.findByAuthority("USER").get();
 
@@ -94,11 +95,11 @@ public class AuthenticationService {
         authorities.add(vendorRole);
 
         User newUser = new User();
-        newUser.setFirstName(firstName);
-        newUser.setLastName(lastName);
-        newUser.setEmail(email);
+        newUser.setFirstName(body.firstName());
+        newUser.setLastName(body.lastName());
+        newUser.setEmail(body.email());
         newUser.setPassword(encodedPassword);
-        newUser.setUsername(username);
+        newUser.setUsername(body.username());
         newUser.setAuthorities(authorities);
 
         return userRepository.save(newUser);

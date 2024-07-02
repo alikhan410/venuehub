@@ -1,4 +1,4 @@
 package com.venuehub.venueservice.dto;
 
-public record ImageDto(byte[] image) {
+public record ImageDto(Long id, byte[] image) {
 }

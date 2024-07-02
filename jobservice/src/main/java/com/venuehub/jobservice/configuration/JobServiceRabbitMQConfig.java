@@ -1,11 +1,9 @@
 package com.venuehub.jobservice.configuration;
 
 import com.venuehub.broker.constants.MyExchange;
+import com.venuehub.broker.constants.MyKeys;
 import com.venuehub.broker.constants.MyQueue;
-import org.springframework.amqp.core.Binding;
-import org.springframework.amqp.core.BindingBuilder;
-import org.springframework.amqp.core.Queue;
-import org.springframework.amqp.core.TopicExchange;
+import org.springframework.amqp.core.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -13,16 +11,26 @@ import org.springframework.context.annotation.Configuration;
 public class JobServiceRabbitMQConfig {
     @Bean
     public Queue jobSchedulingQueue() {
-        return new Queue(MyQueue.Constants.JOB_SCHEDULING_QUEUE_JOB_SERVICE, true);
+        return QueueBuilder.durable(MyQueue.Constants.JOB_SCHEDULING_QUEUE_JOB_SERVICE)
+                .deadLetterExchange(MyExchange.DLX.name())
+                .deadLetterRoutingKey(MyKeys.dlrq.name())
+                .build();
     }
 
     @Bean
     public Queue jobCancellingQueue() {
-        return new Queue(MyQueue.Constants.JOB_CANCELLING_QUEUE_JOB_SERVICE, true);
+        return QueueBuilder.durable(MyQueue.Constants.JOB_CANCELLING_QUEUE_JOB_SERVICE)
+                .deadLetterExchange(MyExchange.DLX.name())
+                .deadLetterRoutingKey(MyKeys.dlrq.name())
+                .build();
     }
+
     @Bean
     public Queue bookingUpdatedQueue() {
-        return new Queue(MyQueue.Constants.BOOKING_UPDATED_QUEUE_JOB_SERVICE, true);
+        return QueueBuilder.durable(MyQueue.Constants.BOOKING_UPDATED_QUEUE_JOB_SERVICE)
+                .deadLetterExchange(MyExchange.DLX.name())
+                .deadLetterRoutingKey(MyKeys.dlrq.name())
+                .build();
     }
 
     @Bean
@@ -45,6 +53,7 @@ public class JobServiceRabbitMQConfig {
                 .to(jobExchange())
                 .with("booking-job-cancelling");
     }
+
     @Bean
     public Binding bookingUpdatedToJobExchange() {
         return BindingBuilder

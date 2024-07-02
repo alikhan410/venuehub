@@ -5,7 +5,7 @@ import com.venuehub.broker.consumer.BaseConsumer;
 import com.venuehub.broker.event.job.BookingJobCancellingEvent;
 import com.venuehub.commons.exception.NoSuchBookingException;
 import com.venuehub.jobservice.entity.Booking;
-import com.venuehub.jobservice.service.BookedVenueService;
+import com.venuehub.jobservice.service.BookingService;
 import com.venuehub.jobservice.service.JobService;
 import org.quartz.SchedulerException;
 import org.slf4j.Logger;
@@ -18,11 +18,11 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class BookingJobCancellingConsumer extends BaseConsumer<BookingJobCancellingEvent> {
     private final Logger LOGGER = LoggerFactory.getLogger(BookingJobCancellingConsumer.class);
-    private final BookedVenueService bookedVenueService;
+    private final BookingService bookedVenueService;
     private final JobService jobService;
 
     @Autowired
-    public BookingJobCancellingConsumer(BookedVenueService bookedVenueService, JobService jobService) {
+    public BookingJobCancellingConsumer(BookingService bookedVenueService, JobService jobService) {
         this.bookedVenueService = bookedVenueService;
         this.jobService = jobService;
     }

@@ -21,7 +21,6 @@ public class JobService {
         this.scheduler = scheduler;
     }
 
-
     public JobDetail buildBookingJob(Long bookingId) {
 
         JobDataMap jobDataMap = new JobDataMap();

@@ -29,6 +29,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
 //                        .requestMatchers(HttpMethod.GET, "/bookings/venue/\\d+").permitAll()
+                        .requestMatchers("/booking/v3/api-docs").permitAll()
                         .requestMatchers(new RegexRequestMatcher("/bookings/venue/\\d+", "GET")).permitAll()
                         .requestMatchers(new RegexRequestMatcher("/bookings/venue/\\d+", "POST")).authenticated()
                         .requestMatchers(new RegexRequestMatcher("/bookings/\\d+", "PUT")).authenticated()

@@ -5,6 +5,7 @@ import com.venuehub.venueservice.model.Venue;
 import com.venuehub.venueservice.repository.ImageDateRepository;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.file.FilesUncheck;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +31,7 @@ public class ImageDataService {
     }
 
     @Transactional
+    @CacheEvict("venue:all")
     public void saveAll(List<ImageData> images) {
         imageDateRepository.saveAll(images);
     }

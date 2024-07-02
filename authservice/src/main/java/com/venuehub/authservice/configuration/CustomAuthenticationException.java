@@ -1,6 +1,7 @@
 package com.venuehub.authservice.configuration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.venuehub.commons.error.response.CustomAuthenticationErrorResponse;
 import com.venuehub.commons.exception.ErrorResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,6 +24,6 @@ public class CustomAuthenticationException implements AuthenticationEntryPoint {
         LOGGER.info("Authentication failed");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");
-        response.getWriter().write(new ObjectMapper().writeValueAsString(new ErrorResponse(HttpStatus.UNAUTHORIZED.value(), HttpStatus.UNAUTHORIZED, "Please login and try again")));
+        response.getWriter().write(new ObjectMapper().writeValueAsString(new CustomAuthenticationErrorResponse()));
     }
 }

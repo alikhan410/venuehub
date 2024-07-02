@@ -20,6 +20,7 @@ public class CustomAuthenticationException implements AuthenticationEntryPoint {
 
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException, ServletException {
+        LOGGER.info( request.getRequestURI());
         LOGGER.info("Authentication failed");
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
         response.setContentType("application/json");

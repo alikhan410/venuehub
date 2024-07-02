@@ -1,6 +1,5 @@
 package com.venuehub.venueservice.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.venuehub.broker.constants.MyExchange;
 import com.venuehub.broker.event.venue.VenueCreatedEvent;
@@ -14,7 +13,7 @@ import com.venuehub.venueservice.model.Booking;
 import com.venuehub.venueservice.model.ImageData;
 import com.venuehub.venueservice.model.Venue;
 import com.venuehub.venueservice.response.VenueAddedResponse;
-import com.venuehub.venueservice.service.BookedVenueService;
+import com.venuehub.venueservice.service.BookingService;
 import com.venuehub.venueservice.service.ImageDataService;
 import com.venuehub.venueservice.service.VenueService;
 import com.venuehub.venueservice.utils.JwtTestImpl;
@@ -30,8 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
-import org.springframework.mock.web.MockHttpServletRequest;
-import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -39,7 +36,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -61,7 +57,7 @@ class VenueControllerTest {
     @MockBean
     private RabbitTemplate rabbitTemplate;
     @MockBean
-    private BookedVenueService bookedVenueService;
+    private BookingService bookingService;
     @MockBean
     private ImageDataService imageDataService;
     @MockBean

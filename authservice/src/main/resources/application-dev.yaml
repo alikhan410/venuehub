@@ -6,18 +6,27 @@ server:
 #//-------------------------------------------------------------//
 
 springdoc:
-  swagger-ui:
-    path: /login/swagger-ui.html
-  open-api:
-    components:
-      securitySchemes:
-        bearerAuth: # arbitrary name for the security scheme
-          type: http
-          scheme: bearer
-          bearerFormat: JWT
+  api-docs:
+    path: /auth/v3/api-docs
+#  swagger-ui:
+#    path: /auth
+##    url: /auth
+##    use-root-path: /auth
+##    path: /login/swagger-ui.html
+#  open-api:
+#    components:
+#      securitySchemes:
+#        bearerAuth: # arbitrary name for the security scheme
+#          type: http
+#          scheme: bearer
+#          bearerFormat: JWT
 
 management:
   endpoints:
+    web:
+      exposure:
+        include:
+          - "mappings"
     jmx:
       exposure:
         include: "*"
@@ -55,8 +64,8 @@ logging:
     web: info
 #//-------------------------------------------------------------//
 eureka:
-
   instance:
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
     prefer-ip-address: true
     metadata-map:
       zone: zone1

@@ -1,16 +1,17 @@
 package com.venuehub.venueservice.mapper;
 
-import com.venuehub.venueservice.dto.BookedVenueDto;
-import com.venuehub.venueservice.dto.ImageDto;
-import com.venuehub.venueservice.dto.VenueDto;
-import com.venuehub.venueservice.dto.VenueListDto;
+import com.venuehub.venueservice.dto.*;
 import com.venuehub.venueservice.model.Booking;
+import com.venuehub.venueservice.model.ImageData;
 import com.venuehub.venueservice.model.Venue;
+
+import java.util.List;
 
 
 public class Mapper {
     public static VenueDto modelToVenueDto(Venue venue) {
-
+        List<BookingDto> bookings = modelToBookingDtoList(venue.getBookings());
+        List<ImageDto> images = modelToImageDtoList(venue.getImages());
         return new VenueDto(
                 venue.getId(),
                 venue.getName(),
@@ -19,21 +20,28 @@ public class Mapper {
                 venue.getVenueType(),
                 venue.getLocation(),
                 String.valueOf(venue.getCapacity()),
-                venue.getImages(),
+                images,
                 venue.getPhone(),
                 String.valueOf(venue.getEstimate()),
-                venue.getBookings()
+                bookings
         );
     }
 
-    public static VenueListDto modelToVenueListDto(Venue venue) {
-        ImageDto imageDto = new ImageDto(venue.getImages().get(0).getImage());
-        return new VenueListDto(
-                venue.getId(), venue.getName(), venue.getVenueType(), venue.getLocation(),imageDto,String.valueOf(venue.getEstimate())
-        );
+    public static List<BookingDto> modelToBookingDtoList(List<Booking> bookings) {
+        return bookings.stream().map(Mapper::modelToBookingDto).toList();
+
     }
 
-    public static BookedVenueDto modelToVenueDto(Booking booking) {
-        return new BookedVenueDto(booking.getStatus(), booking.getVenue());
+    public static BookingDto modelToBookingDto(Booking booking) {
+        return new BookingDto(booking.getId(), booking.getUsername(), booking.getStatus());
     }
+
+    public static List<ImageDto> modelToImageDtoList(List<ImageData> imageDataList) {
+        return imageDataList.stream().map(Mapper::modelToImageDto).toList();
+    }
+
+    public static ImageDto modelToImageDto(ImageData imageData) {
+        return new ImageDto(imageData.getId(), imageData.getImage());
+    }
+
 }

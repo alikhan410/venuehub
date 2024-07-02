@@ -43,7 +43,16 @@ public class Config {
     private final CustomAuthenticationException customAuthenticationException;
 
     private final RedissonClient redissonClient;
+    private static final String[] AUTH_WHITELIST = {
+            // -- Swagger UI v3 (OpenAPI)
+            "/v2/**",
+            "/v3/API-docs/**",
+            "/v3/**",
+            "/api-docs/**",
+            "/swagger-resources/**",
+            "/swagger-ui/**",
 
+    };
     @Autowired
     public Config(RSAKeyProperties rsaKeyProperties, CustomAuthenticationException customAuthenticationException, RedissonClient redissonClient) {
         this.keys = rsaKeyProperties;
@@ -82,12 +91,19 @@ public class Config {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/auth/v3/**").permitAll()
+                        .requestMatchers("/v2/**").permitAll()
+//                        .requestMatchers(AUTH_WHITELIST).permitAll()
+//                        .requestMatchers(AUTH_WHITELIST).permitAll()
+//                        .requestMatchers(AUTH_WHITELIST).permitAll()
+                        .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/user/logout").authenticated()
                         .requestMatchers(HttpMethod.GET, "/vendor/logout").authenticated()
                         .requestMatchers("/user/**").permitAll()
                         .requestMatchers("/vendor/**").permitAll()
                         .requestMatchers("/.well-known/jwks.json").permitAll()
-                        .requestMatchers("/login/swagger-ui/index.html").permitAll()
+//                        .requestMatchers("/login/swagger-ui/index.html").permitAll()
                         .anyRequest().authenticated()
 
                 )

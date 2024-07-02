@@ -4,5 +4,6 @@ public enum MyExchange {
     VENUE_EXCHANGE,
     BOOKING_EXCHANGE,
     PAYMENT_EXCHANGE,
-    JOB_EXCHANGE
+    JOB_EXCHANGE,
+    DLX
 }

@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface BookedVenueRepository extends JpaRepository<Booking, Long> {
+public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query(value = "SELECT * FROM booking WHERE venue_id = :id", nativeQuery = true)
     List<Booking> findByVenue(@Param("id") Long id);
 }

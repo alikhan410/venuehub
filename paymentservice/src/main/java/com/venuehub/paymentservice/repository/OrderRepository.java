@@ -19,4 +19,5 @@ public interface OrderRepository extends JpaRepository<BookingOrder, Long> {
     BookingOrder findByClientSecret(@Param("clientSecret") String clientSecret);
 
     List<BookingOrder> findByUsername(String username);
+    List<BookingOrder> findByVendor(String vendor);
 }

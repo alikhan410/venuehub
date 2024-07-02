@@ -2,7 +2,7 @@ package com.venuehub.jobservice.consumer;
 
 import com.venuehub.broker.constants.BookingStatus;
 import com.venuehub.broker.event.job.BookingJobSchedulingEvent;
-import com.venuehub.jobservice.service.BookedVenueService;
+import com.venuehub.jobservice.service.BookingService;
 import com.venuehub.jobservice.service.JobService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,8 +15,6 @@ import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 
 
-import java.time.LocalDateTime;
-
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -25,7 +23,7 @@ import static org.mockito.Mockito.times;
 class BookingJobSchedulingConsumerTest {
 
     @Mock
-    private BookedVenueService bookedVenueService;
+    private BookingService bookedVenueService;
 
     @Mock
     private JobService jobService;

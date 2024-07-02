@@ -1,6 +1,10 @@
 server:
-  port: 9000
+  port: 0
 #//-------------------------------------------------------------//
+springdoc:
+  api-docs:
+    path: /venue/v3/api-docs
+
 spring:
   servlet:
     multipart:
@@ -20,6 +24,7 @@ spring:
       ddl-auto: create
   datasource:
     hikari:
+      maximum-pool-size: 10
       connection-timeout: 60000
     url: jdbc:mysql://localhost:3306/venueservice
     username: ali
@@ -39,6 +44,7 @@ logging:
 eureka:
 
   instance:
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
     prefer-ip-address: true
     metadata-map:
       zone: zone1

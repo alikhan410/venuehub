@@ -6,17 +6,16 @@ import com.venuehub.commons.exception.NoSuchBookingException;
 import com.venuehub.bookingservice.model.Booking;
 import com.venuehub.broker.constants.BookingStatus;
 import com.venuehub.bookingservice.repository.BookingRepository;
+import com.venuehub.commons.exception.UserForbiddenException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class BookingService {
@@ -116,6 +115,16 @@ public class BookingService {
         booking.setReservationExpiry(newReservation);
 
         bookingRepository.save(booking);
+    }
+
+    public void bookingChecks(Jwt jwt){
+
+        String rolesString = jwt.getClaim("roles");
+        List<String> roles = Arrays.stream(rolesString.split(" ")).toList();
+
+        if (!roles.contains("USER") || !jwt.getClaim("loggedInAs").equals("USER")) {
+            throw new UserForbiddenException();
+        }
     }
 
 }

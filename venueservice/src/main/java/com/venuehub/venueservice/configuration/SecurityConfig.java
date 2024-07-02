@@ -14,6 +14,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 import java.util.Objects;
 
@@ -35,7 +37,11 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
+                        .requestMatchers("/swagger-ui/**").permitAll()
+                        .requestMatchers("/venue/v3/**").permitAll()
+                        .requestMatchers("/v2/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/venue/**").permitAll()
+                        .requestMatchers(new RegexRequestMatcher("/venue/\\d+/image-0", "GET")).permitAll()
                         .requestMatchers(HttpMethod.GET, "/venue").permitAll()
                         .requestMatchers(HttpMethod.POST, "/venue/**").authenticated()
                         .anyRequest().authenticated())

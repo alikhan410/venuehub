@@ -36,4 +36,8 @@ public class OrderService {
     public List<BookingOrder> findByUsername(String username) {
         return orderRepository.findByUsername(username);
     }
+
+    public List<BookingOrder> findByVendor(String vendor) {
+        return orderRepository.findByVendor(vendor);
+    }
 }

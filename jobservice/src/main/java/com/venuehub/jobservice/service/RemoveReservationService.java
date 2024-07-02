@@ -18,10 +18,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class RemoveReservationService extends QuartzJobBean {
     private final Logger LOGGER = LoggerFactory.getLogger(RemoveReservationService.class);
-    private final BookedVenueService bookedVenueService;
+    private final BookingService bookedVenueService;
     private final BookingUpdatedProducer producer;
     @Autowired
-    public RemoveReservationService(BookedVenueService bookedVenueService, BookingUpdatedProducer producer) {
+    public RemoveReservationService(BookingService bookedVenueService, BookingUpdatedProducer producer) {
         this.bookedVenueService = bookedVenueService;
         this.producer = producer;
     }

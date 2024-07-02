@@ -42,9 +42,9 @@ public class VenueserviceApplication {
     CommandLineRunner run(VenueService venueService, ImageDataService imageDataService) {
 
         return args -> {
-//            if (!venueService.findAll().isEmpty()){
-//                return;
-//            }
+            if (!venueService.findAll().isEmpty()){
+                return;
+            }
             addTestVenues(venueService, imageDataService);
         };
 

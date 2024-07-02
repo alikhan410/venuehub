@@ -1,8 +1,12 @@
 server:
   port: 6000
 #//-------------------------------------------------------------//
-spring:
 
+springdoc:
+  api-docs:
+    path: /booking/v3/api-docs
+
+spring:
   rabbitmq:
     host: localhost
     port: 5672
@@ -13,7 +17,7 @@ spring:
     generate-ddl: true
 
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
 
   datasource:
 #    url: jdbc:mysql://localhost:53602/bookingservice
@@ -36,6 +40,7 @@ logging:
 eureka:
 
   instance:
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
     prefer-ip-address: true
     metadata-map:
       zone: zone1

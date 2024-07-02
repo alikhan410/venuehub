@@ -4,7 +4,7 @@ import com.venuehub.broker.constants.MyQueue;
 import com.venuehub.broker.consumer.BaseConsumer;
 import com.venuehub.broker.event.job.BookingJobSchedulingEvent;
 import com.venuehub.jobservice.entity.Booking;
-import com.venuehub.jobservice.service.BookedVenueService;
+import com.venuehub.jobservice.service.BookingService;
 import com.venuehub.jobservice.service.JobService;
 import org.quartz.JobDetail;
 import org.quartz.SchedulerException;
@@ -16,16 +16,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-
 @Service
 public class BookingJobSchedulingConsumer extends BaseConsumer<BookingJobSchedulingEvent> {
     private final Logger LOGGER = LoggerFactory.getLogger(BookingJobSchedulingConsumer.class);
-    private final BookedVenueService bookedVenueService;
+    private final BookingService bookedVenueService;
     private final JobService jobService;
 
     @Autowired
-    public BookingJobSchedulingConsumer(BookedVenueService bookedVenueService, JobService jobService) {
+    public BookingJobSchedulingConsumer(BookingService bookedVenueService, JobService jobService) {
         this.bookedVenueService = bookedVenueService;
         this.jobService = jobService;
     }

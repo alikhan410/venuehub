@@ -5,8 +5,7 @@ import com.venuehub.broker.consumer.BaseConsumer;
 import com.venuehub.broker.event.booking.BookingUpdatedEvent;
 import com.venuehub.commons.exception.NoSuchBookingException;
 import com.venuehub.jobservice.entity.Booking;
-import com.venuehub.jobservice.service.BookedVenueService;
-import com.venuehub.jobservice.service.JobService;
+import com.venuehub.jobservice.service.BookingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -16,10 +15,10 @@ import org.springframework.stereotype.Service;
 @Service
 public class BookingUpdatedConsumer extends BaseConsumer<BookingUpdatedEvent> {
     private final Logger LOGGER = LoggerFactory.getLogger(BookingUpdatedConsumer.class);
-    private final BookedVenueService bookedVenueService;
+    private final BookingService bookedVenueService;
 
     @Autowired
-    public BookingUpdatedConsumer(BookedVenueService bookedVenueService) {
+    public BookingUpdatedConsumer(BookingService bookedVenueService) {
         this.bookedVenueService = bookedVenueService;
     }
 

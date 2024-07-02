@@ -5,6 +5,7 @@ import com.venuehub.authservice.dto.UserDto;
 import com.venuehub.authservice.dto.RegisterUserDto;
 import com.venuehub.authservice.model.User;
 import com.venuehub.authservice.service.AuthenticationService;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 //@Api(value = "Vendor Controller", tags = {"Vendor Login Api"})
+@Tag(name = "Vendor Login", description = "Let's vendor register/login/logout")
 @RestController
 @Validated
 public class VendorController {
@@ -28,13 +30,7 @@ public class VendorController {
     @PostMapping("/vendor/register")
     public ResponseEntity<UserDto> registerVendor(@RequestBody @Valid RegisterUserDto body) {
 
-        User newUser = authenticationService.registerUser(
-                body.username(),
-                body.password(),
-                body.email(),
-                body.firstName(),
-                body.lastName()
-        );
+        User newUser = authenticationService.registerVendor(body);
 
         UserDto loginVendor = authenticationService.loginVendor(newUser.getUsername(), newUser.getPassword());
 
@@ -42,7 +38,6 @@ public class VendorController {
 
     }
 
-//    @ApiOperation(value = "Logs in a vendor and returns a JWT key", notes = "Provide username and password to log in and receive a JWT token.")
     @PostMapping("/vendor/login")
     public ResponseEntity<UserDto> loginVendor(@RequestBody @Valid LoginDto body) {
 

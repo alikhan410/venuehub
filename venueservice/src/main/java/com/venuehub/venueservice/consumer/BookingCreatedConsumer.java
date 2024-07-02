@@ -6,7 +6,7 @@ import com.venuehub.broker.event.booking.BookingCreatedEvent;
 import com.venuehub.commons.exception.NoSuchVenueException;
 import com.venuehub.venueservice.model.Booking;
 import com.venuehub.venueservice.model.Venue;
-import com.venuehub.venueservice.service.BookedVenueService;
+import com.venuehub.venueservice.service.BookingService;
 import com.venuehub.venueservice.service.VenueService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,11 +16,11 @@ import org.springframework.stereotype.Service;
 @Service
 public class BookingCreatedConsumer extends BaseConsumer<BookingCreatedEvent> {
     private final Logger LOGGER = LoggerFactory.getLogger(BookingCreatedConsumer.class);
-    private final BookedVenueService bookedVenueService;
+    private final BookingService bookingService;
     private final VenueService venueService;
 
-    public BookingCreatedConsumer(BookedVenueService bookedVenueService, VenueService venueService) {
-        this.bookedVenueService = bookedVenueService;
+    public BookingCreatedConsumer(BookingService bookingService, VenueService venueService) {
+        this.bookingService = bookingService;
         this.venueService = venueService;
     }
 
@@ -38,7 +38,7 @@ public class BookingCreatedConsumer extends BaseConsumer<BookingCreatedEvent> {
         booking.setVenue(venue);
 
 
-        bookedVenueService.save(booking);
+        bookingService.save(booking);
 
     }
 }

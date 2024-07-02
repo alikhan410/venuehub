@@ -2,6 +2,7 @@ package com.venuehub.broker.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.venuehub.broker.constants.MyExchange;
+import com.venuehub.broker.constants.MyKeys;
 import com.venuehub.broker.constants.MyQueue;
 import org.springframework.amqp.core.*;
 import org.springframework.amqp.rabbit.config.AbstractRetryOperationsInterceptorFactoryBean;
@@ -46,12 +47,12 @@ public class RabbitMQConfig {
 
     @Bean
     public Queue deadLetterQueue() {
-        return new Queue("DEAD_LETTER_QUEUE", true);
+        return new Queue(MyQueue.Constants.DLQ, true);
     }
 
     @Bean
     public TopicExchange deadLetterExchange() {
-        return new TopicExchange("DEAD_LETTER_EXCHANGE");
+        return new TopicExchange(MyExchange.DLX.name());
     }
 
     @Bean
@@ -59,7 +60,7 @@ public class RabbitMQConfig {
         return BindingBuilder
                 .bind(deadLetterQueue())
                 .to(deadLetterExchange())
-                .with("dead-letter");
+                .with(MyKeys.dlrq);
     }
 
     @Bean
@@ -75,48 +76,48 @@ public class RabbitMQConfig {
         return rabbitTemplate;
     }
 
-    @Bean
-    public RetryTemplate retryTemplate() {
-        RetryTemplate retryTemplate = new RetryTemplate();
+//    @Bean
+//    public RetryTemplate retryTemplate() {
+//        RetryTemplate retryTemplate = new RetryTemplate();
+//
+//        FixedBackOffPolicy backOffPolicy = new FixedBackOffPolicy();
+//        backOffPolicy.setBackOffPeriod(5000); //5 seconds delay between resending
+//        retryTemplate.setBackOffPolicy(backOffPolicy);
+//
+//        SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
+//        retryPolicy.setMaxAttempts(3);
+//        retryTemplate.setRetryPolicy(retryPolicy);
+//
+//        return retryTemplate;
+//    }
 
-        FixedBackOffPolicy backOffPolicy = new FixedBackOffPolicy();
-        backOffPolicy.setBackOffPeriod(5000); //5 seconds delay between resending
-        retryTemplate.setBackOffPolicy(backOffPolicy);
+//    @Bean
+//    public SimpleRabbitListenerContainerFactory listenerContainerFactory(ConnectionFactory connectionFactory) {
+//
+//        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+//        factory.setConnectionFactory(connectionFactory);
+//        factory.setConcurrentConsumers(1);
+//        factory.setMaxConcurrentConsumers(5);
+//        factory.setPrefetchCount(1);
+//        factory.setAcknowledgeMode(AcknowledgeMode.AUTO);
+//        factory.setRetryTemplate(retryTemplate());
+//
+//        return factory;
+//    }
 
-        SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
-        retryPolicy.setMaxAttempts(3);
-        retryTemplate.setRetryPolicy(retryPolicy);
-
-        return retryTemplate;
-    }
-
-    @Bean
-    public SimpleRabbitListenerContainerFactory listenerContainerFactory(ConnectionFactory connectionFactory) {
-
-        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
-        factory.setConnectionFactory(connectionFactory);
-        factory.setConcurrentConsumers(1);
-        factory.setMaxConcurrentConsumers(5);
-        factory.setPrefetchCount(1);
-        factory.setAcknowledgeMode(AcknowledgeMode.AUTO);
-        factory.setRetryTemplate(retryTemplate());
-
-        return factory;
-    }
-
-    @Bean
-    public RetryOperationsInterceptor retryOperationsInterceptor(ConnectionFactory connectionFactory) {
-        RepublishMessageRecoverer messageRecover = new RepublishMessageRecoverer(
-                amqpTemplate(connectionFactory),
-                "DEAD_LETTER_EXCHANGE",
-                "dead-letter"
-        );
-
-        return RetryInterceptorBuilder.stateless()
-                .retryOperations(retryTemplate())
-                .recoverer(messageRecover)
-                .build();
-    }
+//    @Bean
+//    public RetryOperationsInterceptor retryOperationsInterceptor(ConnectionFactory connectionFactory) {
+//        RepublishMessageRecoverer messageRecover = new RepublishMessageRecoverer(
+//                amqpTemplate(connectionFactory),
+//                "DEAD_LETTER_EXCHANGE",
+//                "dead-letter"
+//        );
+//
+//        return RetryInterceptorBuilder.stateless()
+//                .retryOperations(retryTemplate())
+//                .recoverer(messageRecover)
+//                .build();
+//    }
 //    @Bean
 //    public RabbitListenerContainerFactory<Object> rabbitTransactionListenerFactory(ConnectionFactory connectionFactory) {
 //        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();

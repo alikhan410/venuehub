@@ -16,9 +16,9 @@ public record VenueDto(
         @NotNull(message = "Venue type can not be empty") @NotBlank(message = "Venue type can not be blank") String venueType,
         @NotNull(message = "Location can not be empty") @NotBlank(message = "Location can not be blank") String location,
         @Min(value = 20, message = "Enter a capacity more than 20") @NotBlank(message = "Capacity can not be blank") String capacity,
-        List<ImageData> imageDataList,
+        List<ImageDto> imageDtos,
         @NotNull(message = "Phone can not be empty") @NotBlank(message = "Phone can not be blank") String phone,
         @NotNull(message = "Estimate can not be empty") @NotBlank(message = "Estimate can not be blank") String estimate,
-        List<Booking> bookings
+        List<BookingDto> bookings
 ) {
 }

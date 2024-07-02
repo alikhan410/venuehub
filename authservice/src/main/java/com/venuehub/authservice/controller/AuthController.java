@@ -1,11 +1,10 @@
 package com.venuehub.authservice.controller;
 
-import com.nimbusds.jose.KeySourceException;
 import com.nimbusds.jose.jwk.JWKSet;
 import com.venuehub.authservice.dto.CurrentUserDto;
 import com.venuehub.commons.exception.UserForbiddenException;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
@@ -15,31 +14,24 @@ import java.util.List;
 import java.util.Map;
 
 
-//@Api(value = "Login Controller", tags = {"Login API"})
+@Tag(name = "Auth Info", description = "Exposes public key and info about current-user")
 @RestController
-public class LoginController {
+public class AuthController implements AuthApi {
 
     @Autowired
     private final JWKSet jwkSet;
 
     @Autowired
-    public LoginController(JWKSet jwkSet) {
+    public AuthController(JWKSet jwkSet) {
         this.jwkSet = jwkSet;
     }
 
-//    @ApiOperation(value = "Exposes the public key for authorization")
 
     @GetMapping("/.well-known/jwks.json")
-    public Map<String, Object> getPublicKey() throws KeySourceException {
+    public Map<String,Object> getPublicKey() {
         return jwkSet.toJSONObject();
-
     }
 
-//    @ApiOperation(
-//            value = "Returns the current authenticated user",
-//            notes = "This endpoint returns the details of the currently authenticated user. " +
-//                    "The user must have the 'USER' role to access this endpoint."
-//    )
     @GetMapping("/current-user")
     public CurrentUserDto getUser(@AuthenticationPrincipal Jwt jwt) {
 
