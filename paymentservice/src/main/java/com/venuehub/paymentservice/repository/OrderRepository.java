@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OrderRepository extends JpaRepository<BookingOrder, Long> {
@@ -16,7 +17,7 @@ public interface OrderRepository extends JpaRepository<BookingOrder, Long> {
     BookingOrder findByBooking(@Param("id") Long bookingId, @Param("username") String username);
 
     @Query(value = "SELECT * FROM booking_order WHERE client_secret = :clientSecret" , nativeQuery = true)
-    BookingOrder findByClientSecret(@Param("clientSecret") String clientSecret);
+    Optional<BookingOrder> findByClientSecret(@Param("clientSecret") String clientSecret);
 
     List<BookingOrder> findByUsername(String username);
     List<BookingOrder> findByVendor(String vendor);

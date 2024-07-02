@@ -7,7 +7,7 @@ import com.venuehub.broker.constants.MyExchange;
 import com.venuehub.broker.event.booking.BookingUpdatedEvent;
 import com.venuehub.broker.producer.booking.BookingUpdatedProducer;
 import com.venuehub.commons.exception.*;
-import com.venuehub.paymentservice.dto.BookingDto;
+import com.venuehub.paymentservice.dto.BookingIdDto;
 import com.venuehub.paymentservice.model.Booking;
 import com.venuehub.paymentservice.model.BookingOrder;
 import com.venuehub.paymentservice.model.OrderStatus;
@@ -48,15 +48,19 @@ public class PaymentController {
     }
 
     @PostMapping("/orders/create-payment-intent")
-    public ResponseEntity<CreatePaymentResponse> createPaymentIntent(@RequestBody BookingDto bookingDto, @AuthenticationPrincipal Jwt jwt) throws StripeException {
+    public ResponseEntity<CreatePaymentResponse> createPaymentIntent(@RequestBody BookingIdDto bookingIdDto, @AuthenticationPrincipal Jwt jwt) throws StripeException {
         if (!jwt.getClaim("loggedInAs").equals("USER")) {
             throw new UserForbiddenException();
         }
-        Booking booking = bookingService.findById(bookingDto.bookingId()).orElseThrow(NoSuchBookingException::new);
+
+        Booking booking = bookingService.findById(bookingIdDto.bookingId()).orElseThrow(NoSuchBookingException::new);
+
         if (!booking.getStatus().equals(BookingStatus.RESERVED)) throw new ActionForbiddenException();
         //TODO redo these exceptions
         if (!jwt.getSubject().equals(booking.getUsername())) throw new UserForbiddenException();
+
         PaymentIntent paymentIntent = paymentService.createPayment(booking.getBookingFee());
+
         BookingOrder bookingOrder = new BookingOrder(
                 jwt.getSubject(),
                 booking.getBookingFee(),
@@ -104,9 +108,10 @@ public class PaymentController {
             throw new UserForbiddenException();
         }
 
-        BookingOrder order = orderService.findByClientSecret(clientSecret);
+        BookingOrder order = orderService.findByClientSecret(clientSecret).orElseThrow(NoSuchOrderException::new);
+
         if (order.getOrderStatus().equals(OrderStatus.COMPLETED)) {
-            throw new Exception("Order is already completed");
+            throw new InvalidOrderStatusException("Order is already completed");
         }
 
         PaymentIntent paymentIntent = PaymentIntent.retrieve(clientId);

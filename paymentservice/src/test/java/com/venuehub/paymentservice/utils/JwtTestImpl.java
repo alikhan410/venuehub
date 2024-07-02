@@ -36,18 +36,29 @@ public class JwtTestImpl {
         return new JWKSet(rsaKey);
 
     }
-    public String generateJwt(String username) {
+    public String generateJwt(String username, String role) {
         Instant now = Instant.now();
-
-//        String scope = auth.getAuthorities().stream()
-//                .map(GrantedAuthority::getAuthority)
-//                .collect(Collectors.joining(" "));
 
         JwtClaimsSet claims = JwtClaimsSet.builder()
                 .issuedAt(now)
                 .issuer("self")
                 .subject(username)
-//                .claim("roles", scope)
+                .claim("roles", role)
+                .claim("loggedInAs", "USER")
+                .build();
+        JwtEncoder encoder = jwtEncoder();
+        return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+    }
+
+    public String generateJwt(String username, String role, String loggedInAs) {
+        Instant now = Instant.now();
+
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuedAt(now)
+                .issuer("self")
+                .subject(username)
+                .claim("roles", role)
+                .claim("loggedInAs", loggedInAs)
                 .build();
         JwtEncoder encoder = jwtEncoder();
         return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();

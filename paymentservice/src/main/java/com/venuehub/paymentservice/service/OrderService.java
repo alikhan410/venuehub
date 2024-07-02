@@ -29,7 +29,7 @@ public class OrderService {
         return orderRepository.findByBooking(bookingId, username);
     }
 
-    public BookingOrder findByClientSecret(String clientSecret) {
+    public Optional<BookingOrder> findByClientSecret(String clientSecret) {
         return orderRepository.findByClientSecret(clientSecret);
     }
 

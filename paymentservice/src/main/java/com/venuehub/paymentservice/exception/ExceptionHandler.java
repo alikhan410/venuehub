@@ -30,6 +30,10 @@ public class ExceptionHandler {
     }
 
     @org.springframework.web.bind.annotation.ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleInvalidOrderStatusException(InvalidOrderStatusException e) {
+        return new ResponseEntity<>(e.getResponse(), e.getStatus());
+    }
+    @org.springframework.web.bind.annotation.ExceptionHandler
     public ResponseEntity<ErrorResponse> handleActionForbiddenException(ActionForbiddenException e) {
         return new ResponseEntity<>(e.getResponse(), e.getStatus());
     }
