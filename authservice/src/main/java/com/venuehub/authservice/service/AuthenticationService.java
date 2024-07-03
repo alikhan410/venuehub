@@ -1,6 +1,6 @@
 package com.venuehub.authservice.service;
 
-import com.venuehub.authservice.dto.RegisterUserDto;
+import com.venuehub.authservice.response.LoginResponse;
 import com.venuehub.authservice.dto.UserDto;
 import com.venuehub.authservice.model.Role;
 import com.venuehub.authservice.model.User;
@@ -10,7 +10,6 @@ import com.venuehub.commons.exception.DuplicateEntryException;
 import com.venuehub.commons.exception.NoSuchUserException;
 import com.venuehub.commons.exception.WrongPasswordException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.DataAccessException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -43,7 +42,7 @@ public class AuthenticationService {
         this.tokenService = tokenService;
     }
 
-    public User registerUser(RegisterUserDto body) {
+    public User registerUser(UserDto body) {
 
         if (roleRepository.findByAuthority("USER").isEmpty()) return null;
 
@@ -73,7 +72,7 @@ public class AuthenticationService {
 
     }
 
-    public User registerVendor(RegisterUserDto body) {
+    public User registerVendor(UserDto body) {
 
         if (roleRepository.findByAuthority("VENDOR").isEmpty()) return null;
         if (roleRepository.findByAuthority("USER").isEmpty()) return null;
@@ -106,26 +105,26 @@ public class AuthenticationService {
 
     }
 
-    public UserDto loginUser(String username, String password) {
+    public LoginResponse loginUser(String username, String password) {
         User user = userRepository.findByUsername(username).orElseThrow(NoSuchUserException::new);
         try {
             Authentication auth = authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(username, password));
             String jwt = tokenService.generateUserJwt(auth);
-            return new UserDto(user.getUsername(), jwt);
+            return new LoginResponse(user.getUsername(), jwt);
 
         } catch (Exception e) {
             throw new WrongPasswordException();
         }
     }
 
-    public UserDto loginVendor(String username, String password) {
+    public LoginResponse loginVendor(String username, String password) {
         User user = userRepository.findByUsername(username).orElseThrow(NoSuchUserException::new);
         try {
             Authentication auth = authenticationManager
                     .authenticate(new UsernamePasswordAuthenticationToken(username, password));
             String jwt = tokenService.generateVendorJwt(auth);
-            return new UserDto(user.getUsername(), jwt);
+            return new LoginResponse(user.getUsername(), jwt);
 
         } catch (Exception e) {
             throw new WrongPasswordException();

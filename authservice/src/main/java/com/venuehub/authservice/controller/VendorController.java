@@ -1,8 +1,8 @@
 package com.venuehub.authservice.controller;
 
 import com.venuehub.authservice.dto.LoginDto;
+import com.venuehub.authservice.response.LoginResponse;
 import com.venuehub.authservice.dto.UserDto;
-import com.venuehub.authservice.dto.RegisterUserDto;
 import com.venuehub.authservice.model.User;
 import com.venuehub.authservice.service.AuthenticationService;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,28 +28,28 @@ public class VendorController {
     }
 
     @PostMapping("/vendor/register")
-    public ResponseEntity<UserDto> registerVendor(@RequestBody @Valid RegisterUserDto body) {
+    public ResponseEntity<LoginResponse> registerVendor(@RequestBody @Valid UserDto body) {
 
         User newUser = authenticationService.registerVendor(body);
 
-        UserDto loginVendor = authenticationService.loginVendor(newUser.getUsername(), newUser.getPassword());
+        LoginResponse loginVendor = authenticationService.loginVendor(newUser.getUsername(), newUser.getPassword());
 
         return new ResponseEntity<>(loginVendor, HttpStatus.CREATED);
 
     }
 
     @PostMapping("/vendor/login")
-    public ResponseEntity<UserDto> loginVendor(@RequestBody @Valid LoginDto body) {
+    public ResponseEntity<LoginResponse> loginVendor(@RequestBody @Valid LoginDto body) {
 
-        UserDto loginVendor = authenticationService.loginVendor(body.username(), body.password());
+        LoginResponse loginVendor = authenticationService.loginVendor(body.username(), body.password());
 
         return new ResponseEntity<>(loginVendor, HttpStatus.OK);
     }
 
     @GetMapping("/vendor/logout")
-    public ResponseEntity<UserDto> logoutVendor(@AuthenticationPrincipal Jwt jwt) {
+    public ResponseEntity<LoginResponse> logoutVendor(@AuthenticationPrincipal Jwt jwt) {
 
-        UserDto loginVendor = new UserDto(jwt.getSubject(), null);
+        LoginResponse loginVendor = new LoginResponse(jwt.getSubject(), null);
 
         return new ResponseEntity<>(loginVendor, HttpStatus.OK);
     }

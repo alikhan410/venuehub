@@ -1,13 +1,15 @@
 package com.venuehub.authservice.controller;
 
 import com.venuehub.authservice.dto.LoginDto;
+import com.venuehub.authservice.response.LoginResponse;
 import com.venuehub.authservice.dto.UserDto;
-import com.venuehub.authservice.dto.RegisterUserDto;
 import com.venuehub.authservice.model.User;
 import com.venuehub.authservice.service.AuthenticationService;
 
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @Validated
 public class UserController {
+    public static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final AuthenticationService authenticationService;
 
     @Autowired
@@ -30,26 +33,26 @@ public class UserController {
     }
 
     @PostMapping("/user/register")
-    public ResponseEntity<UserDto> registerUser(@RequestBody @Valid RegisterUserDto body) {
+    public ResponseEntity<LoginResponse> registerUser(@RequestBody @Valid UserDto body) {
 
         User newUser = authenticationService.registerUser(body);
 
-        UserDto loginUser = authenticationService.loginUser(newUser.getUsername(), body.password());
+        LoginResponse loginUser = authenticationService.loginUser(newUser.getUsername(), body.password());
 
         return new ResponseEntity<>(loginUser, HttpStatus.CREATED);
     }
 
     @PostMapping("/user/login")
-    public ResponseEntity<UserDto> loginUser(@RequestBody @Valid LoginDto body) {
+    public ResponseEntity<LoginResponse> loginUser(@RequestBody @Valid LoginDto body) {
 
-        UserDto loginUser = authenticationService.loginUser(body.username(), body.password());
+        LoginResponse loginUser = authenticationService.loginUser(body.username(), body.password());
 
         return new ResponseEntity<>(loginUser, HttpStatus.OK);
     }
 
     @GetMapping("/user/logout")
-    public ResponseEntity<UserDto> logoutUser(@AuthenticationPrincipal Jwt jwt) {
-        UserDto loginUser = new UserDto(jwt.getSubject(), null);
+    public ResponseEntity<LoginResponse> logoutUser(@AuthenticationPrincipal Jwt jwt) {
+        LoginResponse loginUser = new LoginResponse(jwt.getSubject(), null);
 
         return new ResponseEntity<>(loginUser, HttpStatus.OK);
     }

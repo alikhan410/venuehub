@@ -30,4 +30,9 @@ public class Role implements GrantedAuthority {
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE, mappedBy = "authorities")
     @JsonBackReference
     private Set<User> users = new HashSet<>();
+
+    @Override
+    public String getAuthority() {
+        return authority;
+    }
 }
