@@ -1,6 +1,9 @@
 package com.venuehub.bookingservice.configuration;
 
+import org.redisson.api.RedissonClient;
+import org.redisson.spring.cache.RedissonSpringCacheManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
@@ -17,11 +20,17 @@ import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 @Configuration
 //@EnableMethodSecurity
-@Profile("dev")
+@Profile({"dev", "prod"})
 public class SecurityConfig {
 
+    private final CustomAuthenticationException customAuthenticationException;
+    private final RedissonClient redissonClient;
+
     @Autowired
-    private CustomAuthenticationException customAuthenticationException;
+    public SecurityConfig(CustomAuthenticationException customAuthenticationException, RedissonClient redissonClient) {
+        this.customAuthenticationException = customAuthenticationException;
+        this.redissonClient = redissonClient;
+    }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -43,6 +52,10 @@ public class SecurityConfig {
         return http.build();
     }
 
+    @Bean
+    public CacheManager cacheManager(RedissonClient redissonClient) {
+        return new RedissonSpringCacheManager(redissonClient);
+    }
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
