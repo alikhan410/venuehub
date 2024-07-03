@@ -1,7 +1,8 @@
 package com.venuehub.bookingservice.controller;
 
 import com.venuehub.bookingservice.dto.BookingDto;
-import com.venuehub.bookingservice.dto.BookingDateDto;
+import com.venuehub.bookingservice.dto.BookingDateTimeDto;
+import com.venuehub.bookingservice.mapper.BookingServiceMapper;
 import com.venuehub.bookingservice.response.*;
 import com.venuehub.bookingservice.utils.SecurityChecks;
 import com.venuehub.broker.constants.BookingStatus;
@@ -22,6 +23,7 @@ import com.venuehub.bookingservice.service.BookingService;
 import com.venuehub.bookingservice.service.VenueService;
 
 import jakarta.validation.Valid;
+import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,6 +49,7 @@ public class BookingController {
     private final BookingUpdatedProducer bookingUpdatedProducer;
     private final BookingJobSchedulingProducer bookingJobSchedulingProducer;
     private final BookingJobCancellingProducer bookingJobCancellingProducer;
+    private final BookingServiceMapper mapper = Mappers.getMapper(BookingServiceMapper.class);
 
     @Autowired
     public BookingController(BookingService bookingService, VenueService venueService, BookingCreatedProducer bookingCreatedProducer, BookingUpdatedProducer bookingUpdatedProducer, BookingJobSchedulingProducer bookingJobSchedulingProducer, BookingJobCancellingProducer bookingJobCancellingProducer) {
@@ -107,7 +110,7 @@ public class BookingController {
 
         bookingJobSchedulingProducer.produce(bookingJobSchedulingEvent, MyExchange.JOB_EXCHANGE);
 
-        BookingDto bookingDto = Mapper.modeltoBookingDto(newBooking);
+        BookingDto bookingDto = mapper.bookingToBookingDto(newBooking);
         return new ResponseEntity<>(bookingDto, HttpStatus.CREATED);
     }
 
@@ -121,7 +124,7 @@ public class BookingController {
         });
 
         List<Booking> bookingList = bookingService.findByVenue(venueId);
-        List<BookingDateDto> bookedVenueDtoList = bookingList.stream().map(Mapper::modelToBookingDateDto).toList();
+        List<BookingDateTimeDto> bookedVenueDtoList = bookingList.stream().map(mapper::bookingToBookingDateTimeDto).toList();
 
         BookingDateListResponse response = new BookingDateListResponse(bookedVenueDtoList);
 
@@ -159,7 +162,7 @@ public class BookingController {
         SecurityChecks.userCheck(jwt);
 
         List<Booking> bookingList = bookingService.findByUsername(jwt.getSubject());
-        List<GetBookingsResponse> bookingsList = bookingList.stream().map(Mapper::modelToResponse).toList();
+        List<GetBookingsResponse> bookingsList = bookingList.stream().map(mapper::bookingToBookingResponse).toList();
 
         logger.info("Returning bookings for user: {}", jwt.getSubject());
         return new ResponseEntity<>(bookingsList, HttpStatus.OK);
@@ -175,7 +178,7 @@ public class BookingController {
                 .flatMap(venue -> venue.getBookings().stream())
                 .toList();
 
-        List<GetBookingsResponse> bookingsList = bookings.stream().map(Mapper::modelToResponse).toList();
+        List<GetBookingsResponse> bookingsList = bookings.stream().map(mapper::bookingToBookingResponse).toList();
 
         logger.info("Returning bookings for vendor: {}", jwt.getSubject());
         return new ResponseEntity<>(bookingsList, HttpStatus.OK);
@@ -222,7 +225,7 @@ public class BookingController {
 
     @PutMapping("/bookings/{bookingId}")
     @Transactional
-    public ResponseEntity<HttpStatus> updateBookingDate(@PathVariable long bookingId, @RequestBody BookingDateDto body, @AuthenticationPrincipal Jwt jwt) throws Exception {
+    public ResponseEntity<HttpStatus> updateBookingDate(@PathVariable long bookingId, @RequestBody BookingDateTimeDto body, @AuthenticationPrincipal Jwt jwt) throws Exception {
         logger.info("Received request to update booking date for bookingId: {} by user: {}", bookingId, jwt.getSubject());
 
         SecurityChecks.userCheck(jwt);
@@ -244,7 +247,7 @@ public class BookingController {
         }
 
         //updating both the booking and reservation
-        bookingService.updateBooking(booking, body.BookingDate());
+        bookingService.updateBooking(booking, body.bookingDateTime());
 
         //Sending the events
         BookingUpdatedEvent bookingUpdatedEvent = new BookingUpdatedEvent(bookingId, BookingStatus.RESERVED);

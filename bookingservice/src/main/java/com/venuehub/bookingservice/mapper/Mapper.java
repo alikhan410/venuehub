@@ -1,7 +1,7 @@
 package com.venuehub.bookingservice.mapper;
 
 import com.venuehub.bookingservice.dto.BookingDto;
-import com.venuehub.bookingservice.dto.BookingDateDto;
+import com.venuehub.bookingservice.dto.BookingDateTimeDto;
 import com.venuehub.bookingservice.model.Booking;
 import com.venuehub.bookingservice.response.GetBookingsResponse;
 
@@ -17,8 +17,8 @@ public class Mapper {
         );
     }
 
-    public static BookingDateDto modelToBookingDateDto(Booking booking) {
-        return new BookingDateDto(booking.getBookingDateTime());
+    public static BookingDateTimeDto modelToBookingDateDto(Booking booking) {
+        return new BookingDateTimeDto(booking.getBookingDateTime());
     }
 
     public static GetBookingsResponse modelToResponse(Booking booking) {
