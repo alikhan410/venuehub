@@ -1,37 +1,28 @@
 package com.venuehub.venueservice.configuration;
 
-import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.spring.cache.RedissonSpringCacheManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
-import java.util.Objects;
-
 @Configuration
-@EnableMethodSecurity
-@Profile({"dev", "prod"})
-public class SecurityConfig {
+@Profile("test")
+public class SecurityConfigTest {
 
     private final CustomAuthenticationException customAuthenticationException;
-    private final RedissonClient redissonClient;
 
     @Autowired
-    public SecurityConfig(CustomAuthenticationException customAuthenticationException, RedissonClient redissonClient) {
+    public SecurityConfigTest(CustomAuthenticationException customAuthenticationException) {
         this.customAuthenticationException = customAuthenticationException;
-        this.redissonClient = redissonClient;
     }
 
     @Bean
@@ -55,11 +46,6 @@ public class SecurityConfig {
 
 
     @Bean
-    public CacheManager cacheManager(RedissonClient redissonClient) {
-        return new RedissonSpringCacheManager(redissonClient);
-    }
-
-    @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
         jwtGrantedAuthoritiesConverter.setAuthoritiesClaimName("roles");
@@ -71,3 +57,4 @@ public class SecurityConfig {
     }
 
 }
+

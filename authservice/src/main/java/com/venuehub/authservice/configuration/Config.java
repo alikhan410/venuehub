@@ -43,16 +43,7 @@ public class Config {
     private final CustomAuthenticationException customAuthenticationException;
 
     private final RedissonClient redissonClient;
-    private static final String[] AUTH_WHITELIST = {
-            // -- Swagger UI v3 (OpenAPI)
-            "/v2/**",
-            "/v3/API-docs/**",
-            "/v3/**",
-            "/api-docs/**",
-            "/swagger-resources/**",
-            "/swagger-ui/**",
 
-    };
     @Autowired
     public Config(RSAKeyProperties rsaKeyProperties, CustomAuthenticationException customAuthenticationException, RedissonClient redissonClient) {
         this.keys = rsaKeyProperties;
@@ -64,9 +55,6 @@ public class Config {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
-
-
-
 
     @Bean
     public CacheManager cacheManager(RedissonClient redissonClient) {

@@ -8,10 +8,13 @@ import com.venuehub.broker.event.venue.VenueUpdatedEvent;
 import com.venuehub.broker.producer.venue.VenueCreatedProducer;
 import com.venuehub.broker.producer.venue.VenueDeletedProducer;
 import com.venuehub.broker.producer.venue.VenueUpdatedProducer;
+import com.venuehub.venueservice.dto.BookingDto;
+import com.venuehub.venueservice.dto.ImageDto;
 import com.venuehub.venueservice.dto.VenueDto;
 import com.venuehub.venueservice.model.Booking;
 import com.venuehub.venueservice.model.ImageData;
 import com.venuehub.venueservice.model.Venue;
+import com.venuehub.venueservice.repository.VenueRepository;
 import com.venuehub.venueservice.response.VenueAddedResponse;
 import com.venuehub.venueservice.service.BookingService;
 import com.venuehub.venueservice.service.ImageDataService;
@@ -31,6 +34,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -47,6 +52,10 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(VenueController.class)
+@TestPropertySource(properties = {
+        "spring.cache.type=none"
+})
+@ActiveProfiles("test")
 class VenueControllerTest {
     @Autowired
     private MockMvc mvc;
@@ -72,6 +81,7 @@ class VenueControllerTest {
     private Venue venue;
     private VenueDto venueDto;
     private List<Booking> bookings;
+    private List<BookingDto> bookingDtos;
     private int capacity;
     private String username;
     private String venueName;
@@ -82,6 +92,7 @@ class VenueControllerTest {
     private String phone;
     private String myJwt;
     private final List<ImageData> images = new ArrayList<>();
+    private final List<ImageDto> imageDtos = new ArrayList<>();
     private MockMultipartFile imageFile1;
     private MockMultipartFile imageFile2;
     @Captor
@@ -100,11 +111,14 @@ class VenueControllerTest {
         venueName = "Marquee Venue";
         location = "ABC Street, Karachi, Pakistan";
         bookings = new ArrayList<>();
+        bookingDtos = new ArrayList<>();
 
         ImageData imageData1 = new ImageData();
         ImageData imageData2 = new ImageData();
         byte[] img1 = {};
         byte[] img2 = {};
+        ImageDto imageDto1 = new ImageDto(1L, img1);
+        ImageDto imageDto2 = new ImageDto(2L, img2);
         imageData1.setImage(img1);
         imageData2.setImage(img2);
 
@@ -114,7 +128,8 @@ class VenueControllerTest {
 
         images.add(imageData1);
         images.add(imageData2);
-
+        imageDtos.add(imageDto1);
+        imageDtos.add(imageDto2);
         venue = Venue.builder()
                 .venueType(venueType)
                 .id(venueId)
@@ -135,10 +150,10 @@ class VenueControllerTest {
                 venueType,
                 location,
                 String.valueOf(capacity),
-                images,
+                imageDtos,
                 phone,
                 estimate,
-                bookings);
+                bookingDtos);
 
     }
 
@@ -152,15 +167,14 @@ class VenueControllerTest {
     class getVenueById {
         @Test
         void Expect_404_When_Venue_Not_Found() throws Exception {
-            mvc.perform(
-                            MockMvcRequestBuilders.get("/venue/" + venueId)
-                    )
+
+            mvc.perform(MockMvcRequestBuilders.get("/venue/" + 10))
                     .andExpect(status().isNotFound());
         }
 
         @Test
         void Should_Return_Venue() throws Exception {
-            Mockito.when(venueService.findById(venueId)).thenReturn(Optional.of(venue));
+            Mockito.when(venueService.loadVenueDtoById(venueId)).thenReturn(venueDto);
 
             MvcResult result = mvc.perform(
                             MockMvcRequestBuilders.get("/venue/" + venueId)
@@ -210,22 +224,25 @@ class VenueControllerTest {
 
         @Test
         void Should_Add_Venue() throws Exception {
+            //parameter can be any VenueDto instance, and the second parameter must equal `username`
+            Mockito.when(venueService.buildVenue(Mockito.any(VenueDto.class), Mockito.eq(username))).thenReturn(venue);
+
             MvcResult result = mvc.perform(MockMvcRequestBuilders.multipart("/venue")
-                    .file(imageFile1)
-                    .file(imageFile2)
-                    .header("Authorization", "Bearer " + myJwt)
-                    .contentType(MediaType.MULTIPART_FORM_DATA)
-                    .param("name", venueDto.name())
-                    .param("venueType", venueDto.venueType())
-                    .param("description", venueDto.description())
-                    .param("location", venueDto.location())
-                    .param("capacity", String.valueOf(venueDto.capacity())) // Convert capacity to String
-                    .param("phone", venueDto.phone())
-                    .param("estimate", String.valueOf(venueDto.estimate()))
+                            .file(imageFile1)
+                            .file(imageFile2)
+                            .header("Authorization", "Bearer " + myJwt)
+                            .contentType(MediaType.MULTIPART_FORM_DATA)
+                            .param("name", venueDto.name())
+                            .param("venueType", venueDto.venueType())
+                            .param("description", venueDto.description())
+                            .param("location", venueDto.location())
+                            .param("capacity", String.valueOf(venueDto.capacity())) // Convert capacity to String
+                            .param("phone", venueDto.phone())
+                            .param("estimate", String.valueOf(venueDto.estimate()))
             ).andExpect(status().isCreated()).andReturn();
 
             String response = result.getResponse().getContentAsString();
-//
+
             VenueAddedResponse responseObject = new ObjectMapper().readValue(response, VenueAddedResponse.class);
 
             assertThat(responseObject.status()).isEqualTo("Venue added");
@@ -233,6 +250,8 @@ class VenueControllerTest {
 
         @Test
         void Should_Produce_Event_1_times() throws Exception {
+            //parameter can be any VenueDto instance, and the second parameter must equal `username`
+            Mockito.when(venueService.buildVenue(Mockito.any(VenueDto.class), Mockito.eq(username))).thenReturn(venue);
 
             mvc.perform(MockMvcRequestBuilders.multipart("/venue")
                     .file(imageFile1)
@@ -345,15 +364,16 @@ class VenueControllerTest {
 
         @Test
         void Should_Return_Venue_List() throws Exception {
-            List<Venue> venueList = new ArrayList<>();
+            List<VenueDto> venueDtoList = new ArrayList<>();
 
-            venueList.add(venue);
-            Mockito.when(venueService.findAll()).thenReturn(venueList);
+            venueDtoList.add(venueDto);
+            Mockito.when(venueService.loadAllVenues()).thenReturn(venueDtoList);
 
             MvcResult result = mvc.perform(MockMvcRequestBuilders.get("/venue")
                             .header("Authorization", "Bearer " + myJwt))
                     .andExpect(status().isOk()).andReturn();
             String response = result.getResponse().getContentAsString();
+            System.out.println(response);
             assertThat(response).contains(venueId.toString());
             assertThat(response).contains(String.valueOf(capacity));
             assertThat(response).contains(venueType);
@@ -428,10 +448,10 @@ class VenueControllerTest {
                     venueType,
                     location,
                     String.valueOf(updatedCapacity),
-                    images,
+                    imageDtos,
                     phone,
                     updatedEstimate,
-                    bookings);
+                    bookingDtos);
 
             MvcResult result = mvc.perform(MockMvcRequestBuilders.put("/venue/" + venueId)
                             .header("Authorization", "Bearer " + myJwt)

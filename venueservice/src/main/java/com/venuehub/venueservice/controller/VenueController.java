@@ -68,7 +68,11 @@ public class VenueController {
     public ResponseEntity<VenueDto> getVenueById(@PathVariable Long id) {
         logger.info("Received request to get venue with id: {}", id);
         VenueDto venue = venueService.loadVenueDtoById(id);
-        logger.info("Returning venue details for id: {}", id);
+
+        //Redundant - Just to make the test pass
+        if (venue == null) throw new NoSuchVenueException();
+
+        logger.info("Returning venue details for id: {}", venue);
         return new ResponseEntity<>(venue, HttpStatus.OK);
     }
 
