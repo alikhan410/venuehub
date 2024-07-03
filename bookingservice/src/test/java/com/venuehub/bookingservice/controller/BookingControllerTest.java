@@ -2,7 +2,7 @@ package com.venuehub.bookingservice.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.venuehub.bookingservice.dto.BookingDto;
-import com.venuehub.bookingservice.dto.BookingDateDto;
+import com.venuehub.bookingservice.dto.BookingDateTimeDto;
 import com.venuehub.bookingservice.model.Booking;
 import com.venuehub.bookingservice.model.Venue;
 import com.venuehub.bookingservice.response.BookingDateListResponse;
@@ -356,20 +356,20 @@ class BookingControllerTest {
         @Test
         void Expect_404_When_Booking_Not_Found() throws Exception {
 
-            BookingDateDto bookingDateDto = new BookingDateDto("2024-12-10T18:30:00");
+            BookingDateTimeDto bookingDateTimeDto = new BookingDateTimeDto("2024-12-10T18:30:00");
 
             mvc.perform(
                             MockMvcRequestBuilders.put("/bookings/" + bookingId)
                                     .header("Authorization", "Bearer " + myJwt)
                                     .contentType(MediaType.APPLICATION_JSON)
-                                    .content(asJsonString(bookingDateDto)))
+                                    .content(asJsonString(bookingDateTimeDto)))
                     .andExpect(status().isNotFound());
         }
 
         @Test
         void Expect_403_When_Action_Forbidden() throws Exception {
 
-            BookingDateDto bookingDateDto = new BookingDateDto("2024-12-10T18:30:00");
+            BookingDateTimeDto bookingDateTimeDto = new BookingDateTimeDto("2024-12-10T18:30:00");
 
             booking.setUsername("wrong_user");
 
@@ -379,14 +379,14 @@ class BookingControllerTest {
                             MockMvcRequestBuilders.put("/bookings/" + bookingId)
                                     .header("Authorization", "Bearer " + myJwt)
                                     .contentType(MediaType.APPLICATION_JSON)
-                                    .content(asJsonString(bookingDateDto)))
+                                    .content(asJsonString(bookingDateTimeDto)))
                     .andExpect(status().isForbidden());
         }
 
         @Test
         void Should_Update_Booking_Date() throws Exception {
             //New Date
-            BookingDateDto bookingDateDto = new BookingDateDto("2024-12-10T18:30:00");
+            BookingDateTimeDto bookingDateTimeDto = new BookingDateTimeDto("2024-12-10T18:30:00");
 
             booking.setStatus(BookingStatus.BOOKED);
             Mockito.when(bookingService.findById(bookingId)).thenReturn(Optional.of(booking));
@@ -395,7 +395,7 @@ class BookingControllerTest {
                             MockMvcRequestBuilders.put("/bookings/" + bookingId)
                                     .header("Authorization", "Bearer " + myJwt)
                                     .contentType(MediaType.APPLICATION_JSON)
-                                    .content(asJsonString(bookingDateDto)))
+                                    .content(asJsonString(bookingDateTimeDto)))
                     .andExpect(status().isNoContent());
 
             Mockito.verify(bookingService, times(1)).updateBooking(bookingArgumentCaptor.capture(), bookingDateArgumentCaptor.capture());
@@ -403,13 +403,13 @@ class BookingControllerTest {
             String updatedBookingDate = bookingDateArgumentCaptor.getValue();
 
             assertThat(updatedBooking).isEqualTo(booking);
-            assertThat(updatedBookingDate).isEqualTo(bookingDateDto.BookingDate());
+            assertThat(updatedBookingDate).isEqualTo(bookingDateTimeDto.bookingDateTime());
         }
 
         @Test
         void Should_Produce_Event_3_Times() throws Exception {
             //New Date
-            BookingDateDto bookingDateDto = new BookingDateDto("2024-12-10T18:30:00");
+            BookingDateTimeDto bookingDateTimeDto = new BookingDateTimeDto("2024-12-10T18:30:00");
             booking.setStatus(BookingStatus.BOOKED);
 
             Mockito.when(bookingService.findById(bookingId)).thenReturn(Optional.of(booking));
@@ -418,7 +418,7 @@ class BookingControllerTest {
                             MockMvcRequestBuilders.put("/bookings/" + bookingId)
                                     .header("Authorization", "Bearer " + myJwt)
                                     .contentType(MediaType.APPLICATION_JSON)
-                                    .content(asJsonString(bookingDateDto)))
+                                    .content(asJsonString(bookingDateTimeDto)))
                     .andExpect(status().isNoContent());
 
             BookingUpdatedEvent event = new BookingUpdatedEvent(bookingId, BookingStatus.RESERVED);

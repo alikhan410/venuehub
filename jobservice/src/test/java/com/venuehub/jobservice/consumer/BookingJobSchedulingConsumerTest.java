@@ -44,12 +44,14 @@ class BookingJobSchedulingConsumerTest {
         username = "test_user";
         bookingDateTime = "2024-05-04T10:15:30";
         reservationExpiry = "2024-05-04T10:17:30";
+
+        //Initializes the mock objects annotated with @Mock, @Spy, and @InjectMocks.
         MockitoAnnotations.openMocks(this);
     }
 
     @Test
     public void testConsume() throws SchedulerException {
-        BookingJobSchedulingEvent event = new BookingJobSchedulingEvent(bookingId, status, bookingDateTime, username);
+        BookingJobSchedulingEvent event = new BookingJobSchedulingEvent(bookingId, status, bookingDateTime,reservationExpiry, username);
 
         // Mocking jobDetail and trigger
         JobDetail bookingJobDetail = mock(JobDetail.class);
