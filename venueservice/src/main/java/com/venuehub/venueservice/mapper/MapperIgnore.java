@@ -8,7 +8,7 @@ import com.venuehub.venueservice.model.Venue;
 import java.util.List;
 
 
-public class Mapper {
+public class MapperIgnore {
     public static VenueDto modelToVenueDto(Venue venue) {
         List<BookingDto> bookings = modelToBookingDtoList(venue.getBookings());
         List<ImageDto> images = modelToImageDtoList(venue.getImages());
@@ -28,7 +28,7 @@ public class Mapper {
     }
 
     public static List<BookingDto> modelToBookingDtoList(List<Booking> bookings) {
-        return bookings.stream().map(Mapper::modelToBookingDto).toList();
+        return bookings.stream().map(MapperIgnore::modelToBookingDto).toList();
 
     }
 
@@ -37,7 +37,7 @@ public class Mapper {
     }
 
     public static List<ImageDto> modelToImageDtoList(List<ImageData> imageDataList) {
-        return imageDataList.stream().map(Mapper::modelToImageDto).toList();
+        return imageDataList.stream().map(MapperIgnore::modelToImageDto).toList();
     }
 
     public static ImageDto modelToImageDto(ImageData imageData) {

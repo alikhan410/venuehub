@@ -1,24 +1,22 @@
 package com.venuehub.venueservice.service;
 
 import com.venuehub.commons.exception.NoSuchVenueException;
-import com.venuehub.commons.exception.UserForbiddenException;
 import com.venuehub.venueservice.dto.VenueDto;
-import com.venuehub.venueservice.mapper.Mapper;
+import com.venuehub.venueservice.mapper.VenueServiceMapper;
 import com.venuehub.venueservice.model.Booking;
 import com.venuehub.venueservice.model.ImageData;
 import com.venuehub.venueservice.model.Venue;
 import com.venuehub.venueservice.repository.VenueRepository;
+import org.mapstruct.factory.Mappers;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +25,7 @@ public class VenueService {
     public static final Logger logger = LoggerFactory.getLogger(VenueService.class);
 
     private final VenueRepository venueRepository;
+    private final VenueServiceMapper venueServiceMapper = Mappers.getMapper(VenueServiceMapper.class);
 
     @Autowired
     public VenueService(VenueRepository venueRepository) {
@@ -34,13 +33,13 @@ public class VenueService {
     }
 
     @Transactional
-    @CacheEvict(value = "venue:all", allEntries = true)
+    @CacheEvict(value = {"venue:all", "venue:id","venue:username"})
     public void save(Venue venue) {
         venueRepository.save(venue);
     }
 
     @Transactional
-    @CacheEvict(value = "venue:all", allEntries = true)
+    @CacheEvict(value = {"venue:all", "venue:id","venue:username"})
     public void saveAll(List<Venue> venues) {
         venueRepository.saveAll(venues);
     }
@@ -54,16 +53,18 @@ public class VenueService {
     public VenueDto loadVenueDtoById(long id) {
         logger.info("Loading the venue associated with the id: {}", id);
         Venue venue = venueRepository.findById(id).orElseThrow(NoSuchVenueException::new);
-        return Mapper.modelToVenueDto(venue);
-
+        logger.info("Retrieved venue in VenueService for the id {}: {}", id, venue);
+        return venueServiceMapper.venueToDto(venue);
     }
 
-    public List<Venue> findByUsername(String username) {
-        return venueRepository.findVenueByUsername(username);
+    @Cacheable(value = "venue:username", key = "#username")
+    public List<VenueDto> findByUsername(String username) {
+        List<Venue> venues = venueRepository.findVenueByUsername(username);
+        return venueServiceMapper.venuesToDtoList(venues);
     }
 
     @Transactional
-    @CacheEvict(value = "venue:all")
+    @CacheEvict(value = {"venue:all", "venue:id","venue:username"})
     public void delete(Venue venue) {
         venueRepository.delete(venue);
     }
@@ -73,11 +74,12 @@ public class VenueService {
         return venueRepository.findAll();
     }
 
-    @Cacheable("venue:all")
+    @Cacheable(value = "venue:all")
     public List<VenueDto> loadAllVenues() {
         logger.info("Loading all venues");
         List<Venue> venues = venueRepository.findAll();
-        return venues.stream().map(Mapper::modelToVenueDto).toList();
+        return venueServiceMapper.venuesToDtoList(venues);
+//        return venues.stream().map(MapperIgnore::modelToVenueDto).toList();
     }
 
     public Venue buildVenue(VenueDto body, String username) {
@@ -100,13 +102,4 @@ public class VenueService {
 
     }
 
-    public void vendorChecks(Jwt jwt) {
-
-        String rolesString = jwt.getClaim("roles");
-        List<String> roles = Arrays.stream(rolesString.split(" ")).toList();
-
-        if (!roles.contains("VENDOR") || !jwt.getClaim("loggedInAs").equals("VENDOR")) {
-            throw new UserForbiddenException();
-        }
-    }
 }

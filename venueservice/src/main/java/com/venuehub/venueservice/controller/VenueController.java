@@ -12,7 +12,6 @@ import com.venuehub.broker.producer.venue.VenueUpdatedProducer;
 import com.venuehub.commons.exception.NoSuchVenueException;
 import com.venuehub.commons.exception.UserForbiddenException;
 import com.venuehub.venueservice.dto.VenueDto;
-import com.venuehub.venueservice.mapper.Mapper;
 import com.venuehub.venueservice.model.Booking;
 import com.venuehub.venueservice.model.ImageData;
 import com.venuehub.venueservice.model.Venue;
@@ -72,7 +71,7 @@ public class VenueController {
         //Redundant - Just to make the test pass
         if (venue == null) throw new NoSuchVenueException();
 
-        logger.info("Returning venue details for id: {}", venue);
+        logger.info("Returning venue details for id: {}", id);
         return new ResponseEntity<>(venue, HttpStatus.OK);
     }
 
@@ -165,8 +164,10 @@ public class VenueController {
     @GetMapping("/venue")
     public ResponseEntity<VenueListResponse> getVenue() {
         logger.info("Received request to get all venues");
+
         List<VenueDto> venues = venueService.loadAllVenues();
         VenueListResponse response = new VenueListResponse(venues);
+
         logger.info("Returning list of all venues");
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -177,10 +178,9 @@ public class VenueController {
         logger.info("Received request to get all venues for vendor: {}", jwt.getSubject());
         SecurityChecks.vendorCheck(jwt);
 
-        List<Venue> venueList = venueService.findByUsername(jwt.getSubject());
-        List<VenueDto> venueDtoList = venueList.stream().map(Mapper::modelToVenueDto).toList();
+        List<VenueDto> venues = venueService.findByUsername(jwt.getSubject());
 
-        VenueListResponse response = new VenueListResponse(venueDtoList);
+        VenueListResponse response = new VenueListResponse(venues);
         logger.info("Returning list of venues for vendor: {}", jwt.getSubject());
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

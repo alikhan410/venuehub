@@ -69,4 +69,19 @@ public class Venue {
     private void setVersion(Long version) {
         this.version = version;
     }
+
+    @Override
+    public String toString() {
+        return "Venue{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", name='" + name + '\'' +
+                ", description='" + description + '\'' +
+                ", venueType='" + venueType + '\'' +
+                ", location='" + location + '\'' +
+                ", capacity=" + capacity +
+                ", phone='" + phone + '\'' +
+                ", estimate=" + estimate +
+                '}';
+    }
 }
