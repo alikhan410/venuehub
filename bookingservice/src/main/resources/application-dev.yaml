@@ -7,7 +7,19 @@ springdoc:
     path: /booking/v3/api-docs
 
 spring:
+  devtools:
+    livereload:
+      enabled: true
+    restart:
+      enabled: true
   rabbitmq:
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 5000
+          max-interval: 15000
     host: localhost
     port: 5672
     username: guest
@@ -17,10 +29,10 @@ spring:
     generate-ddl: true
 
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
 
   datasource:
-#    url: jdbc:mysql://localhost:53602/bookingservice
+    #    url: jdbc:mysql://localhost:53602/bookingservice
     url: jdbc:mysql://localhost:3306/bookingservice
     username: ali
     password: "@Li4103568"

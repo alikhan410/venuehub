@@ -6,12 +6,20 @@ springdoc:
     path: /venue/v3/api-docs
 
 spring:
+
   servlet:
     multipart:
       enabled: true
       max-file-size: 5MB
       max-request-size: 20MB
   rabbitmq:
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 5000
+          max-interval: 15000
     host: localhost
     port: 5672
     username: guest
