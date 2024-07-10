@@ -1,8 +1,6 @@
 package com.venuehub.venueservice;
 
-import com.venuehub.venueservice.model.ImageData;
 import com.venuehub.venueservice.model.Venue;
-import com.venuehub.venueservice.service.ImageDataService;
 import com.venuehub.venueservice.service.VenueService;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -18,10 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -39,18 +34,18 @@ public class VenueserviceApplication {
 
     @Transactional
     @Bean
-    CommandLineRunner run(VenueService venueService, ImageDataService imageDataService) {
+    CommandLineRunner run(VenueService venueService) {
 
         return args -> {
             if (!venueService.findAll().isEmpty()){
                 return;
             }
-            addTestVenues(venueService, imageDataService);
+            addTestVenues(venueService);
         };
 
     }
 
-    private void addTestVenues(VenueService venueService, ImageDataService imageDataService) {
+    private void addTestVenues(VenueService venueService) {
         List<Venue> venues = new ArrayList<>();
 
         Venue venue1 = Venue.builder()
@@ -116,34 +111,35 @@ public class VenueserviceApplication {
 
         venueService.saveAll(venues);
 
-        for (Venue venue : venues) {
-
-            String venueName = venue.getName().toLowerCase().replace(" ","");
-
-            byte[] b1 = loadImageAsBytes(String.format("static/%s-1.jpg", venueName));
-            byte[] b2 = loadImageAsBytes(String.format("static/%s-2.jpg", venueName));
-            byte[] b3 = loadImageAsBytes(String.format("static/%s-3.jpg", venueName));
-
-            List<ImageData> images = new ArrayList<>();
-            images.add(new ImageData(b1, venue));
-            images.add(new ImageData(b2, venue));
-            images.add(new ImageData(b3, venue));
-            imageDataService.saveAll(images);
-        }
+//        for (Venue venue : venues) {
+//
+//            String venueName = venue.getName().toLowerCase().replace(" ","");
+//
+//            byte[] b1 = loadImageAsBytes(String.format("static/%s-1.jpg", venueName));
+//            byte[] b2 = loadImageAsBytes(String.format("static/%s-2.jpg", venueName));
+//            byte[] b3 = loadImageAsBytes(String.format("static/%s-3.jpg", venueName));
+//
+//            List<ImageData> images = new ArrayList<>();
+//            images.add(new ImageData(b1, venue));
+//            images.add(new ImageData(b2, venue));
+//            images.add(new ImageData(b3, venue));
+//            imageDataService.saveAll(images);
+//        }
     }
 
-    private byte[] loadImageAsBytes(String resourcePath) {
-        try {
-            ClassPathResource imgFile = new ClassPathResource(resourcePath);
-            InputStream inputStream = imgFile.getInputStream();
-            BufferedImage bufferedImage = ImageIO.read(inputStream);
-            ByteArrayOutputStream byteArr = new ByteArrayOutputStream();
-            ImageIO.write(bufferedImage, "jpg", byteArr);
-            return byteArr.toByteArray();
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new byte[0];
-        }
-    }
+//    private byte[] loadImageAsBytes(String resourcePath) {
+//        try {
+//            ClassPathResource imgFile = new ClassPathResource(resourcePath);
+//
+//            InputStream inputStream = imgFile.getInputStream();
+//            BufferedImage bufferedImage = ImageIO.read(inputStream);
+//            ByteArrayOutputStream byteArr = new ByteArrayOutputStream();
+//            ImageIO.write(bufferedImage, "jpg", byteArr);
+//            return byteArr.toByteArray();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            return new byte[0];
+//        }
+//    }
 
 }

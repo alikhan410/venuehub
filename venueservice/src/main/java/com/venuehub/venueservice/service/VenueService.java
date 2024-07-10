@@ -4,13 +4,16 @@ import com.venuehub.commons.exception.NoSuchVenueException;
 import com.venuehub.venueservice.dto.VenueDto;
 import com.venuehub.venueservice.mapper.VenueServiceMapper;
 import com.venuehub.venueservice.model.Booking;
-import com.venuehub.venueservice.model.ImageData;
+import com.venuehub.venueservice.model.ImageUri;
 import com.venuehub.venueservice.model.Venue;
 import com.venuehub.venueservice.repository.VenueRepository;
 import org.mapstruct.factory.Mappers;
+import org.redisson.client.RedisTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
@@ -25,21 +28,23 @@ public class VenueService {
     public static final Logger logger = LoggerFactory.getLogger(VenueService.class);
 
     private final VenueRepository venueRepository;
+    private final CacheManager cacheManager;
     private final VenueServiceMapper venueServiceMapper = Mappers.getMapper(VenueServiceMapper.class);
 
     @Autowired
-    public VenueService(VenueRepository venueRepository) {
+    public VenueService(VenueRepository venueRepository, CacheManager cacheManager) {
         this.venueRepository = venueRepository;
+        this.cacheManager = cacheManager;
     }
 
     @Transactional
-    @CacheEvict(value = {"venue:all", "venue:id","venue:username"})
+    @CacheEvict(value = {"venue:all", "venue:id", "venue:username"}, allEntries = true)
     public void save(Venue venue) {
         venueRepository.save(venue);
     }
 
     @Transactional
-    @CacheEvict(value = {"venue:all", "venue:id","venue:username"})
+    @CacheEvict(value = {"venue:all", "venue:id", "venue:username"}, allEntries = true)
     public void saveAll(List<Venue> venues) {
         venueRepository.saveAll(venues);
     }
@@ -53,7 +58,6 @@ public class VenueService {
     public VenueDto loadVenueDtoById(long id) {
         logger.info("Loading the venue associated with the id: {}", id);
         Venue venue = venueRepository.findById(id).orElseThrow(NoSuchVenueException::new);
-        logger.info("Retrieved venue in VenueService for the id {}: {}", id, venue);
         return venueServiceMapper.venueToDto(venue);
     }
 
@@ -64,7 +68,7 @@ public class VenueService {
     }
 
     @Transactional
-    @CacheEvict(value = {"venue:all", "venue:id","venue:username"})
+    @CacheEvict(value = {"venue:all", "venue:id", "venue:username"}, allEntries = true)
     public void delete(Venue venue) {
         venueRepository.delete(venue);
     }
@@ -76,21 +80,43 @@ public class VenueService {
 
     @Cacheable(value = "venue:all")
     public List<VenueDto> loadAllVenues() {
-        logger.info("Loading all venues");
-        List<Venue> venues = venueRepository.findAll();
-        return venueServiceMapper.venuesToDtoList(venues);
-//        return venues.stream().map(MapperIgnore::modelToVenueDto).toList();
+      return venueServiceMapper.venuesToDtoList(venueRepository.findAll());
+//        String cacheKey = "venue:all";
+//        return getCachedValue(cacheKey);
     }
+//
+//    private List<VenueDto> getCachedValue(String cacheKey) {
+//        try {
+//            Cache cache = cacheManager.getCache("venue:all");
+//            if (cache != null) {
+//                Cache.ValueWrapper valueWrapper = cache.get(cacheKey);
+//                if (valueWrapper != null && valueWrapper.get() instanceof List) {
+//                    return (List<VenueDto>) valueWrapper.get();
+//                }
+//            }
+//
+//            List<Venue> venues = venueRepository.findAll();
+//            List<VenueDto> venueDtos = venueServiceMapper.venuesToDtoList(venues);
+//            if (cache != null) {
+//                cache.put(cacheKey, venueDtos);
+//            }
+//            return venueDtos;
+//        } catch (RedisTimeoutException e) {
+//            // Log the exception
+//            logger.error("RedisTimeoutException occurred while caching all venues: {}", e.getMessage());
+//            // Fetch data from database as fallback
+//            return venueServiceMapper.venuesToDtoList(venueRepository.findAll());
+//        }
+//    }
 
     public Venue buildVenue(VenueDto body, String username) {
-        List<ImageData> allImages = new ArrayList<>();
-
         List<Booking> bookings = new ArrayList<>();
+        List<ImageUri> imageUris = new ArrayList<>();
 
         return Venue.builder()
                 .venueType(body.venueType())
                 .username(username)
-                .images(allImages)
+                .imageUris(imageUris)
                 .phone(body.phone())
                 .name(body.name())
                 .description(body.description())
@@ -101,5 +127,6 @@ public class VenueService {
                 .build();
 
     }
+
 
 }

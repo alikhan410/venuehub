@@ -13,16 +13,12 @@ import com.venuehub.commons.exception.NoSuchVenueException;
 import com.venuehub.commons.exception.UserForbiddenException;
 import com.venuehub.venueservice.dto.VenueDto;
 import com.venuehub.venueservice.model.Booking;
-import com.venuehub.venueservice.model.ImageData;
 import com.venuehub.venueservice.model.Venue;
-import com.venuehub.venueservice.response.MainVenueImage;
 import com.venuehub.venueservice.response.VenueAddedResponse;
 import com.venuehub.venueservice.response.VenueListResponse;
-import com.venuehub.venueservice.service.ImageDataService;
 import com.venuehub.venueservice.service.VenueService;
 import com.venuehub.venueservice.utils.SecurityChecks;
 import jakarta.validation.Valid;
-import org.apache.commons.io.file.FilesUncheck;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,16 +44,14 @@ public class VenueController {
     private final Logger logger = LoggerFactory.getLogger(VenueController.class);
 
     private final VenueService venueService;
-    private final ImageDataService imageDataService;
     private final VenueCreatedProducer venueCreatedProducer;
     private final VenueDeletedProducer venueDeletedProducer;
     private final VenueUpdatedProducer venueUpdatedProducer;
 
 
     @Autowired
-    public VenueController(VenueService venueService, ImageDataService imageDataService, VenueCreatedProducer venueCreatedProducer, VenueDeletedProducer venueDeletedProducer, VenueUpdatedProducer venueUpdatedProducer) {
+    public VenueController(VenueService venueService, VenueCreatedProducer venueCreatedProducer, VenueDeletedProducer venueDeletedProducer, VenueUpdatedProducer venueUpdatedProducer) {
         this.venueService = venueService;
-        this.imageDataService = imageDataService;
         this.venueCreatedProducer = venueCreatedProducer;
         this.venueDeletedProducer = venueDeletedProducer;
         this.venueUpdatedProducer = venueUpdatedProducer;
@@ -75,45 +69,28 @@ public class VenueController {
         return new ResponseEntity<>(venue, HttpStatus.OK);
     }
 
-    @GetMapping("/venue/{venueId}/image-0")
-    public ResponseEntity<MainVenueImage> getMainImage(@PathVariable Long venueId) {
-        logger.info("Received request to get main image for venue with id: {}", venueId);
-        Venue venue = venueService.findById(venueId).orElseThrow(() -> {
-            logger.error("Venue not found with id: {}", venueId);
-            return new NoSuchVenueException();
-        });
-        ImageData mainImage = venue.getImages().get(0);
-        MainVenueImage res = new MainVenueImage(mainImage);
-        logger.info("Returning main image for venue id: {}", venueId);
-        return new ResponseEntity<>(res, HttpStatus.OK);
-    }
+//    @GetMapping("/venue/{venueId}/image-0")
+//    public ResponseEntity<MainVenueImage> getMainImage(@PathVariable Long venueId) {
+//        logger.info("Received request to get main image for venue with id: {}", venueId);
+//        Venue venue = venueService.findById(venueId).orElseThrow(() -> {
+//            logger.error("Venue not found with id: {}", venueId);
+//            return new NoSuchVenueException();
+//        });
+//        ImageData mainImage = venue.getImages().get(0);
+//        MainVenueImage res = new MainVenueImage(mainImage);
+//        logger.info("Returning main image for venue id: {}", venueId);
+//        return new ResponseEntity<>(res, HttpStatus.OK);
+//    }
 
-    @PostMapping(value = "/venue", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/venue")
     @Transactional
-    public ResponseEntity<VenueAddedResponse> addVenue(@ModelAttribute @Valid VenueDto body, @RequestParam("images") MultipartFile[] images, @AuthenticationPrincipal Jwt jwt) throws IOException {
+    public ResponseEntity<VenueAddedResponse> addVenue(@RequestBody @Valid VenueDto body, @AuthenticationPrincipal Jwt jwt) {
         logger.info("Received request to add a new venue by user: {}", jwt.getSubject());
 
         SecurityChecks.vendorCheck(jwt);
 
-        //Creating temp files for storing the images to prevent
-        //multiple threads from using the same resources which is in this case
-        //is MultiPartFile[] images
-        List<Path> pathList = new ArrayList<>();
-        for (MultipartFile image : images) {
-            Path tempPath = FilesUncheck.createTempFile("venue_image_", ".tmp");
-            image.transferTo(tempPath);
-            pathList.add(tempPath);
-        }
-
         Venue newVenue = venueService.buildVenue(body, jwt.getSubject());
         venueService.save(newVenue);
-
-        //storing the images asynchronously
-        //it runs in the same transactional context maintaining data integrity
-        imageDataService.storeImagesAsync(newVenue, pathList);
-
-        //storing the images synchronously
-//        imageDataService.storeImagesSync(newVenue, images);
 
         logger.info("Venue added with id: {} by user: {}", newVenue.getId(), jwt.getSubject());
 

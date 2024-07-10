@@ -15,9 +15,14 @@ public class VenueServiceRabbitMQConfig {
                 .deadLetterExchange(MyExchange.DLX.name())
                 .deadLetterRoutingKey(MyKeys.dlrq.name())
                 .build();
-//        return new Queue(MyQueue.Constants.BOOKING_UPDATED_QUEUE_VENUE_SERVICE, true);
     }
-
+    @Bean
+    public Queue imageCreatedQueue() {
+        return QueueBuilder.durable(MyQueue.Constants.IMAGE_CREATED_QUEUE_VENUE_SERVICE)
+                .deadLetterExchange(MyExchange.DLX.name())
+                .deadLetterRoutingKey(MyKeys.dlrq.name())
+                .build();
+    }
     @Bean
     public Queue bookingCreatedQueue() {
         return QueueBuilder.durable(MyQueue.Constants.BOOKING_CREATED_QUEUE_VENUE_SERVICE)
@@ -38,7 +43,13 @@ public class VenueServiceRabbitMQConfig {
                 .to(venueExchange())
                 .with("booking-created");
     }
-
+    @Bean
+    public Binding imageCreateToVenueExchange() {
+        return BindingBuilder
+                .bind(imageCreatedQueue())
+                .to(venueExchange())
+                .with("image-created");
+    }
     @Bean
     public Binding bookingUpdatedToVenueExchange() {
         return BindingBuilder

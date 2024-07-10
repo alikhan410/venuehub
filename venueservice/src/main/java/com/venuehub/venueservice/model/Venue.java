@@ -59,9 +59,13 @@ public class Venue {
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue", cascade = CascadeType.ALL)
     private List<Booking> bookings;
+//
+//    @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue", cascade = CascadeType.ALL)
+//    private List<ImageData> images;
 
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue", cascade = CascadeType.ALL)
-    private List<ImageData> images;
+    @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "venue_id") // This creates the foreign key column in the ImageUri table
+    private List<ImageUri> imageUris = new ArrayList<>();
 
     @Version
     private Long version;
