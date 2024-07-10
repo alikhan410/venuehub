@@ -34,12 +34,7 @@ public class UserController {
 
     @PostMapping("/user/register")
     public ResponseEntity<LoginResponse> registerUser(@RequestBody @Valid UserDto body) {
-
-        User newUser = authenticationService.registerUser(body);
-
-        LoginResponse loginUser = authenticationService.loginUser(newUser.getUsername(), body.password());
-
-        return new ResponseEntity<>(loginUser, HttpStatus.CREATED);
+        return new ResponseEntity<>(authenticationService.registerUser(body), HttpStatus.CREATED);
     }
 
     @PostMapping("/user/login")

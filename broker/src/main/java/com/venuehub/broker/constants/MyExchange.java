@@ -5,5 +5,6 @@ public enum MyExchange {
     BOOKING_EXCHANGE,
     PAYMENT_EXCHANGE,
     JOB_EXCHANGE,
+    IMAGE_EXCHANGE,
     DLX
 }

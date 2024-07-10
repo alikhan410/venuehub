@@ -1,6 +1,7 @@
 package com.venuehub.authservice.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -23,7 +24,7 @@ public class Role implements GrantedAuthority {
     @Column(name = "authority")
     private String authority;
 
-    public Role(String authority){
+    public Role(String authority) {
         this.authority = authority;
     }
 
@@ -34,5 +35,13 @@ public class Role implements GrantedAuthority {
     @Override
     public String getAuthority() {
         return authority;
+    }
+
+    @Override
+    public String toString() {
+        return "Role{" +
+                "id=" + id +
+                ", authority='" + authority + '\'' +
+                '}';
     }
 }

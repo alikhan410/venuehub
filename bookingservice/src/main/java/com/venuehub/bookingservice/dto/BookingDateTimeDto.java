@@ -1,4 +1,4 @@
 package com.venuehub.bookingservice.dto;
 
-public record BookingDateTimeDto(String bookingDateTime) {
+public record BookingDateTimeDto(String bookingDate) {
 }

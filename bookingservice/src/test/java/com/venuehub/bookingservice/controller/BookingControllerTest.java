@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -45,6 +46,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @WebMvcTest(BookingController.class)
+@ActiveProfiles("test")
 class BookingControllerTest {
 
     @Autowired
@@ -69,7 +71,7 @@ class BookingControllerTest {
     private Long venueId;
     private String email;
     private String phone;
-    private String bookingDateTime;
+    private String bookingDate;
     private BookingDto bookingDto;
     private Booking booking;
     private Venue venue;
@@ -94,18 +96,18 @@ class BookingControllerTest {
         estimates = 45000;
         guests = 50;
         name = "Saffron Venue";
-        bookingDateTime = "2024-12-04T18:30:00";
+        bookingDate = "2024-12-04";
         status = BookingStatus.RESERVED;
 
         myJwt = jwtTestImpl.generateJwt(username, "USER");
 
-        bookingDto = new BookingDto(email, phone, status, bookingDateTime, guests);
+        bookingDto = new BookingDto(email, phone, status, bookingDate, guests);
 
         venue = new Venue(venueId, name, estimates, username);
 
         booking = Booking.builder()
                 .id(bookingId)
-                .bookingDateTime(bookingDateTime)
+                .bookingDate(bookingDate)
                 .status(BookingStatus.RESERVED)
                 .venue(venue)
                 .bookingFee(estimates)
@@ -151,9 +153,7 @@ class BookingControllerTest {
         void Expect_400_When_Booking_is_UnAvailable() throws Exception {
             Mockito.when(venueService.findById(venueId)).thenReturn(Optional.of(venue));
 
-            Mockito.when(bookingService.isBookingAvailable(
-                    LocalDateTime.parse(bookingDto.bookingDateTime()),
-                    venue.getBookings())
+            Mockito.when(bookingService.isBookingAvailable(bookingDate)
             ).thenReturn(Boolean.FALSE);
 
             mvc.perform(MockMvcRequestBuilders.post("/bookings/venue/" + venueId)
@@ -167,9 +167,7 @@ class BookingControllerTest {
         void Should_produce_Event_3_times() throws Exception {
             Mockito.when(venueService.findById(venueId)).thenReturn(Optional.of(venue));
 
-            Mockito.when(bookingService.isBookingAvailable(
-                    LocalDateTime.parse(bookingDto.bookingDateTime()),
-                    venue.getBookings())
+            Mockito.when(bookingService.isBookingAvailable(bookingDate)
             ).thenReturn(Boolean.TRUE);
 
             Mockito.when(bookingService.addNewBooking(bookingDto, venue, username)).thenReturn(booking);
@@ -180,7 +178,7 @@ class BookingControllerTest {
                     .andExpect(status().isCreated());
 
             BookingCreatedEvent event = new BookingCreatedEvent(bookingId, venueId, BookingStatus.RESERVED, booking.getBookingFee(), username);
-            BookingJobSchedulingEvent schedulingEvent = new BookingJobSchedulingEvent(bookingId, BookingStatus.RESERVED, bookingDateTime, booking.getReservationExpiry(), username);
+            BookingJobSchedulingEvent schedulingEvent = new BookingJobSchedulingEvent(bookingId, BookingStatus.RESERVED, bookingDate, booking.getReservationExpiry(), username);
             Mockito.verify(rabbitTemplate, times(1)).convertAndSend(MyExchange.VENUE_EXCHANGE.name(), "booking-created", event);
             Mockito.verify(rabbitTemplate, times(1)).convertAndSend(MyExchange.PAYMENT_EXCHANGE.name(), "booking-created", event);
             Mockito.verify(rabbitTemplate, times(1)).convertAndSend(MyExchange.JOB_EXCHANGE.name(), "booking-job-scheduling", schedulingEvent);
@@ -190,9 +188,7 @@ class BookingControllerTest {
         void Should_Add_Booking() throws Exception {
             Mockito.when(venueService.findById(venueId)).thenReturn(Optional.of(venue));
 
-            Mockito.when(bookingService.isBookingAvailable(
-                    LocalDateTime.parse(bookingDto.bookingDateTime()),
-                    venue.getBookings())
+            Mockito.when(bookingService.isBookingAvailable(bookingDate)
             ).thenReturn(Boolean.TRUE);
 
             Mockito.when(bookingService.addNewBooking(bookingDto, venue, username)).thenReturn(booking);
@@ -205,7 +201,7 @@ class BookingControllerTest {
             String response = result.getResponse().getContentAsString();
             BookingDto responseObject = new ObjectMapper().readValue(response, BookingDto.class);
             assertThat(responseObject.status().name()).isEqualTo(BookingStatus.RESERVED.name());
-            assertThat(responseObject.bookingDateTime()).contains(bookingDateTime);
+            assertThat(responseObject.bookingDate()).contains(bookingDate);
             assertThat(responseObject.email()).contains(email);
             assertThat(responseObject.phone()).contains(phone);
 
@@ -349,7 +345,7 @@ class BookingControllerTest {
             mvc.perform(
                             MockMvcRequestBuilders.put("/bookings/" + bookingId)
                                     .contentType(MediaType.APPLICATION_JSON)
-                                    .content(asJsonString(bookingDateTime)))
+                                    .content(asJsonString(bookingDate)))
                     .andExpect(status().isUnauthorized());
         }
 
@@ -403,7 +399,7 @@ class BookingControllerTest {
             String updatedBookingDate = bookingDateArgumentCaptor.getValue();
 
             assertThat(updatedBooking).isEqualTo(booking);
-            assertThat(updatedBookingDate).isEqualTo(bookingDateTimeDto.bookingDateTime());
+            assertThat(updatedBookingDate).isEqualTo(bookingDateTimeDto.bookingDate());
         }
 
         @Test
@@ -422,7 +418,7 @@ class BookingControllerTest {
                     .andExpect(status().isNoContent());
 
             BookingUpdatedEvent event = new BookingUpdatedEvent(bookingId, BookingStatus.RESERVED);
-            BookingJobSchedulingEvent schedulingEvent = new BookingJobSchedulingEvent(bookingId, BookingStatus.RESERVED, bookingDateTime, booking.getReservationExpiry(), username);
+            BookingJobSchedulingEvent schedulingEvent = new BookingJobSchedulingEvent(bookingId, BookingStatus.RESERVED, bookingDate, booking.getReservationExpiry(), username);
             Mockito.verify(rabbitTemplate, times(1)).convertAndSend(MyExchange.VENUE_EXCHANGE.name(), "booking-updated", event);
             Mockito.verify(rabbitTemplate, times(1)).convertAndSend(MyExchange.PAYMENT_EXCHANGE.name(), "booking-updated", event);
             Mockito.verify(rabbitTemplate, times(1)).convertAndSend(MyExchange.JOB_EXCHANGE.name(), "booking-job-scheduling", schedulingEvent);

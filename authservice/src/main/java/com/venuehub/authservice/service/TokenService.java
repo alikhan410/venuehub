@@ -18,13 +18,14 @@ public class TokenService {
     private final JwtEncoder encoder;
 
     @Autowired
-    public TokenService( JwtEncoder encoder) {
+    public TokenService(JwtEncoder encoder) {
         this.encoder = encoder;
     }
 
     public String generateUserJwt(Authentication auth) {
         Instant now = Instant.now();
 
+        // Output: "USER ADMIN VENDOR"
         String scope = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
@@ -39,9 +40,23 @@ public class TokenService {
         return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
     }
 
+    public String generateUserJwt(String username, String scope) {
+        Instant now = Instant.now();
+
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuedAt(now)
+                .issuer("self")
+                .subject(username)
+                .claim("roles", scope)
+                .claim("loggedInAs", "USER")
+                .build();
+        return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+    }
+
     public String generateVendorJwt(Authentication auth) {
         Instant now = Instant.now();
 
+        // Output: "USER ADMIN VENDOR"
         String scope = auth.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.joining(" "));
@@ -50,6 +65,20 @@ public class TokenService {
                 .issuedAt(now)
                 .issuer("self")
                 .subject(auth.getName())
+                .claim("roles", scope)
+                .claim("loggedInAs", "VENDOR")
+                .build();
+        return encoder.encode(JwtEncoderParameters.from(claims)).getTokenValue();
+    }
+
+
+    public String generateVendorJwt(String username, String scope) {
+        Instant now = Instant.now();
+
+        JwtClaimsSet claims = JwtClaimsSet.builder()
+                .issuedAt(now)
+                .issuer("self")
+                .subject(username)
                 .claim("roles", scope)
                 .claim("loggedInAs", "VENDOR")
                 .build();

@@ -1,14 +1,19 @@
 package com.venuehub.bookingservice.service;
 
+import com.venuehub.bookingservice.dto.BookingDateTimeDto;
 import com.venuehub.bookingservice.dto.BookingDto;
+import com.venuehub.bookingservice.mapper.BookingServiceMapper;
 import com.venuehub.bookingservice.model.Venue;
 import com.venuehub.commons.exception.NoSuchBookingException;
 import com.venuehub.bookingservice.model.Booking;
 import com.venuehub.broker.constants.BookingStatus;
 import com.venuehub.bookingservice.repository.BookingRepository;
-import com.venuehub.commons.exception.UserForbiddenException;
+import org.mapstruct.factory.Mappers;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.jwt.Jwt;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +24,9 @@ import java.util.*;
 
 @Service
 public class BookingService {
+    public static final Logger logger = LoggerFactory.getLogger(BookingService.class);
     private final BookingRepository bookingRepository;
+    private final BookingServiceMapper mapper = Mappers.getMapper(BookingServiceMapper.class);
 
     @Autowired
     public BookingService(BookingRepository bookingRepository) {
@@ -27,28 +34,64 @@ public class BookingService {
     }
 
     @Transactional
+    @CacheEvict(value = {"booking:id", "booking:complete", "bookings:venueId", "bookings:username", "bookings:datetime"})
     public void save(Booking booking) {
         bookingRepository.save(booking);
     }
 
-    public List<Booking> findByVenue(long id) {
-        return bookingRepository.findByVenue(id);
+    public List<Booking> findByVenue(long venueId) {
+        return bookingRepository.findByVenue(venueId);
     }
 
-    public Boolean isBookingAvailable(LocalDateTime bookingDateTime, List<Booking> bookings) {
+    @Cacheable(value = "bookings:venueId", key = "#venueId")
+    public List<BookingDto> loadByVenue(long venueId) {
+        List<Booking> bookings = bookingRepository.findByVenue(venueId);
+        return mapper.bookingsToBookingDtoList(bookings);
+    }
 
-        LocalDate bookingDate = bookingDateTime.toLocalDate();
+    public Optional<Booking> findById(long id) {
+        return bookingRepository.findById(id);
+    }
+
+    @Cacheable(value = "booking:id", key = "#id")
+    public BookingDto loadById(long id) {
+        Booking booking = bookingRepository.findById(id).orElseThrow(NoSuchBookingException::new);
+        return mapper.bookingToBookingDto(booking);
+    }
+
+    public List<Booking> findByUsername(String username) {
+        return bookingRepository.findByUsername(username);
+    }
+
+    @Cacheable(value = "bookings:username", key = "#username")
+    public List<BookingDto> loadByUsername(String username) {
+        List<Booking> bookings = bookingRepository.findByUsername(username);
+        return mapper.bookingsToBookingDtoList(bookings);
+    }
+
+    public Optional<Booking> findCompletedBookingById(long id) {
+        return bookingRepository.findCompletedBookingById(id);
+    }
+
+    @Cacheable(value = "booking:complete", key = "#id")
+    public BookingDto loadCompletedBookingById(long id) {
+        Booking booking = bookingRepository.findCompletedBookingById(id).orElseThrow(NoSuchBookingException::new);
+        return mapper.bookingToBookingDto(booking);
+    }
+
+    @Cacheable(value = "bookings:datetime", key = "#id")
+    public List<BookingDateTimeDto> bookingDatesByVenue(long id) {
+        List<Booking> bookings = bookingRepository.findByVenue(id);
+        return bookings.stream().map(mapper::bookingToBookingDateTimeDto).toList();
+    }
+
+    public Boolean isBookingAvailable(String bookingDate) {
+        LocalDate localBookingDate = LocalDate.parse(bookingDate);
         LocalDate currentDate = LocalDate.now();
 
-        for (Booking booking : bookings) {
+        if (bookingRepository.findByBookingDate(bookingDate).isPresent()) return false;
+        if (!localBookingDate.isAfter(currentDate)) return false;
 
-            LocalDate currentBooking = LocalDateTime.parse(booking.getBookingDateTime()).toLocalDate();
-
-            if (!bookingDate.isAfter(currentDate) || bookingDate.equals(currentBooking) || bookingDate.equals(currentDate)) {
-                return false;
-            }
-
-        }
         return true;
     }
 
@@ -67,24 +110,15 @@ public class BookingService {
         return updatedBookings;
     }
 
-    public Optional<Booking> findById(long id) {
-        return bookingRepository.findById(id);
-    }
-
-    public List<Booking> findByUsername(String username) {
-        return bookingRepository.findByUsername(username);
-    }
-
-    public Optional<Booking> findCompletedBookingById(long id) {
-        return bookingRepository.findCompletedBookingById(id);
-    }
 
     @Transactional
+    @CacheEvict(value = {"booking:id", "booking:complete", "bookings:venueId", "bookings:username", "bookings:datetime"})
     public void deleteBooking(long id) {
         bookingRepository.deleteById(id);
     }
 
     @Transactional
+    @CacheEvict(value = {"booking:id", "booking:complete", "bookings:venueId", "bookings:username", "bookings:datetime"})
     public void updateStatus(long id, BookingStatus status) throws NoSuchBookingException {
         Booking booking = bookingRepository.findById(id).orElseThrow(NoSuchBookingException::new);
         booking.setStatus(status);
@@ -92,9 +126,10 @@ public class BookingService {
     }
 
     @Transactional
+    @CacheEvict(value = {"booking:id", "booking:complete", "bookings:venueId", "bookings:username", "bookings:datetime"}, allEntries = true)
     public Booking addNewBooking(BookingDto body, Venue venue, String username) {
         Booking newBooking = Booking.builder()
-                .bookingDateTime(body.bookingDateTime())
+                .bookingDate(body.bookingDate())
                 .status(BookingStatus.RESERVED)
                 .venue(venue)
                 .bookingFee(venue.getEstimate())
@@ -107,24 +142,15 @@ public class BookingService {
     }
 
     @Transactional
+    @CacheEvict(value = {"booking:id", "booking:complete", "bookings:venueId", "bookings:username", "bookings:datetime"})
     public void updateBooking(Booking booking, String newBookingDate) {
-        booking.setBookingDateTime(newBookingDate);
+        booking.setBookingDate(newBookingDate);
 
         //setting a new reservation date
         String newReservation = LocalDateTime.now(ZoneId.of("PLT")).plusMinutes(2).toString();
         booking.setReservationExpiry(newReservation);
 
         bookingRepository.save(booking);
-    }
-
-    public void bookingChecks(Jwt jwt){
-
-        String rolesString = jwt.getClaim("roles");
-        List<String> roles = Arrays.stream(rolesString.split(" ")).toList();
-
-        if (!roles.contains("USER") || !jwt.getClaim("loggedInAs").equals("USER")) {
-            throw new UserForbiddenException();
-        }
     }
 
 }

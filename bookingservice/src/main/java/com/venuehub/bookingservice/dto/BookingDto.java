@@ -10,6 +10,6 @@ public record BookingDto(
         String email,
         @NotNull @NotBlank(message = "Phone can not be null or blank") String phone,
         BookingStatus status,
-        @NotNull @NotBlank(message = "Date can not be null or empty") String bookingDateTime,
+        @NotNull @NotBlank(message = "Date can not be null or empty") String bookingDate,
         @Min(value = 0, message = "Invalid value") int guests
 ) {}

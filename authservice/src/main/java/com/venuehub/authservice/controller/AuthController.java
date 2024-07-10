@@ -26,7 +26,6 @@ public class AuthController implements AuthApi {
         this.jwkSet = jwkSet;
     }
 
-
     @GetMapping("/.well-known/jwks.json")
     public Map<String,Object> getPublicKey() {
         return jwkSet.toJSONObject();

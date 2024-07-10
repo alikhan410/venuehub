@@ -9,15 +9,13 @@ import com.venuehub.broker.producer.venue.VenueCreatedProducer;
 import com.venuehub.broker.producer.venue.VenueDeletedProducer;
 import com.venuehub.broker.producer.venue.VenueUpdatedProducer;
 import com.venuehub.venueservice.dto.BookingDto;
-import com.venuehub.venueservice.dto.ImageDto;
 import com.venuehub.venueservice.dto.VenueDto;
 import com.venuehub.venueservice.model.Booking;
-import com.venuehub.venueservice.model.ImageData;
+import com.venuehub.venueservice.model.ImageUri;
 import com.venuehub.venueservice.model.Venue;
-import com.venuehub.venueservice.repository.VenueRepository;
 import com.venuehub.venueservice.response.VenueAddedResponse;
 import com.venuehub.venueservice.service.BookingService;
-import com.venuehub.venueservice.service.ImageDataService;
+import com.venuehub.venueservice.service.ImageUriService;
 import com.venuehub.venueservice.service.VenueService;
 import com.venuehub.venueservice.utils.JwtTestImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -68,7 +66,7 @@ class VenueControllerTest {
     @MockBean
     private BookingService bookingService;
     @MockBean
-    private ImageDataService imageDataService;
+    private ImageUriService imageUriService;
     @MockBean
     private VenueService venueService;
     @Autowired
@@ -81,6 +79,7 @@ class VenueControllerTest {
     private Venue venue;
     private VenueDto venueDto;
     private List<Booking> bookings;
+    private List<ImageUri> imageUris;
     private List<BookingDto> bookingDtos;
     private int capacity;
     private String username;
@@ -91,8 +90,6 @@ class VenueControllerTest {
     private String description;
     private String phone;
     private String myJwt;
-    private final List<ImageData> images = new ArrayList<>();
-    private final List<ImageDto> imageDtos = new ArrayList<>();
     private MockMultipartFile imageFile1;
     private MockMultipartFile imageFile2;
     @Captor
@@ -111,35 +108,19 @@ class VenueControllerTest {
         venueName = "Marquee Venue";
         location = "ABC Street, Karachi, Pakistan";
         bookings = new ArrayList<>();
+        imageUris = new ArrayList<>();
         bookingDtos = new ArrayList<>();
 
-        ImageData imageData1 = new ImageData();
-        ImageData imageData2 = new ImageData();
-        byte[] img1 = {};
-        byte[] img2 = {};
-        ImageDto imageDto1 = new ImageDto(1L, img1);
-        ImageDto imageDto2 = new ImageDto(2L, img2);
-        imageData1.setImage(img1);
-        imageData2.setImage(img2);
-
-
-        imageFile1 = new MockMultipartFile("images", "image1.jpg", "image/png", imageData1.getImage());
-        imageFile2 = new MockMultipartFile("images", "image2.png", "image/png", imageData2.getImage());
-
-        images.add(imageData1);
-        images.add(imageData2);
-        imageDtos.add(imageDto1);
-        imageDtos.add(imageDto2);
         venue = Venue.builder()
                 .venueType(venueType)
                 .id(venueId)
                 .username(username)
                 .description(description)
-                .images(images)
                 .phone(phone)
                 .name(venueName)
                 .location(location)
                 .estimate(Integer.parseInt(estimate))
+                .imageUris(imageUris)
                 .bookings(bookings)
                 .capacity(capacity)
                 .build();
@@ -150,7 +131,7 @@ class VenueControllerTest {
                 venueType,
                 location,
                 String.valueOf(capacity),
-                imageDtos,
+                imageUris,
                 phone,
                 estimate,
                 bookingDtos);
@@ -196,8 +177,6 @@ class VenueControllerTest {
         void Expect_401_When_User_UnAuthorized() throws Exception {
 
             mvc.perform(MockMvcRequestBuilders.multipart("/venue")
-                    .file(imageFile1)
-                    .file(imageFile2)
                     .contentType(MediaType.MULTIPART_FORM_DATA)
                     .content(asJsonString(venueDto))
             ).andExpect(status().isUnauthorized());
@@ -208,17 +187,9 @@ class VenueControllerTest {
             String wrongJwt = jwtTestImpl.generateJwt(username, "USER");
 
             mvc.perform(MockMvcRequestBuilders.multipart("/venue")
-                    .file(imageFile1)
-                    .file(imageFile2)
                     .header("Authorization", "Bearer " + wrongJwt)
-                    .contentType(MediaType.MULTIPART_FORM_DATA)
-                    .param("name", venueDto.name())
-                    .param("description", venueDto.description())
-                    .param("venueType", venueDto.venueType())
-                    .param("location", venueDto.location())
-                    .param("capacity", String.valueOf(venueDto.capacity())) // Convert capacity to String
-                    .param("phone", venueDto.phone())
-                    .param("estimate", String.valueOf(venueDto.estimate()))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(asJsonString(venueDto))
             ).andExpect(status().isForbidden());
         }
 
@@ -228,17 +199,9 @@ class VenueControllerTest {
             Mockito.when(venueService.buildVenue(Mockito.any(VenueDto.class), Mockito.eq(username))).thenReturn(venue);
 
             MvcResult result = mvc.perform(MockMvcRequestBuilders.multipart("/venue")
-                            .file(imageFile1)
-                            .file(imageFile2)
-                            .header("Authorization", "Bearer " + myJwt)
-                            .contentType(MediaType.MULTIPART_FORM_DATA)
-                            .param("name", venueDto.name())
-                            .param("venueType", venueDto.venueType())
-                            .param("description", venueDto.description())
-                            .param("location", venueDto.location())
-                            .param("capacity", String.valueOf(venueDto.capacity())) // Convert capacity to String
-                            .param("phone", venueDto.phone())
-                            .param("estimate", String.valueOf(venueDto.estimate()))
+                    .header("Authorization", "Bearer " + myJwt)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(asJsonString(venueDto))
             ).andExpect(status().isCreated()).andReturn();
 
             String response = result.getResponse().getContentAsString();
@@ -254,17 +217,9 @@ class VenueControllerTest {
             Mockito.when(venueService.buildVenue(Mockito.any(VenueDto.class), Mockito.eq(username))).thenReturn(venue);
 
             mvc.perform(MockMvcRequestBuilders.multipart("/venue")
-                    .file(imageFile1)
-                    .file(imageFile2)
                     .header("Authorization", "Bearer " + myJwt)
-                    .contentType(MediaType.MULTIPART_FORM_DATA)
-                    .param("name", venueDto.name())
-                    .param("description", venueDto.description())
-                    .param("venueType", venueDto.venueType())
-                    .param("location", venueDto.location())
-                    .param("capacity", String.valueOf(venueDto.capacity()))
-                    .param("phone", venueDto.phone())
-                    .param("estimate", String.valueOf(venueDto.estimate()))
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(asJsonString(venueDto))
             ).andExpect(status().isCreated());
 
 //            VenueCreatedEvent event = new VenueCreatedEvent(1L, username);
@@ -448,7 +403,7 @@ class VenueControllerTest {
                     venueType,
                     location,
                     String.valueOf(updatedCapacity),
-                    imageDtos,
+                    imageUris,
                     phone,
                     updatedEstimate,
                     bookingDtos);

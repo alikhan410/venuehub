@@ -6,22 +6,18 @@ import com.venuehub.bookingservice.model.Venue;
 import com.venuehub.bookingservice.repository.BookingRepository;
 import com.venuehub.broker.constants.BookingStatus;
 import com.venuehub.commons.exception.NoSuchVenueException;
-import org.junit.Assert;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.amqp.RabbitAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -48,7 +44,7 @@ class BookingServiceTest {
     int estimates;
     int guests;
     String name;
-    String bookingDateTime;
+    String bookingDate;
     BookingStatus status;
     Venue venue;
 
@@ -63,7 +59,7 @@ class BookingServiceTest {
         estimates = 45000;
         guests = 50;
         name = "Saffron Venue";
-        bookingDateTime = "2024-12-04T18:30:00";
+        bookingDate = "2024-12-04";
         status = BookingStatus.RESERVED;
         venue = venueService.findById(venueId).orElseThrow(NoSuchVenueException::new);
 
@@ -72,7 +68,7 @@ class BookingServiceTest {
     @Test
     void save() {
         Booking booking = Booking.builder()
-                .bookingDateTime(bookingDateTime)
+                .bookingDate(bookingDate)
                 .status(BookingStatus.RESERVED)
                 .venue(venue)
                 .bookingFee(estimates)
@@ -84,7 +80,7 @@ class BookingServiceTest {
         Booking newBooking = bookingRepository.findById(venueId).orElseThrow(NoSuchVenueException::new);
 
         assertThat(newBooking.getId()).isEqualTo(booking.getId());
-        assertThat(newBooking.getBookingDateTime()).isEqualTo(bookingDateTime);
+        assertThat(newBooking.getBookingDate()).isEqualTo(bookingDate);
         assertThat(newBooking.getStatus()).isEqualTo(BookingStatus.RESERVED);
         assertThat(newBooking.getVenue().getId()).isEqualTo(venueId);
         assertThat(newBooking.getBookingFee()).isEqualTo(estimates);
@@ -98,7 +94,7 @@ class BookingServiceTest {
     void findByVenue() {
 
         Booking booking = Booking.builder()
-                .bookingDateTime(bookingDateTime)
+                .bookingDate(bookingDate)
                 .status(BookingStatus.RESERVED)
                 .venue(venue)
                 .bookingFee(estimates)
@@ -111,7 +107,7 @@ class BookingServiceTest {
         assertThat(bookings).isNotEmpty();
         assertThat(bookings.get(0).getId()).isEqualTo(booking.getId());
         assertThat(bookings.get(0).getVenue().getId()).isEqualTo(venueId);
-        assertThat(bookings.get(0).getBookingDateTime()).isEqualTo(bookingDateTime);
+        assertThat(bookings.get(0).getBookingDate()).isEqualTo(bookingDate);
         assertThat(bookings.get(0).getStatus()).isEqualTo(BookingStatus.RESERVED);
         assertThat(bookings.get(0).getBookingFee()).isEqualTo(estimates);
         assertThat(bookings.get(0).getUsername()).isEqualTo(username);
@@ -124,7 +120,7 @@ class BookingServiceTest {
     void isBookingAvailable() {
 
         Booking booking = Booking.builder()
-                .bookingDateTime(bookingDateTime)
+                .bookingDate(bookingDate)
                 .status(BookingStatus.RESERVED)
                 .venue(venue)
                 .bookingFee(estimates)
@@ -134,8 +130,10 @@ class BookingServiceTest {
                 .guests(guests).build();
         bookingRepository.save(booking);
         List<Booking> bookings = bookingRepository.findByVenue(venueId);
-        Boolean res = bookingService.isBookingAvailable(LocalDateTime.parse(bookingDateTime), bookings);
-        Boolean res1 = bookingService.isBookingAvailable(LocalDateTime.parse("2024-12-05T18:30:00"), bookings);
+
+        Boolean res = bookingService.isBookingAvailable(bookingDate);
+        String bookingDate2="2024-12-05" ;
+        Boolean res1 = bookingService.isBookingAvailable(bookingDate2);
         assertThat(res).isFalse();
         assertThat(res1).isTrue();
     }

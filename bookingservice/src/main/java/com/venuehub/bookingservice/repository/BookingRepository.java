@@ -1,5 +1,6 @@
 package com.venuehub.bookingservice.repository;
 
+import com.fasterxml.jackson.databind.introspect.AnnotationCollector;
 import com.venuehub.bookingservice.model.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -22,4 +23,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     @Query(value = "SELECT * FROM booking WHERE id = :id AND status = 'COMPLETED'", nativeQuery = true)
     Optional<Booking> findCompletedBookingById(@Param("id") long id);
+
+    Optional<Booking> findByBookingDate(String bookingDateTime);
+
 }

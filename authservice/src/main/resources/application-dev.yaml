@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 0
   tomcat:
     mbeanregistry:
       enabled: true
@@ -25,6 +25,7 @@ springdoc:
 #          bearerFormat: JWT
 
 management:
+
   endpoints:
     web:
       exposure:
@@ -37,15 +38,14 @@ management:
 
 
 spring:
+
   jmx:
     enabled: true
     default-domain: authservice
-  rabbitmq:
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
   datasource:
+    hikari:
+      maximum-pool-size: 7
+      register-mbeans: true
     url: jdbc:mysql://localhost:3306/authservice
     username: ali
     password: "@Li4103568"

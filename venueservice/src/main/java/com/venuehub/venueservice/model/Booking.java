@@ -45,7 +45,7 @@ public class Booking {
 //
 //    @Column(name = "booking_date_time")
 //    @NotNullNotBlank(message = "Date can not be null or empty")
-//    private String bookingDateTime;
+//    private String bookingDate;
 //
 //    @Column(name = "customer_name")
 //    @NotNullNotBlank(message = "Customer name can not be null or empty")

@@ -58,7 +58,7 @@ public class BookingJobSchedulingConsumer extends BaseConsumer<BookingJobSchedul
         try {
             //Starting  a booking removing job
             JobDetail bookingjobDetail = jobService.buildBookingJob(booking.getId());
-            Trigger bookingJobTrigger = jobService.buildBookingJobTrigger(bookingjobDetail, event.bookingDateTime());
+            Trigger bookingJobTrigger = jobService.buildBookingJobTrigger(bookingjobDetail, event.bookingDate());
             jobService.scheduleJob(bookingjobDetail, bookingJobTrigger);
         } catch (SchedulerException e) {
             throw new RuntimeException(e);

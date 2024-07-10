@@ -8,7 +8,7 @@ public record GetBookingsResponse(
         String username,
         String venueName,
         Long venueId,
-        String bookingDateTime,
+        String bookingDate,
         String reservationExpiry
 ) {
 }

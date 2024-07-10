@@ -16,7 +16,6 @@ import com.venuehub.broker.producer.booking.BookingUpdatedProducer;
 import com.venuehub.broker.producer.job.BookingJobCancellingProducer;
 import com.venuehub.broker.producer.job.BookingJobSchedulingProducer;
 import com.venuehub.commons.exception.*;
-import com.venuehub.bookingservice.mapper.Mapper;
 import com.venuehub.bookingservice.model.Booking;
 import com.venuehub.bookingservice.model.Venue;
 import com.venuehub.bookingservice.service.BookingService;
@@ -76,13 +75,12 @@ public class BookingController {
             logger.error("Venue not found with id: {}", venueId);
             return new NoSuchVenueException();
         });
-        List<Booking> bookings = venue.getBookings();
-        LocalDateTime bookingDateTime = LocalDateTime.parse(body.bookingDateTime());
+        LocalDate bookingDate = LocalDate.parse(body.bookingDate());
 
-        //LocalDateTime today = LocalDateTime.parse("2019-03-27T10:15:30")
-        if (!bookingService.isBookingAvailable(bookingDateTime, bookings)) {
-            logger.warn("Booking is not available for date: {}", bookingDateTime);
-            throw new BookingUnavailableException("Booking is not available for date: "+bookingDateTime);
+        //LocalDate today = LocalDate.parse("2019-03-27")
+        if (!bookingService.isBookingAvailable(body.bookingDate())) {
+            logger.warn("Booking is not available for date: {}", bookingDate);
+            throw new BookingUnavailableException("Booking is not available for date: " + bookingDate);
         }
 
         Booking newBooking = bookingService.addNewBooking(body, venue, jwt.getSubject());
@@ -99,7 +97,7 @@ public class BookingController {
         BookingJobSchedulingEvent bookingJobSchedulingEvent = new BookingJobSchedulingEvent(
                 newBooking.getId(),
                 BookingStatus.RESERVED,
-                newBooking.getBookingDateTime(),
+                newBooking.getBookingDate(),
                 newBooking.getReservationExpiry(),
                 jwt.getSubject()
 
@@ -123,10 +121,8 @@ public class BookingController {
             return new NoSuchVenueException();
         });
 
-        List<Booking> bookingList = bookingService.findByVenue(venueId);
-        List<BookingDateTimeDto> bookedVenueDtoList = bookingList.stream().map(mapper::bookingToBookingDateTimeDto).toList();
-
-        BookingDateListResponse response = new BookingDateListResponse(bookedVenueDtoList);
+        List<BookingDateTimeDto> dates = bookingService.bookingDatesByVenue(venueId);
+        BookingDateListResponse response = new BookingDateListResponse(dates);
 
         logger.info("Returning bookings for venueId: {}", venueId);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -149,7 +145,13 @@ public class BookingController {
             throw new UserForbiddenException();
         }
 
-        BookingResponse response = new BookingResponse(booking.getBookingDateTime(), booking.getGuests(), booking.getStatus(), booking.getVenue().getName(), booking.getVenue().getId());
+        BookingResponse response = new BookingResponse(
+                booking.getBookingDate(),
+                booking.getGuests(),
+                booking.getStatus(),
+                booking.getVenue().getName(),
+                booking.getVenue().getId()
+        );
 
         logger.info("Returning booking status for bookingId: {}", bookingId);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -171,9 +173,12 @@ public class BookingController {
     @GetMapping("/bookings/vendor")
     public ResponseEntity<List<GetBookingsResponse>> getBookingByVendor(@AuthenticationPrincipal Jwt jwt) throws NoSuchBookingException {
         logger.info("Received request to get bookings by vendor: {}", jwt.getSubject());
+
         SecurityChecks.vendorCheck(jwt, "Please login as vendor and try again");
 
-        List<Booking> bookings = venueService.findByUsername(jwt.getSubject())
+        List<Venue> venues = venueService.findByUsername(jwt.getSubject());
+
+        List<Booking> bookings = venues
                 .stream()
                 .flatMap(venue -> venue.getBookings().stream())
                 .toList();
@@ -247,14 +252,14 @@ public class BookingController {
         }
 
         //updating both the booking and reservation
-        bookingService.updateBooking(booking, body.bookingDateTime());
+        bookingService.updateBooking(booking, body.bookingDate());
 
         //Sending the events
         BookingUpdatedEvent bookingUpdatedEvent = new BookingUpdatedEvent(bookingId, BookingStatus.RESERVED);
         BookingJobSchedulingEvent bookingJobSchedulingEvent = new BookingJobSchedulingEvent(
                 bookingId,
                 BookingStatus.RESERVED,
-                booking.getBookingDateTime(),
+                booking.getBookingDate(),
                 booking.getReservationExpiry(),
                 jwt.getSubject()
 

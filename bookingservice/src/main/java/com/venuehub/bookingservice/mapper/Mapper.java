@@ -12,13 +12,13 @@ public class Mapper {
                 booking.getEmail(),
                 booking.getPhone(),
                 booking.getStatus(),
-                booking.getBookingDateTime(),
+                booking.getBookingDate(),
                 booking.getGuests()
         );
     }
 
     public static BookingDateTimeDto modelToBookingDateDto(Booking booking) {
-        return new BookingDateTimeDto(booking.getBookingDateTime());
+        return new BookingDateTimeDto(booking.getBookingDate());
     }
 
     public static GetBookingsResponse modelToResponse(Booking booking) {
@@ -29,7 +29,7 @@ public class Mapper {
                 booking.getUsername(),
                 booking.getVenue().getName(),
                 booking.getVenue().getId(),
-                booking.getBookingDateTime(),
+                booking.getBookingDate(),
                 booking.getReservationExpiry()
         );
     }

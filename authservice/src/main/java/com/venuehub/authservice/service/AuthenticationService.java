@@ -9,6 +9,8 @@ import com.venuehub.authservice.repository.UserRepository;
 import com.venuehub.commons.exception.DuplicateEntryException;
 import com.venuehub.commons.exception.NoSuchUserException;
 import com.venuehub.commons.exception.WrongPasswordException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -17,10 +19,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 import java.util.Set;
 
 @Service
 public class AuthenticationService {
+    public static final Logger logger = LoggerFactory.getLogger(AuthenticationService.class);
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
@@ -42,9 +46,9 @@ public class AuthenticationService {
         this.tokenService = tokenService;
     }
 
-    public User registerUser(UserDto body) {
+    public LoginResponse registerUser(UserDto body) {
 
-        if (roleRepository.findByAuthority("USER").isEmpty()) return null;
+        if (roleRepository.loadByAuthority("USER") == null) return null;
 
         if (userRepository.findByEmail(body.email()).isPresent()) {
             throw new DuplicateEntryException("Email is already taken");
@@ -56,7 +60,7 @@ public class AuthenticationService {
 
 
         String encodedPassword = passwordEncoder.encode(body.password());
-        Role userRole = roleRepository.findByAuthority("USER").get();
+        Role userRole = roleRepository.findByAuthority("USER").orElseThrow(NoSuchElementException::new);
         Set<Role> authorities = new HashSet<>();
         authorities.add(userRole);
 
@@ -68,14 +72,17 @@ public class AuthenticationService {
         newUser.setUsername(body.username());
         newUser.setAuthorities(authorities);
 
-        return userRepository.save(newUser);
+        userRepository.save(newUser);
+
+        String jwt = tokenService.generateUserJwt(body.username(), "USER");
+        return new LoginResponse(body.username(), jwt);
 
     }
 
-    public User registerVendor(UserDto body) {
+    public LoginResponse registerVendor(UserDto body) {
 
-        if (roleRepository.findByAuthority("VENDOR").isEmpty()) return null;
-        if (roleRepository.findByAuthority("USER").isEmpty()) return null;
+        if (roleRepository.loadByAuthority("VENDOR") == null) return null;
+        if (roleRepository.loadByAuthority("USER") == null) return null;
 
         if (userRepository.findByEmail(body.email()).isPresent()) {
             throw new DuplicateEntryException("Email is already taken");
@@ -86,8 +93,8 @@ public class AuthenticationService {
         }
 
         String encodedPassword = passwordEncoder.encode(body.password());
-        Role vendorRole = roleRepository.findByAuthority("VENDOR").get();
-        Role userRole = roleRepository.findByAuthority("USER").get();
+        Role vendorRole = roleRepository.findByAuthority("VENDOR").orElseThrow(NoSuchElementException::new);
+        Role userRole = roleRepository.findByAuthority("USER").orElseThrow(NoSuchElementException::new);
 
         Set<Role> authorities = new HashSet<>();
         authorities.add(userRole);
@@ -101,7 +108,10 @@ public class AuthenticationService {
         newUser.setUsername(body.username());
         newUser.setAuthorities(authorities);
 
-        return userRepository.save(newUser);
+        userRepository.save(newUser);
+
+        String jwt = tokenService.generateVendorJwt(body.username(), "USER VENDOR");
+        return new LoginResponse(body.username(), jwt);
 
     }
 

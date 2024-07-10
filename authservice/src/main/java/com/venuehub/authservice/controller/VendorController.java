@@ -30,12 +30,7 @@ public class VendorController {
     @PostMapping("/vendor/register")
     public ResponseEntity<LoginResponse> registerVendor(@RequestBody @Valid UserDto body) {
 
-        User newUser = authenticationService.registerVendor(body);
-
-        LoginResponse loginVendor = authenticationService.loginVendor(newUser.getUsername(), newUser.getPassword());
-
-        return new ResponseEntity<>(loginVendor, HttpStatus.CREATED);
-
+        return new ResponseEntity<>(authenticationService.registerVendor(body), HttpStatus.CREATED);
     }
 
     @PostMapping("/vendor/login")

@@ -12,6 +12,8 @@ import org.springframework.amqp.rabbit.config.StatelessRetryOperationsIntercepto
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.amqp.rabbit.listener.RabbitListenerContainerFactory;
+import org.springframework.amqp.rabbit.listener.SimpleMessageListenerContainer;
 import org.springframework.amqp.rabbit.retry.RepublishMessageRecoverer;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
@@ -47,20 +49,19 @@ public class RabbitMQConfig {
 
     @Bean
     public Queue deadLetterQueue() {
-        return new Queue(MyQueue.Constants.DLQ, true);
+        return QueueBuilder.durable(MyQueue.Constants.DLQ).build();
     }
 
     @Bean
-    public TopicExchange deadLetterExchange() {
-        return new TopicExchange(MyExchange.DLX.name());
+    public Exchange deadLetterExchange() {
+        return ExchangeBuilder.directExchange(MyExchange.DLX.name()).durable(true).build();
     }
-
     @Bean
-    Binding deadQueueBinding() {
-        return BindingBuilder
-                .bind(deadLetterQueue())
+    public Binding dlqBinding() {
+        return BindingBuilder.bind(deadLetterQueue())
                 .to(deadLetterExchange())
-                .with(MyKeys.dlrq);
+                .with(MyKeys.dlrq.name())
+                .noargs();
     }
 
     @Bean
@@ -76,32 +77,49 @@ public class RabbitMQConfig {
         return rabbitTemplate;
     }
 
-//    @Bean
 //    public RetryTemplate retryTemplate() {
 //        RetryTemplate retryTemplate = new RetryTemplate();
 //
+//        // Configuring backoff policy
 //        FixedBackOffPolicy backOffPolicy = new FixedBackOffPolicy();
-//        backOffPolicy.setBackOffPeriod(5000); //5 seconds delay between resending
+//        backOffPolicy.setBackOffPeriod(5000); // 5 seconds delay between resending
 //        retryTemplate.setBackOffPolicy(backOffPolicy);
 //
+//        // Configuring retry policy
 //        SimpleRetryPolicy retryPolicy = new SimpleRetryPolicy();
-//        retryPolicy.setMaxAttempts(3);
+//        retryPolicy.setMaxAttempts(3); // Maximum retry attempts
 //        retryTemplate.setRetryPolicy(retryPolicy);
+//
 //
 //        return retryTemplate;
 //    }
 
 //    @Bean
-//    public SimpleRabbitListenerContainerFactory listenerContainerFactory(ConnectionFactory connectionFactory) {
-//
+//    public RabbitListenerContainerFactory<SimpleMessageListenerContainer> listenerContainerFactory(ConnectionFactory connectionFactory) {
 //        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
-//        factory.setConnectionFactory(connectionFactory);
-//        factory.setConcurrentConsumers(1);
-//        factory.setMaxConcurrentConsumers(5);
-//        factory.setPrefetchCount(1);
-//        factory.setAcknowledgeMode(AcknowledgeMode.AUTO);
-//        factory.setRetryTemplate(retryTemplate());
 //
+//        // Configuring connection factory
+//        factory.setConnectionFactory(connectionFactory);
+//
+//        // Setting concurrency settings
+//        factory.setConcurrentConsumers(1); // Number of concurrent consumers (threads) to start with
+//        factory.setMaxConcurrentConsumers(5); // Maximum number of concurrent consumers
+//        factory.setPrefetchCount(1); // Number of messages to prefetch in each request
+//
+//        // Acknowledgment mode
+//        factory.setAcknowledgeMode(AcknowledgeMode.AUTO); // Automatically acknowledge messages
+//
+//        // Setting retry template
+//        factory.setRetryTemplate(retryTemplate()); // Setting the retry template configured above
+//
+//        return factory;
+//    }
+//    @Bean
+//    public RabbitListenerContainerFactory<SimpleMessageListenerContainer> rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
+//        SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
+//        factory.setConnectionFactory(connectionFactory); // Set your connection factory here
+//
+//        factory.setRetryTemplate(retryTemplate());
 //        return factory;
 //    }
 

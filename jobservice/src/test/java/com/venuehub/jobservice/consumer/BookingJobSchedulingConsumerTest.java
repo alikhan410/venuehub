@@ -80,7 +80,7 @@ class BookingJobSchedulingConsumerTest {
         Mockito.verify(jobService, times(1)).buildBookingJob(1L);
 
         // Verify that the jobService.buildBookingJobTrigger() method is called once
-        Mockito.verify(jobService, times(1)).buildBookingJobTrigger(bookingJobDetail, event.bookingDateTime());
+        Mockito.verify(jobService, times(1)).buildBookingJobTrigger(bookingJobDetail, event.bookingDate());
 
         // Verify that the jobService.buildReservationJob() method is called once
         Mockito.verify(jobService, times(1)).buildReservationJob(1L);

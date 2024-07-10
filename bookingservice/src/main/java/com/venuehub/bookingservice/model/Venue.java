@@ -30,6 +30,7 @@ public class Venue {
     private int estimate;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "venue", cascade = CascadeType.ALL)
+    @JsonBackReference
     private List<Booking> bookings;
 
     public Venue(Long id, String name, int estimate, String username) {

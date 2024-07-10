@@ -31,9 +31,9 @@ public class Booking {
     @JdbcType(MySQLEnumJdbcType.class)
     private BookingStatus status;
 
-    @Column(name = "booking_date_time")
+    @Column(name = "booking_date")
     @NotNullNotBlank(message = "Date can not be null or empty")
-    private String bookingDateTime;
+    private String bookingDate;
 
     @Column(name = "booking_fee")
     @Min(value = 10000, message = "Minimum value for estimates is 10000")
