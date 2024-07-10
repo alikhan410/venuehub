@@ -22,6 +22,7 @@ The Venuehub platform is designed as an event-based microservices architecture. 
 - **Booking Service**: Facilitates booking and reservation processes.
 - **Job Service**: Manages background jobs and asynchronous tasks.
 - **Payment Service**: Handles payment processing and integration.
+
 These services communicate with each other asynchronously using RabbitMQ, ensuring decoupling and fault tolerance.
 
 ### Database and Caching Strategy
