@@ -73,7 +73,7 @@ List of external APIs:
 - **Data Model**: [﻿Data Model - Venue Service](https://app.eraser.io/workspace/ptHDgAXUA0gm15nVxIY8?elements=icNTZ5qjSXVpDZyX_tEw8g) 
 ### Microservice 2: Image Service
 - **Overview**: The Image Service stores the images associated with venues in disk. It acts as a local CDN.
-- **Class Diagrams**:  [﻿Diagram depicting the classes involved in the Image Service.](https://lucid.app/documents/embedded/815c537a-f755-4889-9419-8ac411451c9e) 
+- **Class Diagrams**:  [﻿`Diagram depicting the classes involved in the Image Service.`](https://lucid.app/documents/embedded/815c537a-f755-4889-9419-8ac411451c9e) 
 - **Method Descriptions**: Detailed method descriptions and API documentation can be found at the Venue Service API Documentation
 - **Data Model**: [﻿Data Model - Image Service](https://app.eraser.io/workspace/ptHDgAXUA0gm15nVxIY8?elements=vkxIcKeCHytZ38qXIBSxDg) 
 ### Microservice 3: Booking Service
