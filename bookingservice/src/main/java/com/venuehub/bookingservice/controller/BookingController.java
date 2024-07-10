@@ -39,7 +39,7 @@ import java.util.List;
 
 @RestController
 @Validated
-public class BookingController {
+public class BookingController implements BookingApi {
     private static final Logger logger = LoggerFactory.getLogger(BookingController.class);
 
     private final BookingService bookingService;

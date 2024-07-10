@@ -40,7 +40,7 @@ import java.util.List;
 
 @RestController
 @Validated
-public class VenueController {
+public class VenueController implements VenueApi{
     private final Logger logger = LoggerFactory.getLogger(VenueController.class);
 
     private final VenueService venueService;

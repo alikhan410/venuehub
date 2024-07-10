@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "Vendor Login", description = "Let's vendor register/login/logout")
 @RestController
 @Validated
-public class VendorController {
+public class VendorController implements VendorApi {
     private final AuthenticationService authenticationService;
 
     @Autowired

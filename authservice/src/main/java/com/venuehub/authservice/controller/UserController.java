@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 @Tag(name = "User Login", description = "Let's user register/login/logout")
 @RestController
 @Validated
-public class UserController {
+public class UserController implements UserApi{
     public static final Logger logger = LoggerFactory.getLogger(UserController.class);
     private final AuthenticationService authenticationService;
 

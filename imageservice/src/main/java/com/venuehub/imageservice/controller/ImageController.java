@@ -20,7 +20,7 @@ import java.io.IOException;
 import java.util.List;
 
 @RestController
-public class ImageController {
+public class ImageController implements ImageApi {
     private final ImageService imageService;
     private final ImageCreatedProducer producer;
 
@@ -42,8 +42,8 @@ public class ImageController {
     }
 
     @PostMapping("/images/{venueName}")
-    private ResponseEntity<HttpStatus> saveImage(@PathVariable("venueName") String venueName, MultipartFile[] files, @AuthenticationPrincipal Jwt jwt) throws IOException {
-        venueName.replace("-"," ");
+    public ResponseEntity<HttpStatus> saveImage(@PathVariable("venueName") String venueName, MultipartFile[] files, @AuthenticationPrincipal Jwt jwt) throws IOException {
+        venueName.replace("-", " ");
         //DELETE-ME AND USE Jwt.getSubject() instead
         String username = "vendor";
 

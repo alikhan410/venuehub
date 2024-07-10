@@ -32,7 +32,7 @@ import java.util.List;
 
 @RestController
 @Validated
-public class PaymentController {
+public class PaymentController implements PaymentApi {
     public static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
     private final PaymentService paymentService;
     private final BookingService bookingService;
@@ -103,7 +103,7 @@ public class PaymentController {
 
     @GetMapping("/orders/confirm-payment")
     @Transactional
-    public ConfirmPaymentResponse ConfirmPayment(@RequestParam("clientId") String clientId, @RequestParam("clientSecret") String clientSecret, @RequestParam("vendor") String vendor, @AuthenticationPrincipal Jwt jwt) throws Exception {
+    public ConfirmPaymentResponse confirmPayment(@RequestParam("clientId") String clientId, @RequestParam("clientSecret") String clientSecret, @RequestParam("vendor") String vendor, @AuthenticationPrincipal Jwt jwt) throws Exception {
         if (!jwt.getClaim("loggedInAs").equals("USER")) {
             throw new UserForbiddenException();
         }

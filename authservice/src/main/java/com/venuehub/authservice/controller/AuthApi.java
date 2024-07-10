@@ -15,36 +15,46 @@ import java.util.Map;
 
 public interface AuthApi {
 
-    @Operation(summary = "Exposes the public jwt key for authorization", description = "Exposes the public jwt key for authorization")
+    @Operation(summary = "Retrieve public key", description = "Retrieves the public key used for JWT verification")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Successful operation",
+                    description = "Successfully retrieved public key",
                     content = {
                             @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = JwkSetResponse.class)
+                                    schema = @Schema(implementation = Map.class)
                             )
                     }
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized",
+                    content = @Content
             )
     })
     Map<String, Object> getPublicKey();
 
-    @Operation(summary = "Returns details for the current user", description = "This endpoint returns the details of the currently authenticated user. The user must have the 'USER' role to access this endpoint")
+    @Operation(summary = "Retrieve current user information", description = "Retrieves information about the currently authenticated user")
     @ApiResponses(value = {
             @ApiResponse(
                     responseCode = "200",
-                    description = "Successful operation",
+                    description = "Successfully retrieved current user information",
                     content = {
                             @Content(mediaType = "application/json",
                                     schema = @Schema(implementation = CurrentUserDto.class)
                             )
                     }
             ),
-            @ApiResponse(responseCode = "401", description = "User Unauthenticated", content = {
-                    @Content(mediaType = "application/json",
-                            schema = @Schema(implementation = CustomAuthenticationErrorResponse.class)
-                    )
-            })
+            @ApiResponse(
+                    responseCode = "403",
+                    description = "Forbidden",
+                    content = @Content
+            ),
+            @ApiResponse(
+                    responseCode = "401",
+                    description = "Unauthorized",
+                    content = @Content
+            )
     })
     CurrentUserDto getUser(@AuthenticationPrincipal Jwt jwt);
 }
