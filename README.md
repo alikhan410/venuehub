@@ -1,3 +1,4 @@
+## For running VenueHub in developemnt follow this [documentation](https://alikhan410.notion.site/Start-VenueHub-in-Development-a8bd5714c4934310963f579c10fd9c35)
 ## Introduction
 - **Purpose**: This document aims to provide a comprehensive technical design for the Venuehub platform, detailing the implementation of each microservice, data design, security measures, performance metrics, and testing strategies.
 - **Scope**: The scope of this document includes an overview of the Venuehub platform, which is designed as an event-based microservices architecture. The document covers the following aspects:
