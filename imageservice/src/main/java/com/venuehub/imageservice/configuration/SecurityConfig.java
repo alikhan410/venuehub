@@ -18,8 +18,8 @@ import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 @Configuration
 @EnableMethodSecurity
-//@Profile({"dev", "prod"})
-@Profile("test")
+@Profile({"dev", "prod"})
+//@Profile("test")
 public class SecurityConfig {
 
     private final CustomAuthenticationException customAuthenticationException;
@@ -37,11 +37,10 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/swagger-ui/**").permitAll()
-                        .requestMatchers("/venue/v3/**").permitAll()
+                        .requestMatchers("/image/v3/**").permitAll()
                         .requestMatchers("/v2/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/images/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/image").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/images/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/images/**").authenticated()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth -> oauth.jwt(j -> jwtAuthenticationConverter())
                         .authenticationEntryPoint(customAuthenticationException));

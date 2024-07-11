@@ -9,8 +9,8 @@ import org.springframework.context.annotation.Profile;
 import java.util.Objects;
 
 @Configuration
-@Profile("test")
-//@Profile({"prod","dev"})
+//@Profile("test")
+@Profile({"prod","dev"})
 public class RedisConfig {
 
     private RedissonClient redissonClient;

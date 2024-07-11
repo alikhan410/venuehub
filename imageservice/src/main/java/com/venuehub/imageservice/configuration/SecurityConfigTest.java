@@ -13,7 +13,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 @Configuration
-@Profile("dev")
+@Profile("test")
 public class SecurityConfigTest {
 
     private final CustomAuthenticationException customAuthenticationException;
@@ -29,12 +29,13 @@ public class SecurityConfigTest {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/swagger-ui/**").permitAll()
-                        .requestMatchers("/venue/v3/**").permitAll()
+                        .requestMatchers("/image/v3/**").permitAll()
                         .requestMatchers("/v2/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/images/**").permitAll()
-                        .requestMatchers(HttpMethod.POST, "/images/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/images/**").authenticated()
                         .anyRequest().authenticated())
-                .oauth2ResourceServer(oauth -> oauth.jwt(j -> jwtAuthenticationConverter()));
+                .oauth2ResourceServer(oauth -> oauth.jwt(j -> jwtAuthenticationConverter())
+                        .authenticationEntryPoint(customAuthenticationException));
 
         return http.build();
     }
