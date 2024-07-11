@@ -70,12 +70,13 @@ spring:
             - Path=/orders/create-payment-intent, /orders/confirm-payment, /orders/status/{orderId}, /orders/user, /orders/vendor, /payment/v3/api-docs
             - Method=GET,POST
 
-        - id: openapi
-          uri: http://localhost:8181
+        - id: image-service
+          uri: lb://image-service
           predicates:
-            - Path=/auth/v3/api-docs, /venue/v3/api-docs
-            - Method=GET
-#
+            - Path=/images/{vendorName}/{venueName}/{fileName}, /images/{vendorName}/{venueName}, /images/{venueName}, /image/v3/api-docs
+            - Method=GET,POST
+
+
 springdoc:
   cache:
     disabled: true
@@ -86,6 +87,8 @@ springdoc:
         name: Auth Service
       - url: /venue/v3/api-docs
         name: Venue Service
+      - url: /image/v3/api-docs
+        name: Image Service
       - url: /booking/v3/api-docs
         name: Booking Service
       - url: /payment/v3/api-docs
