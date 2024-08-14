@@ -1,9 +1,10 @@
 package com.venuehub.bookingservice.configuration;
 
+import org.redisson.api.RedissonClient;
+import org.redisson.spring.cache.RedissonSpringCacheManager;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
+import org.springframework.cache.CacheManager;
+import org.springframework.context.annotation.*;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -13,13 +14,17 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 @Configuration
-//@EnableMethodSecurity
 @Profile("test")
 public class SecurityConfigTest {
 
-    @Autowired
-    private CustomAuthenticationException customAuthenticationException;
+    private final CustomAuthorizationException customAuthenticationException;
+    private final RedissonClient redissonClient;
 
+    @Autowired
+    public SecurityConfigTest(CustomAuthorizationException customAuthenticationException, RedissonClient redissonClient) {
+        this.customAuthenticationException = customAuthenticationException;
+        this.redissonClient = redissonClient;
+    }
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -39,7 +44,10 @@ public class SecurityConfigTest {
 
         return http.build();
     }
-
+    @Bean
+    public CacheManager cacheManager(RedissonClient redissonClient) {
+        return new RedissonSpringCacheManager(redissonClient);
+    }
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter jwtGrantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();

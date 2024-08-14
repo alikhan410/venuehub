@@ -6,6 +6,7 @@ import com.venuehub.imageservice.repository.ImageRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.PathResource;
 import org.springframework.core.io.Resource;
@@ -27,6 +28,9 @@ import java.util.UUID;
 @Service
 public class ImageService {
 
+    @Value("${constants.file-upload-dir}")
+    String fileUploadDir;
+
     private static final Logger logger = LoggerFactory.getLogger(ImageService.class);
 
     private final ImageRepository imageRepository;
@@ -42,10 +46,10 @@ public class ImageService {
         String foo = UUID.randomUUID().toString();
         for (MultipartFile file : files) {
             try {
-                String fileName = position + "_" + foo + ".jpg";
+                String fileName = position + "-" + foo + ".jpg";
                 position++;
                 // Define your external directory path
-                Path externalDir = Paths.get("E:/uploads/" + vendorName + "/" + venueName);
+                Path externalDir = Paths.get(fileUploadDir + "/" + vendorName + "/" + venueName);
                 if (!Files.exists(externalDir)) {
                     Files.createDirectories(externalDir); // Create the directory if it doesn't exist
                 }
@@ -59,7 +63,15 @@ public class ImageService {
                 }
 
                 String uri = "/images/" + vendorName + "/" + venueName + "/" + fileName;
-                Image image = new Image(fileName, filePath.toString(), uri, venueName, vendorName);
+//                Image image = new Image(fileName, filePath.toString(), uri, venueName, vendorName);
+                Image image = Image.builder()
+                        .imagePath(filePath.toString())
+                        .filename(fileName)
+                        .uri(uri)
+                        .vendorName(vendorName)
+                        .venueName(venueName)
+                        .build();
+
                 imageList.add(image);
             } catch (IOException ex) {
                 logger.error("Failed to save image: {}", ex.getMessage());

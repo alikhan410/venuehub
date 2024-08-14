@@ -5,7 +5,7 @@ import com.venuehub.bookingservice.dto.BookingDto;
 import java.util.List;
 
 
-public record BookingListResponse(List<BookingDto> bookingList) {
+public record BookingListResponse(List<BookingResponse> bookings) {
 }
 //@Data
 //public class BookingListResponse {

@@ -1,8 +1,8 @@
 package com.venuehub.bookingservice.response;
 
-import com.venuehub.bookingservice.dto.BookingDateTimeDto;
+import com.venuehub.bookingservice.dto.BookingDateDto;
 
 import java.util.List;
 
-public record BookingDateListResponse(List<BookingDateTimeDto> bookingDateTimeDtoList) {
+public record BookingDateListResponse(List<BookingDateDto> bookingDateList) {
 }

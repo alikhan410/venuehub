@@ -69,19 +69,6 @@ public class VenueController implements VenueApi{
         return new ResponseEntity<>(venue, HttpStatus.OK);
     }
 
-//    @GetMapping("/venue/{venueId}/image-0")
-//    public ResponseEntity<MainVenueImage> getMainImage(@PathVariable Long venueId) {
-//        logger.info("Received request to get main image for venue with id: {}", venueId);
-//        Venue venue = venueService.findById(venueId).orElseThrow(() -> {
-//            logger.error("Venue not found with id: {}", venueId);
-//            return new NoSuchVenueException();
-//        });
-//        ImageData mainImage = venue.getImages().get(0);
-//        MainVenueImage res = new MainVenueImage(mainImage);
-//        logger.info("Returning main image for venue id: {}", venueId);
-//        return new ResponseEntity<>(res, HttpStatus.OK);
-//    }
-
     @PostMapping(value = "/venue")
     @Transactional
     public ResponseEntity<VenueAddedResponse> addVenue(@RequestBody @Valid VenueDto body, @AuthenticationPrincipal Jwt jwt) {

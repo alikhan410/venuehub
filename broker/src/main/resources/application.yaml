@@ -1,13 +1,13 @@
-spring:
-  rabbitmq:
-    listener:
-      simple:
-        retry:
-          enabled: true
-          max-attempts: 3
-          initial-interval: 5000
-          max-interval: 5000
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+#spring:
+#  rabbitmq:
+#    listener:
+#      simple:
+#        retry:
+#          enabled: true
+#          max-attempts: 3
+#          initial-interval: 5000
+#          max-interval: 5000
+##    host: localhost
+#    port: 5672
+#    username: guest
+#    password: guest

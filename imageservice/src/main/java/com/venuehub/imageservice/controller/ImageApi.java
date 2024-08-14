@@ -1,6 +1,6 @@
 package com.venuehub.imageservice.controller;
 
-import com.venuehub.commons.error.response.CustomAuthenticationErrorResponse;
+import com.venuehub.commons.error.response.CustomAuthorizationResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -79,7 +79,7 @@ public interface ImageApi {
                     description = "User unauthenticated",
                     content = {
                             @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                    schema = @Schema(implementation = CustomAuthenticationErrorResponse.class)
+                                    schema = @Schema(implementation = CustomAuthorizationResponse.class)
                             )
                     }
             )

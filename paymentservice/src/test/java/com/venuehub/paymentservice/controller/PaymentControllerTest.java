@@ -73,6 +73,7 @@ class PaymentControllerTest {
     private Long orderId;
     private Long venueId;
     private String username;
+    private String vendor;
     private String myJwt;
     private String expectedClientSecret;
     private String expectedClientId;
@@ -87,6 +88,7 @@ class PaymentControllerTest {
         orderId = 1L;
         venueId = 1L;
         username = "test_user";
+        vendor = "test_vendor";
         expectedClientSecret = "expectedClientSecret";
         expectedClientId = "expectedClientId";
         myJwt = jwtTestImpl.generateJwt(username, "USER");
@@ -102,12 +104,14 @@ class PaymentControllerTest {
         booking = new Booking(
                 bookingId,
                 username,
+                vendor,
                 amount,
                 BookingStatus.RESERVED
         );
 
         bookingOrder = new BookingOrder(
                 "user",
+                vendor,
                 amount,
                 bookingId,
                 expectedClientSecret

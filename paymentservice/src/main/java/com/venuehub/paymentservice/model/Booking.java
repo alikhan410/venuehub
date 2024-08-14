@@ -18,11 +18,9 @@ import org.hibernate.dialect.MySQLEnumJdbcType;
 public class Booking {
     @Id
     private Long id;
-
     private String username;
-
+    private String vendor;
     private int bookingFee;
-
     @JdbcType(MySQLEnumJdbcType.class)
     private BookingStatus status;
 }

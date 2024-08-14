@@ -42,8 +42,6 @@
                 <version>1.18.32</version>
                 <optional>true</optional>
             </dependency>
-
-            <!-- https://mvnrepository.com/artifact/org.mapstruct/mapstruct -->
             <dependency>
                 <groupId>org.mapstruct</groupId>
                 <artifactId>mapstruct</artifactId>

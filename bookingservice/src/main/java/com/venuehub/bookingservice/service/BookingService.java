@@ -1,6 +1,6 @@
 package com.venuehub.bookingservice.service;
 
-import com.venuehub.bookingservice.dto.BookingDateTimeDto;
+import com.venuehub.bookingservice.dto.BookingDateDto;
 import com.venuehub.bookingservice.dto.BookingDto;
 import com.venuehub.bookingservice.mapper.BookingServiceMapper;
 import com.venuehub.bookingservice.model.Venue;
@@ -34,7 +34,7 @@ public class BookingService {
     }
 
     @Transactional
-    @CacheEvict(value = {"booking:id", "booking:complete", "bookings:venueId", "bookings:username", "bookings:datetime"})
+    @CacheEvict(value = {"booking:id", "booking:complete", "bookings:venueId", "bookings:username", "bookings:datetime"},allEntries = true)
     public void save(Booking booking) {
         bookingRepository.save(booking);
     }
@@ -80,7 +80,7 @@ public class BookingService {
     }
 
     @Cacheable(value = "bookings:datetime", key = "#id")
-    public List<BookingDateTimeDto> bookingDatesByVenue(long id) {
+    public List<BookingDateDto> bookingDatesByVenue(long id) {
         List<Booking> bookings = bookingRepository.findByVenue(id);
         return bookings.stream().map(mapper::bookingToBookingDateTimeDto).toList();
     }
@@ -112,13 +112,13 @@ public class BookingService {
 
 
     @Transactional
-    @CacheEvict(value = {"booking:id", "booking:complete", "bookings:venueId", "bookings:username", "bookings:datetime"})
+    @CacheEvict(value = {"booking:id", "booking:complete", "bookings:venueId", "bookings:username", "bookings:datetime"},allEntries = true)
     public void deleteBooking(long id) {
         bookingRepository.deleteById(id);
     }
 
     @Transactional
-    @CacheEvict(value = {"booking:id", "booking:complete", "bookings:venueId", "bookings:username", "bookings:datetime"})
+    @CacheEvict(value = {"booking:id", "booking:complete", "bookings:venueId", "bookings:username", "bookings:datetime"},allEntries = true)
     public void updateStatus(long id, BookingStatus status) throws NoSuchBookingException {
         Booking booking = bookingRepository.findById(id).orElseThrow(NoSuchBookingException::new);
         booking.setStatus(status);
@@ -135,19 +135,19 @@ public class BookingService {
                 .bookingFee(venue.getEstimate())
                 .username(username)
                 .phone(body.phone())
-                .email(body.email())
+//                .email(body.email())
                 .guests(body.guests()).build();
         bookingRepository.save(newBooking);
         return newBooking;
     }
 
     @Transactional
-    @CacheEvict(value = {"booking:id", "booking:complete", "bookings:venueId", "bookings:username", "bookings:datetime"})
+    @CacheEvict(value = {"booking:id", "booking:complete", "bookings:venueId", "bookings:username", "bookings:datetime"},allEntries = true)
     public void updateBooking(Booking booking, String newBookingDate) {
         booking.setBookingDate(newBookingDate);
 
         //setting a new reservation date
-        String newReservation = LocalDateTime.now(ZoneId.of("PLT")).plusMinutes(2).toString();
+        String newReservation = LocalDateTime.now(ZoneId.of("PLT", ZoneId.SHORT_IDS)).plusMinutes(2).toString();
         booking.setReservationExpiry(newReservation);
 
         bookingRepository.save(booking);

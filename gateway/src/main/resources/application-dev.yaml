@@ -78,6 +78,14 @@ spring:
 
 
 springdoc:
+  group-configs:
+    - group: "combine"
+      pathsToMatch:
+        - /auth/v3/api-docs
+        - /venue/v3/api-docs
+        - /image/v3/api-docs
+        - /booking/v3/api-docs
+        - /payment/v3/api-docs
   cache:
     disabled: true
   swagger-ui:
@@ -93,7 +101,10 @@ springdoc:
         name: Booking Service
       - url: /payment/v3/api-docs
         name: Payment Service
+
   api-docs:
+    groups:
+      enabled: true
     version: openapi_3_1
 
 #springdoc:

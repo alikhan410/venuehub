@@ -1,6 +1,5 @@
 package com.venuehub.venueservice.configuration;
 
-import org.redisson.Redisson;
 import org.redisson.api.RedissonClient;
 import org.redisson.spring.cache.RedissonSpringCacheManager;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +14,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
 import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 
 import java.util.Objects;
@@ -25,11 +23,11 @@ import java.util.Objects;
 @Profile({"dev", "prod"})
 public class SecurityConfig {
 
-    private final CustomAuthenticationException customAuthenticationException;
+    private final CustomAuthorizationException customAuthenticationException;
     private final RedissonClient redissonClient;
 
     @Autowired
-    public SecurityConfig(CustomAuthenticationException customAuthenticationException, RedissonClient redissonClient) {
+    public SecurityConfig(CustomAuthorizationException customAuthenticationException, RedissonClient redissonClient) {
         this.customAuthenticationException = customAuthenticationException;
         this.redissonClient = redissonClient;
     }
@@ -52,8 +50,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
-
     @Bean
     public CacheManager cacheManager(RedissonClient redissonClient) {
         return new RedissonSpringCacheManager(redissonClient);

@@ -6,7 +6,6 @@ springdoc:
     path: /venue/v3/api-docs
 
 spring:
-
   servlet:
     multipart:
       enabled: true

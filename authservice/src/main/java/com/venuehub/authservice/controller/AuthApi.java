@@ -1,8 +1,6 @@
 package com.venuehub.authservice.controller;
 
 import com.venuehub.authservice.dto.CurrentUserDto;
-import com.venuehub.authservice.response.JwkSetResponse;
-import com.venuehub.commons.error.response.CustomAuthenticationErrorResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

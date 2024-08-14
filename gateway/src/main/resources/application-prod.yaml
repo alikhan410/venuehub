@@ -1,9 +1,7 @@
 server:
-  port: 8181
+  port: ${PORT}
 #//-------------------------------------------------------------//
 eureka:
-
-
   instance:
     prefer-ip-address: true
     metadata-map:
@@ -22,29 +20,62 @@ logging:
 spring:
   cloud:
     gateway:
-
       routes:
         - id: booking-service
           uri: http://booking-srv.default.svc.cluster.local:6000
           predicates:
-            - Path=/booking/{id}, /booking
+            - Path=/bookings/{id}, /bookings/venue/{id}, /bookings/user,/bookings/vendor, /booking/v3/api-docs
             - Method=GET,POST, DELETE
 
         - id: auth-service
           uri: http://auth-srv.default.svc.cluster.local:8080
           predicates:
-            - Path=/user/login,/user/register,/vendor/register,/vendor/login,/.well-known/jwks.json,/current-user
+            - Path=/user/login,/user/logout,/user/register,/vendor/register,/vendor/login,/vendor/logout,/.well-known/jwks.json,/current-user,/auth/v3/api-docs
             - Method=GET,POST
 
         - id: venue-service
           uri: http://venue-srv.default.svc.cluster.local:9000
           predicates:
-            - Path=/venue, /venue/{id}
-            - Method=GET,POST,DELETE
+            - Path=/venue, /venue/{id}, /venue/vendor/info , /venue/vendor/all-venue, /venue/{id}/image-0,/venue/v3/api-docs
+            - Method=GET,POST,DELETE,PUT
 
         - id: payment-service
           uri: http://payment-srv.default.svc.cluster.local-srv
           predicates:
-            - Path=/create-payment-intent
+            - Path=/orders/create-payment-intent, /orders/confirm-payment, /orders/status/{orderId}, /orders/user, /orders/vendor, /payment/v3/api-docs
+            - Method=GET,POST
+        - id: image-service
+          uri: http://image-srv.default.svc.cluster.local-srv
+          predicates:
+            - Path=/images/{vendorName}/{venueName}/{fileName}, /images/{vendorName}/{venueName}, /images/{venueName}, /image/v3/api-docs
             - Method=GET,POST
 
+springdoc:
+  group-configs:
+    - group: "combine"
+      pathsToMatch:
+        - /auth/v3/api-docs
+        - /venue/v3/api-docs
+        - /image/v3/api-docs
+        - /booking/v3/api-docs
+        - /payment/v3/api-docs
+  cache:
+    disabled: true
+  swagger-ui:
+    use-root-path: true
+    urls:
+      - url: /auth/v3/api-docs
+        name: Auth Service
+      - url: /venue/v3/api-docs
+        name: Venue Service
+      - url: /image/v3/api-docs
+        name: Image Service
+      - url: /booking/v3/api-docs
+        name: Booking Service
+      - url: /payment/v3/api-docs
+        name: Payment Service
+
+  api-docs:
+    groups:
+      enabled: true
+    version: openapi_3_1

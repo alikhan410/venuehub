@@ -47,9 +47,9 @@ public class Booking {
     @NotNullNotBlank(message = "Customer name can not be null or empty")
     private String username;
 
-    @Column(name = "customer_email")
-    @Email(message = "Email can not be null or empty")
-    private String email;
+//    @Column(name = "customer_email")
+//    @Email(message = "Email can not be null or empty")
+//    private String email;
 
     @Column(name = "customer_phone")
     @NotNullNotBlank(message = "Phone can not be null or blank")

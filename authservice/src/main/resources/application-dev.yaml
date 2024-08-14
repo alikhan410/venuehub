@@ -1,16 +1,22 @@
+redis:
+  url: redis-13981.c275.us-east-1-4.ec2.redns.redis-cloud.com:13981
+  username: default
+  password: ${REDIS_PASSWORD}
+
 server:
   port: 0
   tomcat:
     mbeanregistry:
       enabled: true
-#//-------------------------------------------------------------//
-# application.properties or environment variables
+
 jwt:
-  publicKey: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA6E5aDjg94haX6DrvFtr0PdaHmb95ZK/PeRy+NFvmTEQ94J7fe5javQ38vrJbzi5j+9DPlXS8zzJlqyR0lCyDanNoxWkdLCqLOMYyKpLp2KaCRGFbOJSGjiZgwebIcI9lGWxc/0T8J+eyN2zcVx59/fnOyw26C55Q7n3olFIEW2elKR04o+5a6Ng3930lAVaTz0vPv1FJzZzg88S9ayFBEswCbw9q4qm7JD/EG+g/xtstMgXszN+3IQec+gPDEcbco3B2WnLwuwr2tUDB/ipTXrzf16+6bftHaMreMORHuCjpEJO5JkNZO9EX+1yUDL2vkbHe10QKK/9gNLXWiCtCxwIDAQAB
-  privateKey: MIIEvwIBADANBgkqhkiG9w0BAQEFAASCBKkwggSlAgEAAoIBAQDoTloOOD3iFpfoOu8W2vQ91oeZv3lkr895HL40W+ZMRD3gnt97mNq9Dfy+slvOLmP70M+VdLzPMmWrJHSULINqc2jFaR0sKos4xjIqkunYpoJEYVs4lIaOJmDB5shwj2UZbFz/RPwn57I3bNxXHn39+c7LDboLnlDufeiUUgRbZ6UpHTij7lro2Df3fSUBVpPPS8+/UUnNnODzxL1rIUESzAJvD2riqbskP8Qb6D/G2y0yBezM37chB5z6A8MRxtyjcHZacvC7Cva1QMH+KlNevN/Xr7pt+0doyt4w5Ee4KOkQk7kmQ1k70Rf7XJQMva+Rsd7XRAor/2A0tdaIK0LHAgMBAAECggEAEjp3sY7zOCbqs5PQR/xVVvba/BL8vQxYnNnHCQe/CfP+4P3GboXfgB81WmdXcdXNDajkaQdYe2+qb6P0K95UT4mPypHFcr5B32oZ7KJLjC8AoMn85PMunb/gLsbjqoVt+vE4WOV6Xc09/EBkB8gCPegYtHE2zIuXMSebFOxcoClbEFGaTD6ihwHGqCxr46E9zbN10bi1whH+dI4HmGLJ00X0IwkxAa5I/o+wopTOqf21ZuRZpRPS8XOYE1K4ipKWdPL+NFLmH4cAHViO2oCIkzLadAF9Dx7N6ETRWum4Wc7KJUTJZerplpYIDa6XK1l1uYhn/jDuQweAJnaH29uWTQKBgQD6/vN7LJYFTkqptwKS7GQxLOvrU+oocpRSyYE+aXtE6lr4TVX5nciK6CtzUvODKFNY1vXuDsYyHsotoZ8lfu56c8biivTr9gHIlsx/AH9uwxOhhpH3VtRteqG6TMBpHOoj3l93LHw7RVGmJvEfH/zM4Qo9oTo4Y/sVKGRePwtz3QKBgQDs8AKhkkexpGUALcHUUC4TiOX6HXgIM75Uind103UKHljTUre5D1ms2EJA/ab9vj9g1VZop9+493XisUmdrvcY20kku5l5wl3NGl0NvzKeIZOBoMtFdkpea1/LOCRnbcNXDV6QPxuLtKf8CWebKOhbu8Y+cLWXig0LtAwPDbzo8wKBgQCKmRAgOy2YPnRSJSHBudFVqkWYDB1oOmUXFfhNW3fbRUH4jNPl46/irHOZ2ftnuHPVwdXJn9TnxkLEUdQMo3vSmG4BmNPIHG89sa+4jbDQm94SOroNh6AD2EzIECvLn1DXf6rdpu3u2MdOZYCOPF6fT8EU6Ru6GdODCmvp8wxC7QKBgQDFjVx0QNYcLHi2DHDHSE8SpJszzqxNEm+IZ6cxC61TUXg4QojC+SSI9AtRyuwYNy762wXf3tCvlUyqRa2elsqZ5AR5Zx2RItk48NlTY+6dYFtvwpSZhwZ88UP+2gGoZyFvDMuis6uQ8YD6qRDEkvghvE+PskQGZOl5r5Y6Wvb+twKBgQDC9w7gCDLdwfhhC8HOxKh1pQFjZApeDSou+iBv7spQBJ16EYYRT0xZHDJ9TkHalNtJJu9MXnDuZpZJIYgnnh8J+4DUPbRS0D5Ar1X398CXq9QAmKfrfGDFO/od9VgxBJ9kRCnuBOl4bghUqes1Cur1Kd0GD3of+pzeSNj1YduLsQ==
+  publicKey: ${JWT_PUBLIC_KEY}
+  privateKey: ${JWT_PRIVATE_KEY}
+
 springdoc:
   api-docs:
     path: /auth/v3/api-docs
+
 #  swagger-ui:
 #    path: /auth
 ##    url: /auth
@@ -25,7 +31,6 @@ springdoc:
 #          bearerFormat: JWT
 
 management:
-
   endpoints:
     web:
       exposure:
@@ -35,10 +40,7 @@ management:
       exposure:
         include: "*"
 
-
-
 spring:
-
   jmx:
     enabled: true
     default-domain: authservice
@@ -46,6 +48,9 @@ spring:
     hikari:
       maximum-pool-size: 7
       register-mbeans: true
+#    url: jdbc:mysql://venuehub-db.ctog2e6k8tc9.eu-north-1.rds.amazonaws.com:3306/authservice?useSSL=false&serverTimezone=UTC
+#    username: admin
+#    password: ${MYSQL_AWS_RDS_PASSWORD}
     url: jdbc:mysql://localhost:3306/authservice
     username: ali
     password: "@Li4103568"
@@ -59,20 +64,19 @@ spring:
     database-platform: org.hibernate.dialect.MySQLDialect
 
     hibernate:
-      ddl-auto: create
-#//-------------------------------------------------------------//
+      ddl-auto: update
+
 logging:
   level:
     root: info
     web: info
-#//-------------------------------------------------------------//
+
 eureka:
   instance:
     instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
     prefer-ip-address: true
     metadata-map:
       zone: zone1
-
   client:
     register-with-eureka: true
     region: region1

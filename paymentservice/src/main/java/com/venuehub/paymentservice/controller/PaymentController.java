@@ -63,6 +63,7 @@ public class PaymentController implements PaymentApi {
 
         BookingOrder bookingOrder = new BookingOrder(
                 jwt.getSubject(),
+                booking.getVendor(),
                 booking.getBookingFee(),
                 booking.getId(),
                 paymentIntent.getClientSecret()
@@ -87,6 +88,7 @@ public class PaymentController implements PaymentApi {
             throw new UserForbiddenException();
         }
         List<BookingOrder> order = orderService.findByUsername(jwt.getSubject());
+
         BookingOrderListResponse res = new BookingOrderListResponse(order);
         return new ResponseEntity<>(res, HttpStatus.OK);
     }

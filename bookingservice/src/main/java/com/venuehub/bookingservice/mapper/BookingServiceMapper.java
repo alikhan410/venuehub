@@ -1,8 +1,9 @@
 package com.venuehub.bookingservice.mapper;
 
-import com.venuehub.bookingservice.dto.BookingDateTimeDto;
+import com.venuehub.bookingservice.dto.BookingDateDto;
 import com.venuehub.bookingservice.dto.BookingDto;
 import com.venuehub.bookingservice.model.Booking;
+import com.venuehub.bookingservice.response.BookingResponse;
 import com.venuehub.bookingservice.response.GetBookingsResponse;
 import org.mapstruct.Mapper;
 
@@ -14,10 +15,10 @@ public interface BookingServiceMapper {
 
     List<BookingDto> bookingsToBookingDtoList(List<Booking> bookings);
 
-    BookingDateTimeDto bookingToBookingDateTimeDto(Booking booking);
+    BookingDateDto bookingToBookingDateTimeDto(Booking booking);
 
-    default GetBookingsResponse bookingToBookingResponse(Booking booking) {
-        return new GetBookingsResponse(
+    default BookingResponse bookingToBookingResponse(Booking booking) {
+        return new BookingResponse(
                 booking.getId(),
                 booking.getStatus(),
                 booking.getUsername(),

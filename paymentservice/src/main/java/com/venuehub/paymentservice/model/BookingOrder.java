@@ -33,9 +33,10 @@ public class BookingOrder {
     @JdbcType(MySQLEnumJdbcType.class)
     private OrderStatus orderStatus;
 
-    public BookingOrder(String username, int amount, Long bookingId, String clientSecret) {
+    public BookingOrder(String username,String vendor, int amount, Long bookingId, String clientSecret) {
         this.orderStatus = OrderStatus.PENDING;
         this.username = username;
+        this.vendor = vendor;
         this.amount = amount;
         this.bookingId = bookingId;
         this.clientSecret = clientSecret;

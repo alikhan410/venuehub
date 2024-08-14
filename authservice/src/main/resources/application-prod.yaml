@@ -1,6 +1,32 @@
+redis:
+  url: redis-13981.c275.us-east-1-4.ec2.redns.redis-cloud.com:13981
+  username: default
+  password: ${REDIS_PASSWORD}
+
 server:
-  port: 8080
-#//-------------------------------------------------------------//
+  port: 0
+  tomcat:
+    mbeanregistry:
+      enabled: true
+
+jwt:
+  publicKey: ${JWT_PUBLIC_KEY}
+  privateKey: ${JWT_PRIVATE_KEY}
+
+springdoc:
+  api-docs:
+    path: /auth/v3/api-docs
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - "mappings"
+    jmx:
+      exposure:
+        include: "*"
+
 spring:
   rabbitmq:
     host: rabbitmq-srv
@@ -8,10 +34,15 @@ spring:
     username: guest
     password: guest
   datasource:
-    url: jdbc:mysql://auth-db-srv:3306/authservice
+    url: jdbc:mysql://127.0.0.1/authservice
     username: root
     password: my-secret-pw
     driver-class-name: com.mysql.cj.jdbc.Driver
+#  datasource:
+#    url: jdbc:mysql://auth-db-srv:3306/authservice
+#    username: root
+#    password: my-secret-pw
+#    driver-class-name: com.mysql.cj.jdbc.Driver
   main:
     banner-mode: OFF
   jpa:
@@ -20,19 +51,16 @@ spring:
     generate-ddl: true
     hibernate:
       ddl-auto: update
-#//-------------------------------------------------------------//
+
 logging:
   level:
     root: warn
     web: warn
-#//-------------------------------------------------------------//
-eureka:
 
+eureka:
   instance:
     prefer-ip-address: true
     metadata-map:
-      zone: zone1
-
   client:
     register-with-eureka: false
     fetch-registry: false

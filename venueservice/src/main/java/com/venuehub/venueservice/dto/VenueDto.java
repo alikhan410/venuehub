@@ -1,6 +1,5 @@
 package com.venuehub.venueservice.dto;
 
-import com.venuehub.venueservice.model.Booking;
 import com.venuehub.venueservice.model.ImageUri;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;

@@ -31,6 +31,7 @@ public class BookingCreatedConsumer extends BaseConsumer<BookingCreatedEvent> {
         booking.setStatus(event.status());
         booking.setBookingFee(event.bookingFee());
         booking.setUsername(event.username());
+        booking.setVendor(event.vendorName());
         bookingService.save(booking);
     }
 }

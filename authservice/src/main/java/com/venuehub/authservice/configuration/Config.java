@@ -40,12 +40,12 @@ import java.util.UUID;
 public class Config {
     private final RSAKeyProperties keys;
 
-    private final CustomAuthenticationException customAuthenticationException;
+    private final CustomAuthorizationException customAuthenticationException;
 
     private final RedissonClient redissonClient;
 
     @Autowired
-    public Config(RSAKeyProperties rsaKeyProperties, CustomAuthenticationException customAuthenticationException, RedissonClient redissonClient) {
+    public Config(RSAKeyProperties rsaKeyProperties, CustomAuthorizationException customAuthenticationException, RedissonClient redissonClient) {
         this.keys = rsaKeyProperties;
         this.customAuthenticationException = customAuthenticationException;
         this.redissonClient = redissonClient;

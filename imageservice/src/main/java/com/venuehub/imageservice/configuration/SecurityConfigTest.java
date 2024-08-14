@@ -16,10 +16,10 @@ import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 @Profile("test")
 public class SecurityConfigTest {
 
-    private final CustomAuthenticationException customAuthenticationException;
+    private final CustomAuthorizationException customAuthenticationException;
 
     @Autowired
-    public SecurityConfigTest(CustomAuthenticationException customAuthenticationException) {
+    public SecurityConfigTest(CustomAuthorizationException customAuthenticationException) {
         this.customAuthenticationException = customAuthenticationException;
     }
 

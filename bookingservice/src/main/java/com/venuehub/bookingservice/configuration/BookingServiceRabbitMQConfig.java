@@ -9,25 +9,8 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 
 @Configuration
-@Profile("dev")
+@Profile({"dev", "prod"})
 public class BookingServiceRabbitMQConfig {
-//    @Bean
-//    public Queue bookingUpdatedQueue() {
-//        return new Queue(MyQueue.Constants.BOOKING_UPDATED_QUEUE_BOOKING_SERVICE, true);
-//    }
-//    @Bean
-//    public Queue venueCreatedQueue() {
-//        return new Queue(MyQueue.Constants.VENUE_CREATED_QUEUE_BOOKING_SERVICE, true);
-//    }
-//    @Bean
-//    public Queue venueUpdatedQueue() {
-//        return new Queue(MyQueue.Constants.VENUE_UPDATED_QUEUE_BOOKING_SERVICE, true);
-//    }
-//    @Bean
-//    public Queue venueDeletedQueue() {
-//        return new Queue(MyQueue.Constants.VENUE_DELETED_QUEUE_BOOKING_SERVICE, true);
-//    }
-
     @Bean
     public Queue bookingUpdatedQueue() {
         return QueueBuilder.durable(MyQueue.Constants.BOOKING_UPDATED_QUEUE_BOOKING_SERVICE)
@@ -65,7 +48,7 @@ public class BookingServiceRabbitMQConfig {
     public TopicExchange bookingExchange() {
         return new TopicExchange(MyExchange.BOOKING_EXCHANGE.name());
     }
-    
+
     @Bean
     public Binding venueCreatedToBookingExchange() {
         return BindingBuilder

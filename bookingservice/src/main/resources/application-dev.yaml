@@ -7,11 +7,6 @@ springdoc:
     path: /booking/v3/api-docs
 
 spring:
-  devtools:
-    livereload:
-      enabled: true
-    restart:
-      enabled: true
   rabbitmq:
     listener:
       simple:
@@ -29,7 +24,7 @@ spring:
     generate-ddl: true
 
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
 
   datasource:
     #    url: jdbc:mysql://localhost:53602/bookingservice

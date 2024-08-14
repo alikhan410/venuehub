@@ -22,11 +22,11 @@ import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 //@Profile("test")
 public class SecurityConfig {
 
-    private final CustomAuthenticationException customAuthenticationException;
+    private final CustomAuthorizationException customAuthenticationException;
     private final RedissonClient redissonClient;
 
     @Autowired
-    public SecurityConfig(CustomAuthenticationException customAuthenticationException, RedissonClient redissonClient) {
+    public SecurityConfig(CustomAuthorizationException customAuthenticationException, RedissonClient redissonClient) {
         this.customAuthenticationException = customAuthenticationException;
         this.redissonClient = redissonClient;
     }

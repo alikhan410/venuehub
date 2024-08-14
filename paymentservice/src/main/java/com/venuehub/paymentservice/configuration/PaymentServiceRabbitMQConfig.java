@@ -6,8 +6,10 @@ import com.venuehub.broker.constants.MyQueue;
 import org.springframework.amqp.core.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 
 @Configuration
+@Profile({"dev", "prod"})
 public class PaymentServiceRabbitMQConfig {
     @Bean
     public Queue bookingUpdatedQueue() {

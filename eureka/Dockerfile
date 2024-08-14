@@ -4,7 +4,7 @@ WORKDIR application
 
 ARG JAR_FILE=target/*.jar
 
-ADD ${JAR_FILE} ./
+ADD target/*.jar ./
 
 RUN java -Djarmode=layertools -jar eureka-0.0.1-SNAPSHOT.jar extract
 

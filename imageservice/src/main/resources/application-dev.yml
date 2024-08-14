@@ -1,10 +1,13 @@
 server:
   port: 0
 #//-------------------------------------------------------------//
+constants:
+  file-upload-dir: E:/uploads
+#//-------------------------------------------------------------//
 springdoc:
   api-docs:
     path: /image/v3/api-docs
-
+#//-------------------------------------------------------------//
 spring:
 
   servlet:
@@ -41,7 +44,6 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          #          issuer-uri: http://localhost:8080
           jwk-set-uri: http://localhost:8181/.well-known/jwks.json
 #//-------------------------------------------------------------//
 logging:

@@ -8,9 +8,11 @@ import com.venuehub.broker.event.venue.VenueCreatedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 
 @Service
+@Profile({"dev", "prod"})
 public class VenueCreatedConsumer extends BaseConsumer<VenueCreatedEvent> {
     private static final Logger LOGGER = LoggerFactory.getLogger(VenueCreatedConsumer.class);
     private final VenueService venueService;

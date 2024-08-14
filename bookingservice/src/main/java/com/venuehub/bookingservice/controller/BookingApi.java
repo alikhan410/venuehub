@@ -1,9 +1,10 @@
 package com.venuehub.bookingservice.controller;
 
-import com.venuehub.bookingservice.dto.BookingDateTimeDto;
+import com.venuehub.bookingservice.dto.BookingDateDto;
 import com.venuehub.bookingservice.dto.BookingDto;
 import com.venuehub.bookingservice.response.BookingDateListResponse;
-import com.venuehub.bookingservice.response.BookingResponse;
+import com.venuehub.bookingservice.response.BookingListResponse;
+import com.venuehub.bookingservice.response.BookingStatusResponse;
 import com.venuehub.bookingservice.response.GetBookingsResponse;
 import com.venuehub.commons.exception.BookingUnavailableException;
 import com.venuehub.commons.exception.NoSuchBookingException;
@@ -39,7 +40,7 @@ public interface BookingApi {
                     description = "Booking unavailable or invalid request"
             )
     })
-    ResponseEntity<BookingDto> addBooking(long venueId, BookingDto body, @AuthenticationPrincipal Jwt jwt) throws BookingUnavailableException;
+    ResponseEntity<BookingDto> addBooking(@PathVariable long venueId, @Valid @RequestBody BookingDto body, @AuthenticationPrincipal Jwt jwt) throws BookingUnavailableException;
 
     @Operation(summary = "Retrieves bookings by venue", description = "Retrieves all bookings for a given venue")
     @ApiResponses(value = {
@@ -57,7 +58,7 @@ public interface BookingApi {
                     description = "Venue not found"
             )
     })
-    ResponseEntity<BookingDateListResponse> getBookingByVenue(Long venueId);
+    ResponseEntity<BookingDateListResponse> getBookingByVenue(@PathVariable Long venueId);
 
     @Operation(summary = "Retrieves booking status", description = "Retrieves the status of a specific booking")
     @ApiResponses(value = {
@@ -66,7 +67,7 @@ public interface BookingApi {
                     description = "Successful operation",
                     content = {
                             @Content(mediaType = "application/json",
-                                    schema = @Schema(implementation = BookingResponse.class)
+                                    schema = @Schema(implementation = BookingStatusResponse.class)
                             )
                     }
             ),
@@ -79,7 +80,7 @@ public interface BookingApi {
                     description = "User not authorized to access booking"
             )
     })
-    ResponseEntity<BookingResponse> getBookingStatus(long bookingId, @AuthenticationPrincipal Jwt jwt) throws NoSuchBookingException;
+    ResponseEntity<BookingStatusResponse> getBookingStatus(@PathVariable long bookingId, @AuthenticationPrincipal Jwt jwt)throws NoSuchBookingException;
 
     @Operation(summary = "Retrieves bookings by user", description = "Retrieves all bookings associated with the authenticated user")
     @ApiResponses(value = {
@@ -97,7 +98,7 @@ public interface BookingApi {
                     description = "User not found or no bookings found"
             )
     })
-    ResponseEntity<List<GetBookingsResponse>> getBookingByUser(@AuthenticationPrincipal Jwt jwt) throws NoSuchBookingException;
+    ResponseEntity<BookingListResponse>  getBookingByUser(@AuthenticationPrincipal Jwt jwt)  throws NoSuchBookingException;
 
     @Operation(summary = "Retrieves bookings by vendor", description = "Retrieves all bookings associated with the authenticated vendor")
     @ApiResponses(value = {
@@ -115,7 +116,7 @@ public interface BookingApi {
                     description = "Vendor not found or no bookings found"
             )
     })
-    ResponseEntity<List<GetBookingsResponse>> getBookingByVendor(@AuthenticationPrincipal Jwt jwt) throws NoSuchBookingException;
+    ResponseEntity<BookingListResponse> getBookingByVendor(@AuthenticationPrincipal Jwt jwt)throws NoSuchBookingException;
 
     @Operation(summary = "Cancels a booking", description = "Cancels a specific booking by the authenticated user")
     @ApiResponses(value = {
@@ -132,7 +133,7 @@ public interface BookingApi {
                     description = "User not authorized to cancel booking"
             )
     })
-    ResponseEntity<HttpStatus> cancelBooking(long bookingId, @AuthenticationPrincipal Jwt jwt) throws Exception;
+    ResponseEntity<HttpStatus> cancelBooking(@PathVariable long bookingId, @AuthenticationPrincipal Jwt jwt) throws Exception;
 
     @Operation(summary = "Updates booking date", description = "Updates the date of a specific booking by the authenticated user")
     @ApiResponses(value = {
@@ -149,6 +150,6 @@ public interface BookingApi {
                     description = "User not authorized to update booking date"
             )
     })
-    ResponseEntity<HttpStatus> updateBookingDate(long bookingId, BookingDateTimeDto body, @AuthenticationPrincipal Jwt jwt) throws Exception;
+    ResponseEntity<HttpStatus> updateBookingDate(@PathVariable long bookingId, @RequestBody BookingDateDto body, @AuthenticationPrincipal Jwt jwt)  throws Exception;
 }
 

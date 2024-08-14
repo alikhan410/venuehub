@@ -1,7 +1,7 @@
 package com.venuehub.bookingservice.controller;
 
 import com.venuehub.bookingservice.dto.BookingDto;
-import com.venuehub.bookingservice.dto.BookingDateTimeDto;
+import com.venuehub.bookingservice.dto.BookingDateDto;
 import com.venuehub.bookingservice.mapper.BookingServiceMapper;
 import com.venuehub.bookingservice.response.*;
 import com.venuehub.bookingservice.utils.SecurityChecks;
@@ -75,6 +75,7 @@ public class BookingController implements BookingApi {
             logger.error("Venue not found with id: {}", venueId);
             return new NoSuchVenueException();
         });
+
         LocalDate bookingDate = LocalDate.parse(body.bookingDate());
 
         //LocalDate today = LocalDate.parse("2019-03-27")
@@ -92,7 +93,8 @@ public class BookingController implements BookingApi {
                 venueId,
                 BookingStatus.RESERVED,
                 newBooking.getBookingFee(),
-                jwt.getSubject()
+                jwt.getSubject(),
+                venue.getUsername()
         );
         BookingJobSchedulingEvent bookingJobSchedulingEvent = new BookingJobSchedulingEvent(
                 newBooking.getId(),
@@ -121,8 +123,9 @@ public class BookingController implements BookingApi {
             return new NoSuchVenueException();
         });
 
-        List<BookingDateTimeDto> dates = bookingService.bookingDatesByVenue(venueId);
+        List<BookingDateDto> dates = bookingService.bookingDatesByVenue(venueId);
         BookingDateListResponse response = new BookingDateListResponse(dates);
+
 
         logger.info("Returning bookings for venueId: {}", venueId);
         return new ResponseEntity<>(response, HttpStatus.OK);
@@ -130,7 +133,7 @@ public class BookingController implements BookingApi {
     }
 
     @GetMapping("/bookings/{bookingId}")
-    public ResponseEntity<BookingResponse> getBookingStatus(@PathVariable long bookingId, @AuthenticationPrincipal Jwt jwt) throws NoSuchBookingException {
+    public ResponseEntity<BookingStatusResponse> getBookingStatus(@PathVariable long bookingId, @AuthenticationPrincipal Jwt jwt) throws NoSuchBookingException {
         logger.info("Received request to get booking status for bookingId: {} by user: {}", bookingId, jwt.getSubject());
 
         SecurityChecks.userCheck(jwt);
@@ -145,7 +148,7 @@ public class BookingController implements BookingApi {
             throw new UserForbiddenException();
         }
 
-        BookingResponse response = new BookingResponse(
+        BookingStatusResponse response = new BookingStatusResponse(
                 booking.getBookingDate(),
                 booking.getGuests(),
                 booking.getStatus(),
@@ -158,20 +161,20 @@ public class BookingController implements BookingApi {
     }
 
     @GetMapping("/bookings/user")
-    public ResponseEntity<List<GetBookingsResponse>> getBookingByUser(@AuthenticationPrincipal Jwt jwt) throws NoSuchBookingException {
+    public ResponseEntity<BookingListResponse> getBookingByUser(@AuthenticationPrincipal Jwt jwt) throws NoSuchBookingException {
         logger.info("Received request to get bookings by user: {}", jwt.getSubject());
 
         SecurityChecks.userCheck(jwt);
 
         List<Booking> bookingList = bookingService.findByUsername(jwt.getSubject());
-        List<GetBookingsResponse> bookingsList = bookingList.stream().map(mapper::bookingToBookingResponse).toList();
+        BookingListResponse bookingsList =new BookingListResponse(bookingList.stream().map(mapper::bookingToBookingResponse).toList());
 
         logger.info("Returning bookings for user: {}", jwt.getSubject());
         return new ResponseEntity<>(bookingsList, HttpStatus.OK);
     }
 
     @GetMapping("/bookings/vendor")
-    public ResponseEntity<List<GetBookingsResponse>> getBookingByVendor(@AuthenticationPrincipal Jwt jwt) throws NoSuchBookingException {
+    public ResponseEntity<BookingListResponse> getBookingByVendor(@AuthenticationPrincipal Jwt jwt) throws NoSuchBookingException {
         logger.info("Received request to get bookings by vendor: {}", jwt.getSubject());
 
         SecurityChecks.vendorCheck(jwt, "Please login as vendor and try again");
@@ -183,7 +186,7 @@ public class BookingController implements BookingApi {
                 .flatMap(venue -> venue.getBookings().stream())
                 .toList();
 
-        List<GetBookingsResponse> bookingsList = bookings.stream().map(mapper::bookingToBookingResponse).toList();
+        BookingListResponse bookingsList = new BookingListResponse(bookings.stream().map(mapper::bookingToBookingResponse).toList());
 
         logger.info("Returning bookings for vendor: {}", jwt.getSubject());
         return new ResponseEntity<>(bookingsList, HttpStatus.OK);
@@ -230,7 +233,7 @@ public class BookingController implements BookingApi {
 
     @PutMapping("/bookings/{bookingId}")
     @Transactional
-    public ResponseEntity<HttpStatus> updateBookingDate(@PathVariable long bookingId, @RequestBody BookingDateTimeDto body, @AuthenticationPrincipal Jwt jwt) throws Exception {
+    public ResponseEntity<HttpStatus> updateBookingDate(@PathVariable long bookingId, @RequestBody BookingDateDto body, @AuthenticationPrincipal Jwt jwt) throws Exception {
         logger.info("Received request to update booking date for bookingId: {} by user: {}", bookingId, jwt.getSubject());
 
         SecurityChecks.userCheck(jwt);

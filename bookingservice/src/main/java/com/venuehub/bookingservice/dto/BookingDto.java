@@ -7,7 +7,6 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record BookingDto(
-        String email,
         @NotNull @NotBlank(message = "Phone can not be null or blank") String phone,
         BookingStatus status,
         @NotNull @NotBlank(message = "Date can not be null or empty") String bookingDate,

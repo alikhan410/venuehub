@@ -3,6 +3,7 @@ package com.venuehub.venueservice.configuration;
 import org.redisson.api.RedissonClient;
 import org.redisson.spring.cache.RedissonSpringCacheManager;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -18,11 +19,13 @@ import org.springframework.security.web.util.matcher.RegexRequestMatcher;
 @Profile("test")
 public class SecurityConfigTest {
 
-    private final CustomAuthenticationException customAuthenticationException;
+    private final CustomAuthorizationException customAuthenticationException;
+    private final RedissonClient redissonClient;
 
     @Autowired
-    public SecurityConfigTest(CustomAuthenticationException customAuthenticationException) {
+    public SecurityConfigTest(CustomAuthorizationException customAuthenticationException, RedissonClient redissonClient) {
         this.customAuthenticationException = customAuthenticationException;
+        this.redissonClient = redissonClient;
     }
 
     @Bean
@@ -44,6 +47,10 @@ public class SecurityConfigTest {
         return http.build();
     }
 
+    @Bean
+    public CacheManager cacheManager(RedissonClient redissonClient) {
+        return new RedissonSpringCacheManager(redissonClient);
+    }
 
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
