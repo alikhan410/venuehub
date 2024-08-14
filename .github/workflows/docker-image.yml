@@ -10,6 +10,7 @@ jobs:
 
   build-and-push:
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     strategy:
       matrix:
         service: ['authservice','bookingservice','eureka','gateway','imageservice','jobservice','paymentservice','venueservice']
@@ -26,10 +27,7 @@ jobs:
           
       - name: Build JAR for commons and broker
         run: |
-          cd commons
-          mvn clean install -DskipTests
-          cd ../broker
-          mvn clean install -DskipTests
+          mvn clean install -DskipTests -pl !authservice,!bookingservice,!eureka,!gateway,!imageservice,!jobservice,!paymentservice,!venueservice
           
       - name: Build JAR for ${{ matrix.service }}
         run: |
