@@ -16,15 +16,15 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>commons</module>
+        <module>broker</module>
+        <module>eureka</module>
+        <module>gateway</module>
         <module>authservice</module>
         <module>venueservice</module>
         <module>bookingservice</module>
         <module>jobservice</module>
         <module>paymentservice</module>
-        <module>eureka</module>
-        <module>gateway</module>
-        <module>commons</module>
-        <module>broker</module>
         <module>imageservice</module>
     </modules>
 
