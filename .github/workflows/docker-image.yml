@@ -26,9 +26,6 @@ jobs:
           
       - name: Build JAR for commons and broker
         run: |
-          cd commons
-          mvn clean install -DskipTests
-          cd ../broker
           mvn clean install -DskipTests
           
       - name: Build JAR for ${{ matrix.service }}
