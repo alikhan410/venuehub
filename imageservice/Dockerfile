@@ -6,7 +6,7 @@ ARG JAR_FILE=target/*.jar
 
 ADD ${JAR_FILE} ./
 
-RUN java -Djarmode=layertools -jar bookingservice-0.0.1-SNAPSHOT.jar extract
+RUN java -Djarmode=layertools -jar imageservice-0.0.1-SNAPSHOT.jar extract
 
 FROM openjdk:17-slim
 
@@ -20,6 +20,6 @@ COPY --from=builder application/application/ ./
 #Set profile to 'prod'
 #ENV SPRING_PROFILES_ACTIVE=prod
 
-EXPOSE 6000
+EXPOSE 9696
 
 ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom", "-Dspring.profiles.active=prod", "org.springframework.boot.loader.launch.JarLauncher"]
