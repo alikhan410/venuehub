@@ -5,6 +5,10 @@ springdoc:
   api-docs:
     path: /venue/v3/api-docs
 
+render:
+  redis:
+    url: ${RENDER_REDIS_URL}
+
 spring:
   rabbitmq:
     listener:
@@ -22,7 +26,7 @@ spring:
     username: nlfanvfi
     password: ${RABBITMQ_PASSWORD}
   datasource:
-    url: jdbc:mysql://venuehub-db.ctog2e6k8tc9.eu-north-1.rds.amazonaws.com:3306/venueservice?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://venuehub-db.ctog2e6k8tc9.eu-north-1.rds.amazonaws.com:3306/venueservice?useSSL=true&serverTimezone=UTC
     username: admin
     password: ${MYSQL_AWS_RDS_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver

@@ -44,13 +44,12 @@ spring:
 
 logging:
   level:
-    root: warn
-    web: warn
+    root: info
+    web: info
 
 eureka:
   instance:
     prefer-ip-address: true
-
   client:
     register-with-eureka: false
     fetch-registry: false

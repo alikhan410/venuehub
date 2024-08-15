@@ -13,12 +13,12 @@ public class RedisConfig {
 
     private RedissonClient redissonClient;
 
-
-    @Value("${redis.url}")
-    private String RENDER_REDIS_URL;
+//
+//    @Value("${redis.url}")
+//    private String RENDER_REDIS_URL;
 
     @Bean
-    public RedissonClient getClient() {
+    public RedissonClient getClient(@Value("${render.redis.url}") String RENDER_REDIS_URL) {
 
         if (RENDER_REDIS_URL == null || RENDER_REDIS_URL.isEmpty()) {
             throw new IllegalStateException("Environment variable RENDER_REDIS_URL is not set.");
