@@ -20,7 +20,7 @@ spring:
     username: nlfanvfi
     password: ${RABBITMQ_PASSWORD}
   datasource:
-    url: jdbc:mysql://venuehub-db.ctog2e6k8tc9.eu-north-1.rds.amazonaws.com:3306/authservice?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://venuehub-db.ctog2e6k8tc9.eu-north-1.rds.amazonaws.com:3306/jobservice?useSSL=false&serverTimezone=UTC
     username: admin
     password: ${MYSQL_AWS_RDS_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver

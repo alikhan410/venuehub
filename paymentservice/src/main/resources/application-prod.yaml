@@ -22,7 +22,7 @@ spring:
     username: nlfanvfi
     password: ${RABBITMQ_PASSWORD}
   datasource:
-    url: jdbc:mysql://venuehub-db.ctog2e6k8tc9.eu-north-1.rds.amazonaws.com:3306/authservice?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://venuehub-db.ctog2e6k8tc9.eu-north-1.rds.amazonaws.com:3306/paymentservice?useSSL=false&serverTimezone=UTC
     username: admin
     password: ${MYSQL_AWS_RDS_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -45,14 +45,8 @@ logging:
 
 eureka:
   instance:
-    instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
     prefer-ip-address: true
     metadata-map:
-      zone: zone1
   client:
-    register-with-eureka: true
-    region: region1
-    availability-zones:
-      region1: zone1
-    service-url:
-      zone1: http://localhost:8761/eureka/
+    register-with-eureka: false
+    fetch-registry: false

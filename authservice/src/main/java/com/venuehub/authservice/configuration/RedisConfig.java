@@ -13,21 +13,21 @@ public class RedisConfig {
 
     private RedissonClient redissonClient;
 
-//    @Value("${redis.password}")
-//    private String redisPassword;
+    @Value("${redis.password}")
+    private String RENDER_REDIS_URL;
 
     @Bean
     public RedissonClient getClient() {
 
-//        if (redisPassword == null || redisPassword.isEmpty()) {
-//            throw new IllegalStateException("Environment variable REDIS_PASSWORD is not set.");
-//        }
+        if (RENDER_REDIS_URL == null || RENDER_REDIS_URL.isEmpty()) {
+            throw new IllegalStateException("Environment variable RENDER_REDIS_URL is not set.");
+        }
 //        String redisAddress = String.format("redis://default:%s@redis-13981.c275.us-east-1-4.ec2.redns.redis-cloud.com:13981", redisPassword);
 //
         if (Objects.isNull(redissonClient)) {
             org.redisson.config.Config config = new org.redisson.config.Config();
             config.useSingleServer()
-                    .setAddress("redis://red-cqv0khaj1k6c73dnu67g:6379");
+                    .setAddress(RENDER_REDIS_URL);
 //                    .setAddress(redisAddress);
 
             redissonClient = Redisson.create(config);
