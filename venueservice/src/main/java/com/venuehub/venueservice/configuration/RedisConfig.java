@@ -26,7 +26,10 @@ public class RedisConfig {
         if (Objects.isNull(redissonClient)) {
             org.redisson.config.Config config = new org.redisson.config.Config();
             config.useSingleServer()
+                    .setConnectionPoolSize(4)
+                    .setConnectionMinimumIdleSize(1)
                     .setAddress(RENDER_REDIS_URL);
+
             redissonClient = Redisson.create(config);
         }
         return redissonClient;
