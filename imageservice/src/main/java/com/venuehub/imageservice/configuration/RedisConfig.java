@@ -18,7 +18,7 @@ public class RedisConfig {
         if (Objects.isNull(redissonClient)) {
             org.redisson.config.Config config = new org.redisson.config.Config();
             config.useSingleServer()
-                    .setAddress("redis://127.0.0.1:6379");
+                    .setAddress("redis://red-cqv0khaj1k6c73dnu67g:6379");
             redissonClient = Redisson.create(config);
         }
         return redissonClient;
