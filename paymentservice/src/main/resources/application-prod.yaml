@@ -1,19 +1,31 @@
 server:
-  port: 6161
-#//-------------------------------------------------------------//
+  port: 0
+
+springdoc:
+  api-docs:
+    path: /payment/v3/api-docs
+
 spring:
   rabbitmq:
-    host: rabbitmq-srv
-    port: 5672
-    username: guest
-    password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 5000
+          max-interval: 15000
+    virtual-host: nlfanvfi
+    host: lionfish-01.rmq.cloudamqp.com
+    ssl:
+      enabled: true
+    port: 5671
+    username: nlfanvfi
+    password: ${RABBITMQ_PASSWORD}
   datasource:
-    url: jdbc:mysql://booking-db-srv:3306/paymentservice
-    username: root
-    password: my-secret-pw
+    url: jdbc:mysql://venuehub-db.ctog2e6k8tc9.eu-north-1.rds.amazonaws.com:3306/authservice?useSSL=false&serverTimezone=UTC
+    username: admin
+    password: ${MYSQL_AWS_RDS_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
-  main:
-    banner-mode: OFF
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     show-sql: false
@@ -24,20 +36,23 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          jwk-set-uri: http://auth-srv:8181/.well-known/jwks.json
-#//-------------------------------------------------------------//
+          jwk-set-uri: http://localhost:8181/.well-known/jwks.json
+
 logging:
   level:
     root: info
     web: info
-#//-------------------------------------------------------------//
-eureka:
 
+eureka:
   instance:
+    instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
     prefer-ip-address: true
     metadata-map:
       zone: zone1
-
   client:
-    register-with-eureka: false
-    fetch-registry: false
+    register-with-eureka: true
+    region: region1
+    availability-zones:
+      region1: zone1
+    service-url:
+      zone1: http://localhost:8761/eureka/

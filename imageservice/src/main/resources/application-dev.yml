@@ -1,15 +1,14 @@
 server:
-  port: 9696
-#//-------------------------------------------------------------//
+  port: 0
+
 constants:
   file-upload-dir: E:/uploads
-#//-------------------------------------------------------------//
+
 springdoc:
   api-docs:
     path: /image/v3/api-docs
-#//-------------------------------------------------------------//
-spring:
 
+spring:
   servlet:
     multipart:
       enabled: true
@@ -30,7 +29,6 @@ spring:
   jpa:
     show-sql: false
     generate-ddl: true
-
     hibernate:
       ddl-auto: create
   datasource:
@@ -45,20 +43,18 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:8181/.well-known/jwks.json
-#//-------------------------------------------------------------//
+
 logging:
   level:
     root: info
     web: info
-#//-------------------------------------------------------------//
-eureka:
 
+eureka:
   instance:
     instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
     prefer-ip-address: true
     metadata-map:
       zone: zone1
-
   client:
     register-with-eureka: true
     region: region1

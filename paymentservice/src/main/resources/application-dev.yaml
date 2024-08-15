@@ -1,6 +1,5 @@
 server:
-  port: 6161
-#//-------------------------------------------------------------//
+  port: 0
 
 springdoc:
   api-docs:
@@ -19,37 +18,33 @@ spring:
     port: 5672
     username: guest
     password: guest
-  jpa:
-    show-sql: false
-    generate-ddl: true
-
-    hibernate:
-      ddl-auto: create
-
   datasource:
     url: jdbc:mysql://localhost:3306/paymentservice
     username: ali
     password: "@Li4103568"
-
+  jpa:
+    show-sql: false
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create
   security:
     oauth2:
       resourceserver:
         jwt:
           #          issuer-uri: http://localhost:8080
           jwk-set-uri: http://localhost:8181/.well-known/jwks.json
-#//-------------------------------------------------------------//
+
 logging:
   level:
+    root: info
     web: info
-#//-------------------------------------------------------------//
-eureka:
 
+eureka:
   instance:
     instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
     prefer-ip-address: true
     metadata-map:
       zone: zone1
-
   client:
     register-with-eureka: true
     region: region1

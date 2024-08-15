@@ -1,24 +1,15 @@
 server:
-  port: 8181
+  port: ${PORT}
 #//-------------------------------------------------------------//
-
 eureka:
-
   instance:
-    instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
     prefer-ip-address: true
     metadata-map:
       zone: zone1
 
   client:
-    register-with-eureka: true
-    region: region1
-    availability-zones:
-      region1: zone1
-    service-url:
-      zone1: http://localhost:8761/eureka/
-    healthcheck:
-      enabled: true
+    fetch-registry: false
+    register-with-eureka: false
 
 #//-------------------------------------------------------------//
 logging:
@@ -26,56 +17,38 @@ logging:
     root: warn
     web: warn
 #//-------------------------------------------------------------//
-management:
-  endpoints:
-    web:
-      exposure:
-        include:
-          - "mappings"
 spring:
-
   cloud:
     gateway:
-      default-filters:
-        - DedupeResponseHeader=Access-Control-Allow-Credentials Access-Control-Allow-Origin
-        - AddResponseHeader=Access-Control-Allow-Origin, *
-      globalcors:
-        corsConfigurations:
-          '[/**]':
-            allowedOrigins: "*"
-            allowedMethods: "*"
-            allowedHeaders: "*"
       routes:
         - id: booking-service
-          uri: lb://booking-service
+          uri: http://booking-srv.default.svc.cluster.local:6000
           predicates:
             - Path=/bookings/{id}, /bookings/venue/{id}, /bookings/user,/bookings/vendor, /booking/v3/api-docs
             - Method=GET,POST, DELETE
 
         - id: auth-service
-          uri: lb://auth-service
+          uri: http://auth-srv.default.svc.cluster.local:8080
           predicates:
             - Path=/user/login,/user/logout,/user/register,/vendor/register,/vendor/login,/vendor/logout,/.well-known/jwks.json,/current-user,/auth/v3/api-docs
             - Method=GET,POST
 
         - id: venue-service
-          uri: lb://venue-service
+          uri: http://venue-srv.default.svc.cluster.local:9000
           predicates:
             - Path=/venue, /venue/{id}, /venue/vendor/info , /venue/vendor/all-venue, /venue/{id}/image-0,/venue/v3/api-docs
             - Method=GET,POST,DELETE,PUT
 
         - id: payment-service
-          uri: lb://payment-service
+          uri: http://payment-srv.default.svc.cluster.local-srv
           predicates:
             - Path=/orders/create-payment-intent, /orders/confirm-payment, /orders/status/{orderId}, /orders/user, /orders/vendor, /payment/v3/api-docs
             - Method=GET,POST
-
         - id: image-service
-          uri: lb://image-service
+          uri: http://image-srv.default.svc.cluster.local-srv
           predicates:
             - Path=/images/{vendorName}/{venueName}/{fileName}, /images/{vendorName}/{venueName}, /images/{venueName}, /image/v3/api-docs
             - Method=GET,POST
-
 
 springdoc:
   group-configs:

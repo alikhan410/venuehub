@@ -22,6 +22,6 @@ eureka:
       enabled: true
 
   instance:
-    hostname: discovery-srv
+    hostname: discovery-server
     metadata-map:
       zone: zone1

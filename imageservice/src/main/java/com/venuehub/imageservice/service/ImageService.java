@@ -63,7 +63,7 @@ public class ImageService {
                 }
 
                 String uri = "/images/" + vendorName + "/" + venueName + "/" + fileName;
-//                Image image = new Image(fileName, filePath.toString(), uri, venueName, vendorName);
+//                Image image = new Image(fileName, filePath.toSting(), uri, venueName, vendorName);
                 Image image = Image.builder()
                         .imagePath(filePath.toString())
                         .filename(fileName)

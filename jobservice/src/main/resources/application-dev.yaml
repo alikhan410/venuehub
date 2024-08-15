@@ -1,6 +1,6 @@
 server:
-  port: 7000
-#//-------------------------------------------------------------//
+  port: 0
+
 spring:
   application:
     name: jobservice
@@ -17,13 +17,9 @@ spring:
     username: guest
     password: guest
   datasource:
-    #    url: jdbc:mysql://localhost:8787/jobservice
-    #    username: root
-    #    password: my-secret-pw
     url: jdbc:mysql://localhost:3306/jobservice
     username: ali
     password: "@Li4103568"
-
     driver-class-name: com.mysql.cj.jdbc.Driver
   main:
     banner-mode: OFF
@@ -36,19 +32,15 @@ spring:
   quartz:
     properties:
       org.quartz.threadPool.threadCount: 5
-
       org.quartz.jobStore.driverDelegateClass: org.quartz.impl.jdbcjobstore.StdJDBCDelegate
 #      org.quartz.jobStore.dataSource: myDataSource
-#
 #      org.quartz.dataSource.myDataSource.driver: com.mysql.cj.jdbc.Driver
 #      org.quartz.dataSource.myDataSource.URL: jdbc:mysql://localhost:3306/jobservice
 #      org.quartz.dataSource.myDataSource.username: ali
 #      org.quartz.dataSource.myDataSource.password: "@Li4103568"
     job-store-type: JDBC
 
-#//-------------------------------------------------------------//
 logging:
   level:
     root: info
     web: info
-#//-------------------------------------------------------------//

@@ -1,18 +1,28 @@
 server:
-  port: 7000
-#//-------------------------------------------------------------//
+  port: 0
+
 spring:
   application:
     name: jobservice
   rabbitmq:
-    host: rabbitmq-srv
-    port: 5672
-    username: guest
-    password: guest
+    listener:
+      simple:
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 5000
+          max-interval: 15000
+    virtual-host: nlfanvfi
+    host: lionfish-01.rmq.cloudamqp.com
+    ssl:
+      enabled: true
+    port: 5671
+    username: nlfanvfi
+    password: ${RABBITMQ_PASSWORD}
   datasource:
-    url: jdbc:mysql://job-db-srv:3306/jobservice
-    username: root
-    password: my-secret-pw
+    url: jdbc:mysql://venuehub-db.ctog2e6k8tc9.eu-north-1.rds.amazonaws.com:3306/authservice?useSSL=false&serverTimezone=UTC
+    username: admin
+    password: ${MYSQL_AWS_RDS_PASSWORD}
     driver-class-name: com.mysql.cj.jdbc.Driver
   main:
     banner-mode: OFF
@@ -21,13 +31,10 @@ spring:
     show-sql: false
     generate-ddl: true
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
 
-
-#//-------------------------------------------------------------//
 logging:
   level:
     root: info
     web: info
-#//-------------------------------------------------------------//
 
