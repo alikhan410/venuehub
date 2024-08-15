@@ -1,5 +1,8 @@
 server:
-  port: 0
+  port: ${PORT}
+
+sprite:
+  key: ${STRIPE_SECRET_KEY}
 
 springdoc:
   api-docs:

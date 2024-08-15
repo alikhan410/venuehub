@@ -11,7 +11,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class PaymentService {
-    @Value("${STRIPE_SECRET_KEY}")
+    @Value("${stripe.key}")
     private String secretKey;
 
     @PostConstruct

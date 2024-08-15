@@ -1,5 +1,5 @@
 server:
-  port: 0
+  port: ${PORT}
 
 constants:
   file-upload-dir: /home/ec2-user/

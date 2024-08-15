@@ -1,39 +1,29 @@
 server:
-  port: 8181
-#//-------------------------------------------------------------//
+  port: ${PORT}
 
 eureka:
-
   instance:
-    instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
     prefer-ip-address: true
     metadata-map:
       zone: zone1
 
   client:
-    register-with-eureka: true
-    region: region1
-    availability-zones:
-      region1: zone1
-    service-url:
-      zone1: http://localhost:8761/eureka/
-    healthcheck:
-      enabled: true
+    fetch-registry: false
+    register-with-eureka: false
 
-#//-------------------------------------------------------------//
 logging:
   level:
     root: warn
     web: warn
-#//-------------------------------------------------------------//
+
 management:
   endpoints:
     web:
       exposure:
         include:
           - "mappings"
-spring:
 
+spring:
   cloud:
     gateway:
       default-filters:
@@ -101,7 +91,6 @@ springdoc:
         name: Booking Service
       - url: /payment/v3/api-docs
         name: Payment Service
-
   api-docs:
     groups:
       enabled: true
