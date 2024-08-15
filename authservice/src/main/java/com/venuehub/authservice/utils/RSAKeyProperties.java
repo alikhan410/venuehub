@@ -47,10 +47,10 @@ public class RSAKeyProperties {
      * to {@link RSAPublicKey} and {@link RSAPrivateKey} objects.
      * </p>
      *
-     * @param publicKeyStr the Base64-encoded RSA public key.
+     * @param publicKeyStr  the Base64-encoded RSA public key.
      * @param privateKeyStr the Base64-encoded RSA private key.
      * @throws IllegalStateException if the provided key strings are null or empty.
-     * @throws Exception if there is an error decoding the key strings or generating the keys.
+     * @throws Exception             if there is an error decoding the key strings or generating the keys.
      */
     public RSAKeyProperties(@Value("${jwt.publicKey}") String publicKeyStr,
                             @Value("${jwt.privateKey}") String privateKeyStr) throws Exception {
@@ -58,7 +58,6 @@ public class RSAKeyProperties {
         if (publicKeyStr == null || publicKeyStr.isEmpty() || privateKeyStr == null || privateKeyStr.isEmpty()) {
             throw new IllegalStateException("Environment variable JWT_PUBLIC_KEY and JWT_PRIVATE_KEY are not set.");
         }
-
         byte[] publicKeyBytes = Base64.getDecoder().decode(publicKeyStr);
         byte[] privateKeyBytes = Base64.getDecoder().decode(privateKeyStr);
 

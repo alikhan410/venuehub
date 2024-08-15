@@ -23,5 +23,3 @@ eureka:
 
   instance:
     hostname: discovery-server
-    metadata-map:
-      zone: zone1

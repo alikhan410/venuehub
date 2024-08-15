@@ -4,8 +4,7 @@ server:
 eureka:
   instance:
     prefer-ip-address: true
-    metadata-map:
-      zone: zone1
+
 
   client:
     fetch-registry: false

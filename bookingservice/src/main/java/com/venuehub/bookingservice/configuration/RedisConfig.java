@@ -12,7 +12,7 @@ import java.util.Objects;
 public class RedisConfig {
 
     private RedissonClient redissonClient;
-    @Value("${redis.password}")
+    @Value("${redis.url}")
     private String RENDER_REDIS_URL;
 
     @Bean

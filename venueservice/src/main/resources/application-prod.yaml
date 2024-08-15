@@ -49,7 +49,7 @@ logging:
 eureka:
   instance:
     prefer-ip-address: true
-    metadata-map:
+
   client:
     register-with-eureka: false
     fetch-registry: false

@@ -7,8 +7,9 @@ eureka:
   instance:
     instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
     prefer-ip-address: true
-    metadata-map:
-      zone: zone1
+metadata-app:
+    zone: zone1
+
 
   client:
     register-with-eureka: true
