@@ -7,10 +7,8 @@ eureka:
   instance:
     instance-id: ${spring.cloud.client.hostname}:${spring.application.name}:${spring.application.instance_id:${random.value}}
     prefer-ip-address: true
-metadata-app:
-    zone: zone1
-
-
+    metadata-map:
+      zone: zone1
   client:
     register-with-eureka: true
     region: region1
@@ -48,34 +46,38 @@ spring:
             allowedHeaders: "*"
       routes:
         - id: booking-service
-          uri: lb://booking-service
+          uri: ${BOOKING_SERVICE}
+#          uri: lb://booking-service
           predicates:
             - Path=/bookings/{id}, /bookings/venue/{id}, /bookings/user,/bookings/vendor, /booking/v3/api-docs
             - Method=GET,POST, DELETE
 
         - id: auth-service
-          uri: lb://auth-service
+          uri: ${AUTH_SERVICE}
+#          uri: lb://auth-service
           predicates:
             - Path=/user/login,/user/logout,/user/register,/vendor/register,/vendor/login,/vendor/logout,/.well-known/jwks.json,/current-user,/auth/v3/api-docs
             - Method=GET,POST
 
         - id: venue-service
-          uri: lb://venue-service
+          uri: ${VENUE_SERVICE}
+#          uri: lb://venue-service
           predicates:
-            - Path=/venue, /venue/{id}, /venue/vendor/info , /venue/vendor/all-venue, /venue/{id}/image-0,/venue/v3/api-docs
+            - Path=/images/{venueId}, /venue, /venue/{id}, /venue/vendor/info , /venue/vendor/all-venue, /venue/{id}/image-0,/venue/v3/api-docs
             - Method=GET,POST,DELETE,PUT
 
         - id: payment-service
-          uri: lb://payment-service
+          uri: ${PAYMENT_SERVICE}
+#          uri: lb://payment-service
           predicates:
             - Path=/orders/create-payment-intent, /orders/confirm-payment, /orders/status/{orderId}, /orders/user, /orders/vendor, /payment/v3/api-docs
             - Method=GET,POST
 
-        - id: image-service
-          uri: lb://image-service
-          predicates:
-            - Path=/images/{vendorName}/{venueName}/{fileName}, /images/{vendorName}/{venueName}, /images/{venueName}, /image/v3/api-docs
-            - Method=GET,POST
+#        - id: image-service
+#          uri: lb://image-service
+#          predicates:
+#            - Path=/images/{vendorName}/{venueName}/{fileName}, /images/{vendorName}/{venueName}, /images/{venueName}, /image/v3/api-docs
+#            - Method=GET,POST
 
 
 springdoc:

@@ -109,7 +109,7 @@ public class PaymentController implements PaymentApi {
         if (!jwt.getClaim("loggedInAs").equals("USER")) {
             throw new UserForbiddenException();
         }
-
+        logger.info("clientId:{}, clientSecret:{}, vendor:{}", clientId, clientSecret, vendor);
         BookingOrder order = orderService.findByClientSecret(clientSecret).orElseThrow(NoSuchOrderException::new);
 
         if (order.getOrderStatus().equals(OrderStatus.COMPLETED)) {

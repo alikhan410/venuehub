@@ -11,8 +11,8 @@ import java.util.Optional;
 @Repository
 public interface ImageRepository extends JpaRepository<Image, Long> {
 
-    Optional<Image> findByUri(String uri);
+    Optional<Image> findByUrl(String uri);
 
-    @Query("SELECT i FROM Image i WHERE i.uri LIKE %:partialUri%")
-    Optional<Image> findByPartialUri(@Param("partialUri") String partialUri);
+    @Query("SELECT i FROM Image i WHERE i.url LIKE %:partialUrl%")
+    Optional<Image> findByPartailUrl(@Param("partialUrl") String partialUrl);
 }

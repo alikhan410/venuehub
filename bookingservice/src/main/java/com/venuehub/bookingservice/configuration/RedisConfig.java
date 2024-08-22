@@ -12,8 +12,8 @@ import java.util.Objects;
 public class RedisConfig {
 
     private RedissonClient redissonClient;
-    @Value("${redis.url}")
-    private String RENDER_REDIS_URL;
+//    @Value("${redis.url}")
+//    private String RENDER_REDIS_URL;
 
     @Bean
     public RedissonClient getClient(@Value("${render.redis.url}") String RENDER_REDIS_URL) {

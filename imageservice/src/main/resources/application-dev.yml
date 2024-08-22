@@ -1,6 +1,10 @@
 server:
   port: 0
 
+render:
+  redis:
+    url: ${RENDER_REDIS_URL}
+
 constants:
   file-upload-dir: E:/uploads
 
@@ -14,6 +18,7 @@ spring:
       enabled: true
       max-file-size: 5MB
       max-request-size: 20MB
+
   rabbitmq:
     listener:
       simple:
@@ -22,10 +27,25 @@ spring:
           max-attempts: 3
           initial-interval: 5000
           max-interval: 15000
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    virtual-host: nlfanvfi
+    host: lionfish-01.rmq.cloudamqp.com
+    ssl:
+      enabled: true
+    port: 5671
+    username: nlfanvfi
+    password: ${RABBITMQ_PASSWORD}
+#  rabbitmq:
+#    listener:
+#      simple:
+#        retry:
+#          enabled: true
+#          max-attempts: 3
+#          initial-interval: 5000
+#          max-interval: 15000
+#    host: localhost
+#    port: 5672
+#    username: guest
+#    password: guest
   jpa:
     show-sql: false
     generate-ddl: true

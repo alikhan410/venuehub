@@ -1,6 +1,10 @@
 server:
   port: ${PORT}
 
+render:
+  redis:
+    url: ${RENDER_REDIS_URL}
+
 constants:
   file-upload-dir: /home/ec2-user/
 
@@ -38,7 +42,7 @@ spring:
     hikari:
       maximum-pool-size: 10
       connection-timeout: 60000
-    url: jdbc:mysql://venuehub-db.ctog2e6k8tc9.eu-north-1.rds.amazonaws.com:3306/imageservcie?useSSL=false&serverTimezone=UTC
+    url: jdbc:mysql://venuehub-db.ctog2e6k8tc9.eu-north-1.rds.amazonaws.com:3306/imageservice?useSSL=false&serverTimezone=UTC
     username: admin
     password: ${MYSQL_AWS_RDS_PASSWORD}
   security:
@@ -55,7 +59,6 @@ logging:
 eureka:
   instance:
     prefer-ip-address: true
-
   client:
     register-with-eureka: false
     fetch-registry: false

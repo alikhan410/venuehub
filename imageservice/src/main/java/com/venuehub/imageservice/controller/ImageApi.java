@@ -19,48 +19,48 @@ import java.io.IOException;
 
 public interface ImageApi {
 
-    @Operation(summary = "Retrieve an image", description = "Retrieves an image for a given venue")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successful operation",
-                    content = {
-                            @Content(mediaType = MediaType.IMAGE_JPEG_VALUE,
-                                    schema = @Schema(implementation = Resource.class)
-                            )
-                    }
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Image not found",
-                    content = @Content
-            )
-    })
-    ResponseEntity<Resource> getImage(
-            String vendorName,
-            String venueName,
-            String fileName);
-
-    @Operation(summary = "Retrieve main image", description = "Retrieves main image for a given venue")
-    @ApiResponses(value = {
-            @ApiResponse(
-                    responseCode = "200",
-                    description = "Successful operation",
-                    content = {
-                            @Content(mediaType = MediaType.IMAGE_JPEG_VALUE,
-                                    schema = @Schema(implementation = Resource.class)
-                            )
-                    }
-            ),
-            @ApiResponse(
-                    responseCode = "404",
-                    description = "Image not found",
-                    content = @Content
-            )
-    })
-    ResponseEntity<Resource> getMainImage(
-            String vendorName,
-            String venueName);
+//    @Operation(summary = "Retrieve an image", description = "Retrieves an image for a given venue")
+//    @ApiResponses(value = {
+//            @ApiResponse(
+//                    responseCode = "200",
+//                    description = "Successful operation",
+//                    content = {
+//                            @Content(mediaType = MediaType.IMAGE_JPEG_VALUE,
+//                                    schema = @Schema(implementation = Resource.class)
+//                            )
+//                    }
+//            ),
+//            @ApiResponse(
+//                    responseCode = "404",
+//                    description = "Image not found",
+//                    content = @Content
+//            )
+//    })
+//    ResponseEntity<Resource> getImage(
+//            String vendorName,
+//            String venueName,
+//            String fileName);
+//
+//    @Operation(summary = "Retrieve main image", description = "Retrieves main image for a given venue")
+//    @ApiResponses(value = {
+//            @ApiResponse(
+//                    responseCode = "200",
+//                    description = "Successful operation",
+//                    content = {
+//                            @Content(mediaType = MediaType.IMAGE_JPEG_VALUE,
+//                                    schema = @Schema(implementation = Resource.class)
+//                            )
+//                    }
+//            ),
+//            @ApiResponse(
+//                    responseCode = "404",
+//                    description = "Image not found",
+//                    content = @Content
+//            )
+//    })
+//    ResponseEntity<Resource> getMainImage(
+//            String vendorName,
+//            String venueName);
 
     @Operation(summary = "Save images", description = "Saves multiple images for a given venue")
     @ApiResponses(value = {

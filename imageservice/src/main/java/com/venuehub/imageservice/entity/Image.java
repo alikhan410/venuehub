@@ -19,7 +19,6 @@ public class Image {
     private String filename;
     private String venueName;
     private String uri;
-    private String imagePath;
     private String vendorName;
 
 

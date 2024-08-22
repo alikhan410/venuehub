@@ -12,13 +12,16 @@ import org.springframework.stereotype.Service;
 @Service
 public class PaymentService {
     @Value("${stripe.key}")
-    private String secretKey;
+    private String STRIPE_SECRET_KEY;
 
     @PostConstruct
     public void init() {
-        Stripe.apiKey = secretKey;
-    }
+        if (STRIPE_SECRET_KEY == null || STRIPE_SECRET_KEY.isEmpty()) {
+            throw new IllegalStateException("Environment variable STRIPE_SECRET_KEY is not set.");
+        }
 
+        Stripe.apiKey = STRIPE_SECRET_KEY;
+    }
 
     public PaymentIntent createPayment(int amount) throws StripeException {
 

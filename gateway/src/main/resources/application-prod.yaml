@@ -50,7 +50,7 @@ spring:
         - id: venue-service
           uri: lb://venue-service
           predicates:
-            - Path=/venue, /venue/{id}, /venue/vendor/info , /venue/vendor/all-venue, /venue/{id}/image-0,/venue/v3/api-docs
+            - Path=/images/{venueId}, /venue, /venue/{id}, /venue/vendor/info , /venue/vendor/all-venue, /venue/{id}/image-0,/venue/v3/api-docs
             - Method=GET,POST,DELETE,PUT
 
         - id: payment-service
@@ -59,12 +59,12 @@ spring:
             - Path=/orders/create-payment-intent, /orders/confirm-payment, /orders/status/{orderId}, /orders/user, /orders/vendor, /payment/v3/api-docs
             - Method=GET,POST
 
-        - id: image-service
-          uri: lb://image-service
-          predicates:
-            - Path=/images/{vendorName}/{venueName}/{fileName}, /images/{vendorName}/{venueName}, /images/{venueName}, /image/v3/api-docs
-            - Method=GET,POST
-
+#        - id: image-service
+#          uri: lb://image-service
+#          predicates:
+#            - Path=/images/{vendorName}/{venueName}/{fileName}, /images/{vendorName}/{venueName}, /images/{venueName}, /image/v3/api-docs
+#            - Method=GET,POST
+#
 
 springdoc:
   group-configs:

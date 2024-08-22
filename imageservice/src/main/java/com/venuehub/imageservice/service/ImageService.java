@@ -20,16 +20,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ImageService {
 
     @Value("${constants.file-upload-dir}")
     String fileUploadDir;
+
+    @Autowired
+    private S3Service s3Service;
 
     private static final Logger logger = LoggerFactory.getLogger(ImageService.class);
 
@@ -42,72 +43,65 @@ public class ImageService {
 
     public List<Image> saveImage(MultipartFile[] files, String venueName, String vendorName) throws IOException {
         int position = 0;
+
+        String input = venueName.replaceAll("-", " "); //Output: venue-name -> venue name
+        String formattedVenueName = Arrays.stream(input.split(" "))
+                .map(word -> word.substring(0, 1).toUpperCase() + word.substring(1).toLowerCase())
+                .collect(Collectors.joining(" "));// Output: venue name -> Venue Name
+
         List<Image> imageList = new ArrayList<>();
         String foo = UUID.randomUUID().toString();
+
         for (MultipartFile file : files) {
             try {
                 String fileName = position + "-" + foo + ".jpg";
                 position++;
-                // Define your external directory path
-                Path externalDir = Paths.get(fileUploadDir + "/" + vendorName + "/" + venueName);
-                if (!Files.exists(externalDir)) {
-                    Files.createDirectories(externalDir); // Create the directory if it doesn't exist
-                }
-
-                // Construct the file path within the external directory
-                Path filePath = externalDir.resolve(fileName);
-
-                // Save the file
-                try (FileOutputStream fos = new FileOutputStream(filePath.toFile())) {
-                    fos.write(file.getBytes());
-                }
-
-                String uri = "/images/" + vendorName + "/" + venueName + "/" + fileName;
-//                Image image = new Image(fileName, filePath.toSting(), uri, venueName, vendorName);
+                String s3BucketURL = String.format("https://venuehub-imagebucket.s3.eu-north-1.amazonaws.com/%s", fileName);
+                String s3Filename = s3Service.uploadFile(file, fileName);
                 Image image = Image.builder()
-                        .imagePath(filePath.toString())
+                        .imagePath(s3Filename)
                         .filename(fileName)
-                        .uri(uri)
+                        .uri(s3BucketURL)
                         .vendorName(vendorName)
-                        .venueName(venueName)
+                        .venueName(formattedVenueName)
                         .build();
 
                 imageList.add(image);
             } catch (IOException ex) {
                 logger.error("Failed to save image: {}", ex.getMessage());
-                throw new RuntimeException();
+                throw new RuntimeException("Failed to save image", ex);
             }
         }
         return imageRepository.saveAll(imageList);
     }
 
-    public Resource getImage(String vendorName, String venueName, String fileName) {
-        String uri = "/images/" + vendorName + "/" + venueName + "/" + fileName;
-        logger.info("retrieving image for the URI: {}", uri);
-        try {
-            Image image = imageRepository.findByUri(uri).orElseThrow(NoSuchVenueException::new);
-            Path path = Paths.get(image.getImagePath());
-            return new PathResource(path);
+//    public Resource getImage(String vendorName, String venueName, String fileName) {
+//        String uri = "/images/" + vendorName + "/" + venueName + "/" + fileName;
+//        logger.info("retrieving image for the URI: {}", uri);
+//        try {
+//            Image image = imageRepository.findByUri(uri).orElseThrow(NoSuchVenueException::new);
+//            Path path = Paths.get(image.getImagePath());
+//            return new PathResource(path);
+//
+//        } catch (NoSuchElementException ex) {
+//            logger.error("Image not found for URI: {}", uri);
+//            throw new RuntimeException("Image not found for URI: " + uri);
+//        }
+//    }
 
-        } catch (NoSuchElementException ex) {
-            logger.error("Image not found for URI: {}", uri);
-            throw new RuntimeException("Image not found for URI: " + uri);
-        }
-    }
 
-
-    public Resource getImage(String vendorName, String venueName) {
-        String uri = "/images/" + vendorName + "/" + venueName + "/" + 0;
-        logger.info("retrieving image for the partial URI: {}", uri);
-        try {
-            Image image = imageRepository.findByPartialUri(uri).orElseThrow(NoSuchVenueException::new);
-            Path path = Paths.get(image.getImagePath());
-            return new PathResource(path);
-
-        } catch (NoSuchElementException ex) {
-            logger.error("Image not found for URI: {}", uri);
-            throw new RuntimeException("Image not found for URI: " + uri);
-        }
-    }
+//    public Resource getImage(String vendorName, String venueName) {
+//        String uri = "/images/" + vendorName + "/" + venueName + "/" + 0;
+//        logger.info("retrieving image for the partial URI: {}", uri);
+//        try {
+//            Image image = imageRepository.findByPartialUri(uri).orElseThrow(NoSuchVenueException::new);
+//            Path path = Paths.get(image.getImagePath());
+//            return new PathResource(path);
+//
+//        } catch (NoSuchElementException ex) {
+//            logger.error("Image not found for URI: {}", uri);
+//            throw new RuntimeException("Image not found for URI: " + uri);
+//        }
+//    }
 }
 

@@ -14,10 +14,25 @@ spring:
           max-attempts: 3
           initial-interval: 5000
           max-interval: 15000
-    host: localhost
-    port: 5672
-    username: guest
-    password: guest
+    virtual-host: nlfanvfi
+    host: lionfish-01.rmq.cloudamqp.com
+    ssl:
+      enabled: true
+    port: 5671
+    username: nlfanvfi
+    password: ${RABBITMQ_PASSWORD}
+#  rabbitmq:
+#    listener:
+#      simple:
+#        retry:
+#          enabled: true
+#          max-attempts: 3
+#          initial-interval: 5000
+#          max-interval: 15000
+#    host: localhost
+#    port: 5672
+#    username: guest
+#    password: guest
   jpa:
     database-platform: org.hibernate.dialect.MySQLDialect
     show-sql: false

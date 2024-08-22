@@ -31,21 +31,21 @@ public class ImageController implements ImageApi {
         this.producer = producer;
     }
 
-    @GetMapping(value = "/images/{vendorName}/{venueName}/{fileName}", produces = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<Resource> getImage(
-            @PathVariable("venueName") String venueName,
-            @PathVariable("vendorName") String vendorName,
-            @PathVariable("fileName") String fileName
-    ) {
-        Resource resource = imageService.getImage(vendorName, venueName, fileName);
-        return new ResponseEntity<>(resource, HttpStatus.OK);
-    }
+//    @GetMapping(value = "/images/{vendorName}/{venueName}/{fileName}", produces = MediaType.IMAGE_JPEG_VALUE)
+//    public ResponseEntity<Resource> getImage(
+//            @PathVariable("venueName") String venueName,
+//            @PathVariable("vendorName") String vendorName,
+//            @PathVariable("fileName") String fileName
+//    ) {
+//        Resource resource = imageService.getImage(vendorName, venueName, fileName);
+//        return new ResponseEntity<>(resource, HttpStatus.OK);
+//    }
 
-    @GetMapping(value = "/images/{vendorName}/{venueName}", produces = MediaType.IMAGE_JPEG_VALUE)
-    public ResponseEntity<Resource> getMainImage(@PathVariable("venueName") String venueName, @PathVariable("vendorName") String vendorName) {
-        Resource resource = imageService.getImage(vendorName, venueName);
-        return new ResponseEntity<>(resource, HttpStatus.OK);
-    }
+//    @GetMapping(value = "/images/{vendorName}/{venueName}", produces = MediaType.IMAGE_JPEG_VALUE)
+//    public ResponseEntity<Resource> getMainImage(@PathVariable("venueName") String venueName, @PathVariable("vendorName") String vendorName) {
+//        Resource resource = imageService.getImage(vendorName, venueName);
+//        return new ResponseEntity<>(resource, HttpStatus.OK);
+//    }
 
     @PostMapping("/images/{venueName}")
     public ResponseEntity<HttpStatus> saveImage(@PathVariable("venueName") String venueName, MultipartFile[] files, @AuthenticationPrincipal Jwt jwt) throws IOException {
@@ -53,7 +53,7 @@ public class ImageController implements ImageApi {
         List<Image> images = imageService.saveImage(files, venueName, jwt.getSubject());
 
         for (Image image : images) {
-            ImageCreatedEvent event = new ImageCreatedEvent(image.getId(), image.getUri(), venueName, image.getVendorName());
+            ImageCreatedEvent event = new ImageCreatedEvent(image.getId(), image.getUri(), image.getVenueName(), image.getVendorName());
             producer.produce(event, MyExchange.VENUE_EXCHANGE);
         }
         return new ResponseEntity<>(HttpStatus.CREATED);

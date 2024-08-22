@@ -4,6 +4,10 @@ server:
     mbeanregistry:
       enabled: true
 
+render:
+  redis:
+    url: ${RENDER_REDIS_URL}
+
 jwt:
   publicKey: ${JWT_PUBLIC_KEY}
   privateKey: ${JWT_PRIVATE_KEY}
