@@ -26,7 +26,7 @@ spring:
     show-sql: false
     generate-ddl: true
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
   datasource:
     url: jdbc:mysql://venuehub-db.ctog2e6k8tc9.eu-north-1.rds.amazonaws.com:3306/bookingservice?useSSL=false&serverTimezone=UTC
     username: admin
