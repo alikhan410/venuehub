@@ -8,6 +8,7 @@ import com.venuehub.broker.event.venue.VenueUpdatedEvent;
 import com.venuehub.broker.producer.venue.VenueCreatedProducer;
 import com.venuehub.broker.producer.venue.VenueDeletedProducer;
 import com.venuehub.broker.producer.venue.VenueUpdatedProducer;
+import com.venuehub.venueservice.constant.VenueStatus;
 import com.venuehub.venueservice.dto.BookingDto;
 import com.venuehub.venueservice.dto.ImageDto;
 import com.venuehub.venueservice.dto.VenueDto;
@@ -136,7 +137,8 @@ class VenueControllerTest {
                 imageDtos,
                 phone,
                 estimate,
-                bookingDtos);
+                bookingDtos,
+                VenueStatus.ACTIVE);
 
     }
 
@@ -408,7 +410,8 @@ class VenueControllerTest {
                     imageDtos,
                     phone,
                     updatedEstimate,
-                    bookingDtos);
+                    bookingDtos,
+                    VenueStatus.ACTIVE);
 
             MvcResult result = mvc.perform(MockMvcRequestBuilders.put("/venue/" + venueId)
                             .header("Authorization", "Bearer " + myJwt)
