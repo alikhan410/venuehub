@@ -4,15 +4,13 @@ import com.venuehub.commons.exception.NoSuchVenueException;
 import com.venuehub.venueservice.dto.VenueDto;
 import com.venuehub.venueservice.mapper.VenueServiceMapper;
 import com.venuehub.venueservice.model.Booking;
-import com.venuehub.venueservice.model.ImageUri;
+import com.venuehub.venueservice.model.Image;
 import com.venuehub.venueservice.model.Venue;
 import com.venuehub.venueservice.repository.VenueRepository;
 import org.mapstruct.factory.Mappers;
-import org.redisson.client.RedisTimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -67,6 +65,12 @@ public class VenueService {
         return venueServiceMapper.venuesToDtoList(venues);
     }
 
+    //    @Cacheable(value = "venue:uservenuename", key = "#username")
+    public VenueDto findByVenueNameandUsername(String username, String venueName) {
+        Venue venue = venueRepository.findByVenueNameAndUsername(username, venueName).orElseThrow(NoSuchVenueException::new);
+        return venueServiceMapper.venueToDto(venue);
+    }
+
     @Transactional
     @CacheEvict(value = {"venue:all", "venue:id", "venue:username"}, allEntries = true)
     public void delete(Venue venue) {
@@ -74,13 +78,17 @@ public class VenueService {
     }
 
     public List<Venue> findAll() {
-        logger.info("Fetching all venues");
         return venueRepository.findAll();
     }
 
     @Cacheable(value = "venue:all")
+    public List<VenueDto> loadAllActiveVenues() {
+        return venueServiceMapper.venuesToDtoList(venueRepository.findAllActiveVenues());
+    }
+
+    @Cacheable(value = "venue:all")
     public List<VenueDto> loadAllVenues() {
-      return venueServiceMapper.venuesToDtoList(venueRepository.findAll());
+        return venueServiceMapper.venuesToDtoList(venueRepository.findAll());
 //        String cacheKey = "venue:all";
 //        return getCachedValue(cacheKey);
     }
@@ -111,12 +119,12 @@ public class VenueService {
 
     public Venue buildVenue(VenueDto body, String username) {
         List<Booking> bookings = new ArrayList<>();
-        List<ImageUri> imageUris = new ArrayList<>();
+        List<Image> images = new ArrayList<>();
 
         return Venue.builder()
                 .venueType(body.venueType())
                 .username(username)
-                .imageUris(imageUris)
+                .images(images)
                 .phone(body.phone())
                 .name(body.name())
                 .description(body.description())
@@ -124,6 +132,7 @@ public class VenueService {
                 .estimate(Integer.parseInt(body.estimate()))
                 .bookings(bookings)
                 .capacity(Integer.parseInt(body.capacity()))
+                .status(body.status())
                 .build();
 
     }

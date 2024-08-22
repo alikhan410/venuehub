@@ -1,5 +1,6 @@
 package com.venuehub.venueservice.model;
 
+import com.venuehub.venueservice.constant.VenueStatus;
 import com.venuehub.venueservice.validator.NotNullNotBlank;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
@@ -7,6 +8,8 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import org.hibernate.annotations.JdbcType;
+import org.hibernate.dialect.MySQLEnumJdbcType;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -64,8 +67,12 @@ public class Venue {
 //    private List<ImageData> images;
 
     @OneToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "venue_id") // This creates the foreign key column in the ImageUri table
-    private List<ImageUri> imageUris = new ArrayList<>();
+    @JoinColumn(name = "venue_id") // This creates the foreign key column in the Image table
+    private List<Image> images;
+
+    @Column(name = "status")
+    @JdbcType(MySQLEnumJdbcType.class)
+    private VenueStatus status;
 
     @Version
     private Long version;

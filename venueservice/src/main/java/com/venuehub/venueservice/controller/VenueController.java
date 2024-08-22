@@ -13,9 +13,12 @@ import com.venuehub.commons.exception.NoSuchVenueException;
 import com.venuehub.commons.exception.UserForbiddenException;
 import com.venuehub.venueservice.dto.VenueDto;
 import com.venuehub.venueservice.model.Booking;
+import com.venuehub.venueservice.model.Image;
 import com.venuehub.venueservice.model.Venue;
+import com.venuehub.venueservice.response.ImageAddedResponse;
 import com.venuehub.venueservice.response.VenueAddedResponse;
 import com.venuehub.venueservice.response.VenueListResponse;
+import com.venuehub.venueservice.service.ImageService;
 import com.venuehub.venueservice.service.VenueService;
 import com.venuehub.venueservice.utils.SecurityChecks;
 import jakarta.validation.Valid;
@@ -37,24 +40,35 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @Validated
-public class VenueController implements VenueApi{
+public class VenueController implements VenueApi {
     private final Logger logger = LoggerFactory.getLogger(VenueController.class);
 
     private final VenueService venueService;
+    private final ImageService imageService;
     private final VenueCreatedProducer venueCreatedProducer;
     private final VenueDeletedProducer venueDeletedProducer;
     private final VenueUpdatedProducer venueUpdatedProducer;
 
 
     @Autowired
-    public VenueController(VenueService venueService, VenueCreatedProducer venueCreatedProducer, VenueDeletedProducer venueDeletedProducer, VenueUpdatedProducer venueUpdatedProducer) {
+    public VenueController(VenueService venueService, ImageService imageService, VenueCreatedProducer venueCreatedProducer, VenueDeletedProducer venueDeletedProducer, VenueUpdatedProducer venueUpdatedProducer) {
         this.venueService = venueService;
+        this.imageService = imageService;
         this.venueCreatedProducer = venueCreatedProducer;
         this.venueDeletedProducer = venueDeletedProducer;
         this.venueUpdatedProducer = venueUpdatedProducer;
+    }
+
+    @PostMapping("/images/{venueId}")
+    public ResponseEntity<ImageAddedResponse> saveVenueImages(@PathVariable("venueId") long venueId, MultipartFile[] files, @AuthenticationPrincipal Jwt jwt) throws IOException {
+        logger.info("Received request to save {} images for the venue with id: {}",files.length, venueId);
+        SecurityChecks.vendorCheck(jwt);
+        imageService.saveImage(files, venueId, jwt.getSubject());
+        return new ResponseEntity<>(new ImageAddedResponse("success"), HttpStatus.CREATED);
     }
 
     @GetMapping("/venue/{id}")
@@ -70,7 +84,6 @@ public class VenueController implements VenueApi{
     }
 
     @PostMapping(value = "/venue")
-    @Transactional
     public ResponseEntity<VenueAddedResponse> addVenue(@RequestBody @Valid VenueDto body, @AuthenticationPrincipal Jwt jwt) {
         logger.info("Received request to add a new venue by user: {}", jwt.getSubject());
 
@@ -79,7 +92,7 @@ public class VenueController implements VenueApi{
         Venue newVenue = venueService.buildVenue(body, jwt.getSubject());
         venueService.save(newVenue);
 
-        logger.info("Venue added with id: {} by user: {}", newVenue.getId(), jwt.getSubject());
+        logger.info("Venue added with id: {}, by the user: {}", newVenue.getId(), jwt.getSubject());
 
         //Sending venue created event to the broker
         VenueCreatedEvent event = new VenueCreatedEvent(
@@ -90,12 +103,11 @@ public class VenueController implements VenueApi{
         );
         venueCreatedProducer.produce(event, MyExchange.BOOKING_EXCHANGE);
 
-        VenueAddedResponse response = new VenueAddedResponse();
+        VenueAddedResponse response = new VenueAddedResponse("success",newVenue.getId());
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/venue/{id}")
-    @Transactional
     public ResponseEntity<VenueListResponse> deleteVenue(@PathVariable long id, @AuthenticationPrincipal Jwt jwt) {
         logger.info("Received request to delete venue with id: {} by user: {}", id, jwt.getSubject());
 
@@ -129,7 +141,7 @@ public class VenueController implements VenueApi{
     public ResponseEntity<VenueListResponse> getVenue() {
         logger.info("Received request to get all venues");
 
-        List<VenueDto> venues = venueService.loadAllVenues();
+        List<VenueDto> venues = venueService.loadAllActiveVenues();
         VenueListResponse response = new VenueListResponse(venues);
 
         logger.info("Returning list of all venues");
@@ -150,7 +162,6 @@ public class VenueController implements VenueApi{
     }
 
     @PutMapping("/venue/{id}")
-    @Transactional
     public ResponseEntity<HttpStatus> updateVenue(@PathVariable long id, @RequestBody VenueDto body, @AuthenticationPrincipal Jwt jwt) throws Exception {
         logger.info("Received request to update venue with id: {} by user: {}", id, jwt.getSubject());
         SecurityChecks.vendorCheck(jwt);
@@ -169,6 +180,8 @@ public class VenueController implements VenueApi{
         venue.setCapacity(Integer.parseInt(body.capacity()));
         venue.setPhone(body.phone());
         venue.setEstimate(Integer.parseInt(body.estimate()));
+        venue.setVenueType(body.venueType());
+        venue.setStatus(body.status());
 
         venueService.save(venue);
         logger.info("Venue with id: {} updated by user: {}", id, jwt.getSubject());

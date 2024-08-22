@@ -9,13 +9,14 @@ import com.venuehub.broker.producer.venue.VenueCreatedProducer;
 import com.venuehub.broker.producer.venue.VenueDeletedProducer;
 import com.venuehub.broker.producer.venue.VenueUpdatedProducer;
 import com.venuehub.venueservice.dto.BookingDto;
+import com.venuehub.venueservice.dto.ImageDto;
 import com.venuehub.venueservice.dto.VenueDto;
 import com.venuehub.venueservice.model.Booking;
-import com.venuehub.venueservice.model.ImageUri;
+import com.venuehub.venueservice.model.Image;
 import com.venuehub.venueservice.model.Venue;
 import com.venuehub.venueservice.response.VenueAddedResponse;
 import com.venuehub.venueservice.service.BookingService;
-import com.venuehub.venueservice.service.ImageUriService;
+import com.venuehub.venueservice.service.ImageService;
 import com.venuehub.venueservice.service.VenueService;
 import com.venuehub.venueservice.utils.JwtTestImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -66,7 +67,7 @@ class VenueControllerTest {
     @MockBean
     private BookingService bookingService;
     @MockBean
-    private ImageUriService imageUriService;
+    private ImageService ImageService;
     @MockBean
     private VenueService venueService;
     @Autowired
@@ -79,8 +80,9 @@ class VenueControllerTest {
     private Venue venue;
     private VenueDto venueDto;
     private List<Booking> bookings;
-    private List<ImageUri> imageUris;
+    private List<Image> images;
     private List<BookingDto> bookingDtos;
+    private List<ImageDto> imageDtos;
     private int capacity;
     private String username;
     private String venueName;
@@ -108,9 +110,9 @@ class VenueControllerTest {
         venueName = "Marquee Venue";
         location = "ABC Street, Karachi, Pakistan";
         bookings = new ArrayList<>();
-        imageUris = new ArrayList<>();
+        images = new ArrayList<>();
         bookingDtos = new ArrayList<>();
-
+        imageDtos = new ArrayList<>();
         venue = Venue.builder()
                 .venueType(venueType)
                 .id(venueId)
@@ -120,7 +122,7 @@ class VenueControllerTest {
                 .name(venueName)
                 .location(location)
                 .estimate(Integer.parseInt(estimate))
-                .imageUris(imageUris)
+                .images(images)
                 .bookings(bookings)
                 .capacity(capacity)
                 .build();
@@ -131,7 +133,7 @@ class VenueControllerTest {
                 venueType,
                 location,
                 String.valueOf(capacity),
-                imageUris,
+                imageDtos,
                 phone,
                 estimate,
                 bookingDtos);
@@ -403,7 +405,7 @@ class VenueControllerTest {
                     venueType,
                     location,
                     String.valueOf(updatedCapacity),
-                    imageUris,
+                    imageDtos,
                     phone,
                     updatedEstimate,
                     bookingDtos);

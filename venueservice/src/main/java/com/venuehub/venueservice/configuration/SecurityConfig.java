@@ -40,6 +40,8 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .requestMatchers("/venue/v3/**").permitAll()
                         .requestMatchers("/v2/**").permitAll()
+                        .requestMatchers("/error").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/images/**").authenticated()
                         .requestMatchers(HttpMethod.GET, "/venue/**").permitAll()
                         .requestMatchers(new RegexRequestMatcher("/venue/\\d+/image-0", "GET")).permitAll()
                         .requestMatchers(HttpMethod.GET, "/venue").permitAll()
