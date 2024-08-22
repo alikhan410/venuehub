@@ -25,7 +25,6 @@
         <module>bookingservice</module>
         <module>jobservice</module>
         <module>paymentservice</module>
-        <module>imageservice</module>
     </modules>
 
     <properties>
