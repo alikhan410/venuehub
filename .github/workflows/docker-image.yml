@@ -28,10 +28,15 @@ jobs:
       - name: Determine if service has changed
         id: changes
         run: |
-          if git diff --name-only HEAD~1 | grep -q "${{ matrix.service }}/"; then
-            echo "service_changed=true" >> $GITHUB_ENV
+          if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+            if git diff --name-only HEAD~1 | grep -q "${{ matrix.service }}/"; then
+              echo "service_changed=true" >> $GITHUB_ENV
+            else
+              echo "service_changed=false" >> $GITHUB_ENV
+            fi
           else
-            echo "service_changed=false" >> $GITHUB_ENV
+            echo "No previous commit found; treating as if service has changed."
+            echo "service_changed=true" >> $GITHUB_ENV
           fi
  
       - name: Build JAR for commons and broker
