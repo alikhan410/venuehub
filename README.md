@@ -1,3 +1,4 @@
+You can visit the site here - [venuehub.com](https://venuehub.vercel.app/)
 ## For running VenueHub in developemnt follow this [documentation](https://alikhan410.notion.site/Start-VenueHub-in-Development-a8bd5714c4934310963f579c10fd9c35)
 ## Introduction
 - **Purpose**: This document aims to provide a comprehensive technical design for the Venuehub platform, detailing the implementation of each microservice, data design, security measures, performance metrics, and testing strategies.
